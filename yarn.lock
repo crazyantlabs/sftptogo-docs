@@ -3351,10 +3351,10 @@ dns-packet@^5.2.2:
   dependencies:
     "@leichtgewicht/ip-codec" "^2.0.1"
 
-docusaurus-plugin-segment@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-segment/-/docusaurus-plugin-segment-1.0.3.tgz#d32ec8ace8625837dee650f853bc89ae2221206a"
-  integrity sha512-9DqebTx9TqjujCnB22qEeCm8NGJUAH7VAKLAa20/CyfSSrs+khTQI0FmzEALtiCqKNO1D3GWm3VvE4gqbuGqnw==
+docusaurus-plugin-segment@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-segment/-/docusaurus-plugin-segment-1.0.4.tgz#4b405c47b424d87abbc4bc23a7983146111a2bf1"
+  integrity sha512-kJT0wvhlursmjHNrrQDs7Ce6vAB+yjflr8P6T0s6LE87BPA2+KQ8ifyNb4PwSdX91OJ5bBYyb4V0T8EI8MtGWQ==
   dependencies:
     "@segment/snippet" "^4.13.2"
 
