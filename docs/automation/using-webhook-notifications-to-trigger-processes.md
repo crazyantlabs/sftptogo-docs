@@ -246,3 +246,32 @@ When a Data.Path value ends with `/`, this indicates that a directory has been c
   }
 }
 ```
+
+
+### Filtering Webhooks
+
+With webhook filters, you can specify conditions that must be met for SFTP To Go to trigger events. This allows you to create customized rules for triggering webhooks, based on specific criteria.
+
+Webhook filters use the AND operator to combine filtering rules. This means that all specified conditions must be met in order for the webhook to be triggered. Each rule consists of three elements: field, operator, and value.
+
+#### Fields
+
+The following fields can be used in a webhook filter:
+
+* **Path**: The path to the file that triggered the event.
+* **Actor ID**: The identifier of the actor - the user that initiated the action that triggered the event. This can be the user ID in case of an SFTP/FTPS operation or the IAM access key in case of an S3 operation.
+* **Actor Type**: The type of the actor - "User" for SFTP/FTPS operations or "IAM" for S3 operations.
+
+#### Operators
+
+The following operators can be used in a webhook filter:
+
+* **Is**: Checks if the field and value match exactly (e.g. Actor Type Is User).
+* **Is not**: Checks if the field and value don't match (e.g. Actor Type Is not IAM).
+* **Contains**: Checks if the field contains the value (e.g. Path Contains user).
+* **Doesn't contain**: Checks if the field does not contain the value (e.g. Path Doesn't contain user).
+* **Starts with**: Checks if the field starts with the value (e.g. Path Starts with /user).
+* **Ends with**: Checks if the field ends with the value (e.g. Path Ends with mary).
+* **Matches**: Checks if the field matches the regular expression in the value (e.g. Path Matches (mila|mary|greg)).
+
+By using webhook filters, you can create powerful rules for triggering webhooks based on specific criteria.
