@@ -1,7 +1,7 @@
 ---
 sidebar_label: 'Creating and Modifying Users'
 title: 'Creating and Modifying Users'
-sidebar_position: 3
+sidebar_position: 30
 ---
 ## Credentials and permissions
 
