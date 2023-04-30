@@ -61,6 +61,6 @@ File names may contain any unicode character, but in order to play nicely with S
 * 'Pound' character ("#")
 * Vertical bar / pipe ("|")
 
-Is is also recommended not to use file or folder names longer than 255 characters.
+It is also recommended not to use file or folder names longer than 255 characters.
 
 File upload via the web file browser doesn't support resuming uploads. 
