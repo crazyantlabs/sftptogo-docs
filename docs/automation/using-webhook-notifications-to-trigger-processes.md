@@ -161,6 +161,9 @@ The `Actor` key contains information on the user who performed the action. If th
 When a Data.Path value ends with `/`, this indicates that a directory has been created. In all other instances, a file had been created.
 :::
 
+:::note
+Data.Path is URL encoded - make sure to URL decode it to the get the correct path to the file.
+:::
 
 ### file.deleted Event Format
 
