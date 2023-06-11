@@ -1,6 +1,6 @@
 ---
 sidebar_label: 'File Browser'
-title: 'File Browser'
+title: 'File Browser (Beta)'
 sidebar_position: 10
 ---
 
