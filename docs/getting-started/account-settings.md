@@ -1,7 +1,7 @@
 ---
 sidebar_label: 'Account Settings'
 title: 'Account Settings'
-sidebar_position: 5
+sidebar_position: 50
 ---
 
 To manage your personal account profile and security settings, click your avatar (at the top-right corner of the screen) and then click **Account settings**.

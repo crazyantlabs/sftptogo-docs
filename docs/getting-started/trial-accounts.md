@@ -1,7 +1,7 @@
 ---
 sidebar_label: 'Trial Accounts'
 title: 'Trial Accounts'
-sidebar_position: 2
+sidebar_position: 1
 ---
 When you start out with SFTP To Go, you are provided a 7 day free trial. You will be asked to select a plan for your trial account and enter your name, organization details, and credit card information. 
 
