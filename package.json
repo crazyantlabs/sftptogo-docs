@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@docsearch/react": "3.3.3",
-    "@docusaurus/core": "^2.4.0",
+    "@docusaurus/core": "^2.4.1",
     "@docusaurus/preset-classic": "^2.2.0",
     "@docusaurus/theme-classic": "^2.2.0",
     "clsx": "^1.2.1",
