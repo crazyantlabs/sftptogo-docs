@@ -5,8 +5,7 @@ require('dotenv').config();
 
 const path = require('path')
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const { themes } = require('prism-react-renderer');
 
 const url = process.env.URL ?? '';
 const baseUrl = path.join('/', process.env.BASE_PATH ?? '');
@@ -152,8 +151,8 @@ const config = {
           copyright: `© ${new Date().getFullYear()} <a class="footer__link-item" href="https://crazyantlabs.com">Crazy Ant Labs</a>`,
       },
       prism: {
-          theme: lightCodeTheme,
-          darkTheme: darkCodeTheme,
+          theme: themes.github,
+          darkTheme: themes.dracula,
       },
       docs: {
         sidebar: {
