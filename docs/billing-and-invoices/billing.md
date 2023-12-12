@@ -12,5 +12,5 @@ To change your billing or credit card information, plan, or to view your invoice
 2. Scroll to the billing section and click **Open your billing portal**.
 
 :::caution
-Durin trial, please reach out to us to change your plan. If you change it in the billing portal, your credit card will be charged.
+During trial, please reach out to us to change your plan. If you change it in the billing portal, your credit card will be charged.
 :::
