@@ -19,9 +19,9 @@ To create more credentials to use and access your storage:
 |------------|----------------------------------------------------------------------------------------------------------|
 | Read-only  | List files and directories<br/>Get files                                                                  |
 | Write-only | List files and directories<br/>Create directories<br/>Remove empty directories<br/>Put files (no overwrite) |
-| Read-Write | List files and directories<br/>Create directories<br/>Remove directories<br/>Put files<br/>Get files         |
+| Read-Write | List files and directories<br/>Create directories<br/>Remove files and directories<br/>Put files<br/>Get files         |
 | None       | Disabled login  |
-| Full Access<br/>(root) | List files and directories<br/>Create directories<br/>Remove directories<br/>Put files<br/>Get files<br/>Access all directories (i.e. root dir is the account's root directory)         |
+| Full Access<br/>(root) | List files and directories<br/>Create directories<br/>Remove files and directories<br/>Put files<br/>Get files<br/>Access all directories (i.e. root dir is the account's root directory)         |
 
 
 ### Editing user credentials
@@ -57,7 +57,7 @@ To remove an SSH key from a user, click the X next to the key and confirm deleti
 
 Inbound network rules define IP address ranges that a user can connect to your storage within. They can be defined at the organization level (for all users) or at the user level (for specific users). The organization level and user level rules are combined with a single list with which an incoming connection is validated. This means that if a client's IP address is included in either the organization or the user list, it will be assumed valid.
 
-By default, the organization inbound network rules contain a single rule allowing access from any IP address to any protocol (SFTP or FTPS). To restrict access, you will have to remove this rule or edit it to use a restrictive CIDR (Classless Inter-Domain Routing - an IP range).
+By default, the organization inbound network rules contain a single rule allowing access from any IP address to any endpoint or protocol (SFTP, FTPS or Web Portal). To restrict access, you will have to remove this rule or edit it to use a restrictive CIDR (Classless Inter-Domain Routing - an IP address range).
 
 :::note
 Editing inbound network rules is only available within certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
