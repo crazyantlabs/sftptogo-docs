@@ -19,7 +19,7 @@ Inbound network rules define IP address ranges from which a user can connect to 
 
 The organization level rules define the IP ranges from which any set of credentials can be used to login to your cloud storage.
 
-By default, there is a single rule that allows access from any IP address to all endpoints/protocols (SFTP, FTPS and web portal).
+By default, there is a single rule that allows access from any IP address to all endpoints/protocols (SFTP, FTPS or Web Portal).
 
 To restrict access to your storage, you may edit, disable, or delete this rule, and either add rules at the organization level or at the 
 [credentials level](../getting-started/creating-and-modifying-users.md)
