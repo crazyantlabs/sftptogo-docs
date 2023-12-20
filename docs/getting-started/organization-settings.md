@@ -37,6 +37,23 @@ You can also edit, disable, enable, and delete inbound network rules by clicking
 Editing inbound network rules is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
 :::
 
+## Web Portal
+
+The web portal enables users to sign in and manage files in their designated home directories directly through their web browser. To activate it, click the switch button. Once the web portal is enabled, your organization's login URL will be displayed here.
+
+### Public business information
+
+Input the information you want to be accessible to web portal users. The business partner information influences the site title. You can opt to leave these fields empty to use the default text and links.
+
+### Branding
+
+Customize your web portal's appearance by selecting your icon, logo, and colors for both light and dark modes.
+
+:::note
+The icon serves as your site's favicon and the primary logo, unless you choose to use a logo URL instead. We recommend using a rectangular image with dimensions of 128x128 pixels.
+:::
+
+
 ## Organization
 
 The organization is the top level object that holds the storage, credentials, webhook notifications, and billing information. 
