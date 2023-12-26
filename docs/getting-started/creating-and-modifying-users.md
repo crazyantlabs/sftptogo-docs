@@ -1,7 +1,7 @@
 ---
 sidebar_label: 'Creating and Modifying Users'
 title: 'Creating and Modifying Users'
-sidebar_position: 30
+sidebar_position: 20
 ---
 ## Credentials and permissions
 
@@ -12,7 +12,7 @@ To create more credentials to use and access your storage:
 3. This is an optional step: Select a home directory for the credentials. By default, each credential only has access to its own home directory (`/home/<username>`). You can change the credentials' home directory to have multiple credentials access the same directory. The users are chrooted to this directory, meaning that this directory acts as an isolated storage for them. They will not have access to any parent or sibling directories.
 4. Select the level of permissions accessible for the new user. By default, the user has read-only access to their home directory. For more information on the different permissionss, see the table below.
 5. Choose a nickname for the credentials (optional). This shows up in the UI solely as a friendly user name.
-6. Click **Add credentials**. The user will then be assigned a random password (and username, if left empty). 
+6. Click **Add credentials**. The user will then be assigned a random password according to your organization's password policy (and username, if left empty). 
 
 
 |  Permissions  |                                                                                            |
@@ -28,9 +28,13 @@ To create more credentials to use and access your storage:
 
 You may edit existing credentials by clicking the menu button (...) for the particular user you wish to edit and then selecting **Edit credentials** from the menu. You may change the username, home directory, user's permissions, and the nickname. 
 
-### Rotating user passwords
+### Setting user passwords
 
-To rotate passwords, click the menu button (...) for the specific user and then select **Rotate Password** in the menu. A new password will be generated for the user and you'll be able to immediately copy it from the credentials list.
+To set credentials' passwords, click the menu button (...) for the specific user and then select **Set Password** in the menu. If you select `Random password`, a new password will be generated according to your organization's password policy. If you select `Custom password`, you'll have to enter a password that conforms with the organization's password policy.
+
+:::note
+To change your organization's password policy, go to [Settings](../getting-started/organization-settings#password-policy).
+:::
 
 ### Deactivating and reactivating users
 
