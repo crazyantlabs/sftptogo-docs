@@ -1,7 +1,7 @@
 ---
 sidebar_label: 'Creating and Modifying Users'
 title: 'Creating and Modifying Users'
-sidebar_position: 30
+sidebar_position: 20
 ---
 ## Credentials and permissions
 
@@ -12,25 +12,29 @@ To create more credentials to use and access your storage:
 3. This is an optional step: Select a home directory for the credentials. By default, each credential only has access to its own home directory (`/home/<username>`). You can change the credentials' home directory to have multiple credentials access the same directory. The users are chrooted to this directory, meaning that this directory acts as an isolated storage for them. They will not have access to any parent or sibling directories.
 4. Select the level of permissions accessible for the new user. By default, the user has read-only access to their home directory. For more information on the different permissionss, see the table below.
 5. Choose a nickname for the credentials (optional). This shows up in the UI solely as a friendly user name.
-6. Click **Add credentials**. The user will then be assigned a random password (and username, if left empty). 
+6. Click **Add credentials**. The user will then be assigned a random password according to your organization's password policy (and username, if left empty). 
 
 
 |  Permissions  |                                                                                            |
 |------------|----------------------------------------------------------------------------------------------------------|
 | Read-only  | List files and directories<br/>Get files                                                                  |
 | Write-only | List files and directories<br/>Create directories<br/>Remove empty directories<br/>Put files (no overwrite) |
-| Read-Write | List files and directories<br/>Create directories<br/>Remove directories<br/>Put files<br/>Get files         |
+| Read-Write | List files and directories<br/>Create directories<br/>Remove files and directories<br/>Put files<br/>Get files         |
 | None       | Disabled login  |
-| Full Access<br/>(root) | List files and directories<br/>Create directories<br/>Remove directories<br/>Put files<br/>Get files<br/>Access all directories (i.e. root dir is the account's root directory)         |
+| Full Access<br/>(root) | List files and directories<br/>Create directories<br/>Remove files and directories<br/>Put files<br/>Get files<br/>Access all directories (i.e. root dir is the account's root directory)         |
 
 
 ### Editing user credentials
 
 You may edit existing credentials by clicking the menu button (...) for the particular user you wish to edit and then selecting **Edit credentials** from the menu. You may change the username, home directory, user's permissions, and the nickname. 
 
-### Rotating user passwords
+### Setting user passwords
 
-To rotate passwords, click the menu button (...) for the specific user and then select **Rotate Password** in the menu. A new password will be generated for the user and you'll be able to immediately copy it from the credentials list.
+To set credentials' passwords, click the menu button (...) for the specific user and then select **Set Password** in the menu. If you select `Random password`, a new password will be generated according to your organization's password policy. If you select `Custom password`, you'll have to enter a password that conforms with the organization's password policy.
+
+:::note
+To change your organization's password policy, go to [Settings](../getting-started/organization-settings#password-policy).
+:::
 
 ### Deactivating and reactivating users
 
@@ -57,7 +61,7 @@ To remove an SSH key from a user, click the X next to the key and confirm deleti
 
 Inbound network rules define IP address ranges that a user can connect to your storage within. They can be defined at the organization level (for all users) or at the user level (for specific users). The organization level and user level rules are combined with a single list with which an incoming connection is validated. This means that if a client's IP address is included in either the organization or the user list, it will be assumed valid.
 
-By default, the organization inbound network rules contain a single rule allowing access from any IP address to any protocol (SFTP or FTPS). To restrict access, you will have to remove this rule or edit it to use a restrictive CIDR (Classless Inter-Domain Routing - an IP range).
+By default, the organization inbound network rules contain a single rule allowing access from any IP address to any endpoint or protocol (SFTP, FTPS or Web Portal). To restrict access, you will have to remove this rule or edit it to use a restrictive CIDR (Classless Inter-Domain Routing - an IP address range).
 
 :::note
 Editing inbound network rules is only available within certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)

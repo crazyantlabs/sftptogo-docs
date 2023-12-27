@@ -1,7 +1,7 @@
 ---
 sidebar_label: 'Credentials'
 title: 'Credentials Management'
-sidebar_position: 1
+sidebar_position: 10
 ---
 Use the **Credentials** tab to:
 

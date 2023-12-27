@@ -7,11 +7,17 @@ To manage your organization, security, billing, and team settings, click **Setti
 
 ## Security
 
+### Authentication Methods
+
 SFTP To Go allows several authentication methods, which are ways to identify the client when they are logging into the server:
 
 * Password authentication - identification based on username and password. This authentication method can be used with both SFTP and FTPS protocols.
 
 * Public key authentication - identification based on username and a cryptographic system that uses pairs of keys. To use it, add a public SSH key to each one of the credentials. This form of authentication is only supported by the SFTP protocol.
+
+### Password policy
+
+Set your organization's password policy for credentials. This will not change existing passwords, but changes to passwords (either ones generated automatically or manually) must adhere to the organization's current password policy.
 
 ## Inbound network rules
 
@@ -19,14 +25,14 @@ Inbound network rules define IP address ranges from which a user can connect to 
 
 The organization level rules define the IP ranges from which any set of credentials can be used to login to your cloud storage.
 
-By default, there is a single rule that allows access from any IP address to both the SFTP and FTPS endpoints.
+By default, there is a single rule that allows access from any IP address to all endpoints/protocols (SFTP, FTPS or Web Portal).
 
 To restrict access to your storage, you may edit, disable, or delete this rule, and either add rules at the organization level or at the 
 [credentials level](../getting-started/creating-and-modifying-users.md)
 To add a new inbound rule:
 
 1. Click **Add inbound rule**.
-2. Select the protocols you'd like to give access to (All, SFTP or FTPS).
+2. Select the protocols you'd like to give access to (All, SFTP, FTPS or Web Portal).
 4. Fill out the source IP address or CIDR for IP address range.
 5. Add an optional description.
 6. Click 'Add inbound rule'.
@@ -36,6 +42,27 @@ You can also edit, disable, enable, and delete inbound network rules by clicking
 :::note
 Editing inbound network rules is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
 :::
+
+## Web Portal
+
+The web portal enables users to sign in and manage files in their designated home directories directly through their web browser. To activate it, click the switch button. Once the web portal is enabled, your organization's login URL will be displayed here.
+
+:::note
+When the web portal is activated in your organization, any credential can log in and manage files, provided the user or organization's inbound network rules permit access.
+:::
+
+### Public business information
+
+Input the information you want to be accessible to web portal users. The business partner information influences the site title. You can opt to leave these fields empty to use the default text and links.
+
+### Branding
+
+Customize your web portal's appearance by selecting your icon, logo, and colors for both light and dark modes.
+
+:::note
+The icon serves as your site's favicon and the primary logo, unless you choose to use a logo URL instead. We recommend using a rectangular image with dimensions of 128x128 pixels.
+:::
+
 
 ## Organization
 
