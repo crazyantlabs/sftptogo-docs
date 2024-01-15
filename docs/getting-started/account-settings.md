@@ -20,7 +20,7 @@ If you are logged in but don't remember your current password, you can initiate 
 
 Multi-factor authentication (or MFA for short) is used to verify that the identity of a user is genuine. It requires a user to present two or more pieces of evidence (or factors) for authentication. In SFTP To Go, in addition to your email and password authentication, you can secure your account using an authenticator app (such as Google Authenticator, Authy, 1Password and many others).
 
-To enable mult-factor authentication, click **Setup Multi-factor Authentcation** and folow the on-screen instructions.
+To enable multi-factor authentication, click **Setup Multi-factor Authentication** and follow the on-screen instructions.
 
 You may always disable MFA by clicking **Disable Multi-factor Authentication**.
 
@@ -32,8 +32,8 @@ Administrators in your organizations can monitor whether you have enabled or dis
 
 This section lists your most recent login activity. 
 
-## Organziations
+## Organizations
 
 This section lists the organizations that you are a member of.
 
-Click **New orgazniation** to create a new organization, if you'd like to have orgazniations with seperate entities, billing details, administrators, regions or plans.
+Click **New organization** to create a new organization, if you'd like to have organizations with separate entities, billing details, administrators, regions or plans.
