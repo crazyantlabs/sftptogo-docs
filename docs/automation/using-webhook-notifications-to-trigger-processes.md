@@ -5,8 +5,8 @@ sidebar_position: 1
 ---
 Webhooks enable you to receive notifications whenever particular events occur within your SFTP To Go organization's storage. You can subscribe to notifications for the following events:
 
-* File / directory creation
-* File / directory deletion
+* File upload and directory creation
+* File or directory deletion
 
 Webhook notifications are sent as HTTP POST requests to a URL of your choosing. To integrate with webhooks, you need to implement a server endpoint that can receive and handle these requests.
 
