@@ -1,7 +1,7 @@
 ---
 sidebar_label: 'Management APIs'
 title: 'Management APIs'
-sidebar_position: 2
+sidebar_position: 3
 ---
 SFTP To Go's REST API's allow you to manage, control, and modify your organization, including credentials, webhooks, inbound network rules, and other objects.
 

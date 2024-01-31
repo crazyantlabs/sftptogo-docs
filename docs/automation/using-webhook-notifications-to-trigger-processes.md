@@ -20,14 +20,16 @@ In the dialog that opens, fill out the following:
 
 * Nickname (optional) - a descriptive name for your webhook.
 * Endpoint  
-  * URL - HTTPS URL of the endpoint that will receive all webhook notifications.
   * Type - select one of the supported endpoint types:  
     * Webhook - send a HTTP POST requests to the endpoint URL.
     * Slack - send a Slack message to the endpoint URL which should be a valid [Slack incoming webhook URL](https://slack.com/oauth/v2/authorize?client_id=754603809072.3867924020054&scope=incoming-webhook&user_scope=).
     * Teams - send a Microsoft Teams message to a [Teams incoming webhook URL](https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook?tabs=dotnet).
+    * Email - send a notification to an email recipient.
+  * URL - HTTPS URL endpoint that will receive all webhook notifications.
+  * Email - An email address of a recipient that will receive all webhook notifications for Email types. An address with display name is also supported (e.g. Display Name <email-address>)
 * Authorization Header (optional) - a custom `Authorization` header that will be included with all webhook notifications.
 * Topics - select the types of notifications you want to be informed about. You must include at least one topic.
-* Filter - apply filtering rules to trigger notifications that meet the specified criteria, i.e. have (or don't have) certain properties.
+* Filter (optional) - apply filtering rules to trigger notifications that meet the specified criteria, i.e. have (or don't have) certain properties.
 
 Finish by clicking `Add webhook`.
 
