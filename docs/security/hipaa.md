@@ -18,7 +18,7 @@ As part of our commitment to HIPAA compliance, SFTP To Go will sign a BAA for cu
 
 ## Data location
 
-When you sign up to SFTP To Go, select the region you would like your data to be hosted on. As an American covered entity, select the United States region (AWS US-EAST-1, West Virginia).
+When you sign up to SFTP To Go, select the region you would like your data to be hosted on. As an American covered entity, select one of the United States regions.
 
 ## PHI data protection
 

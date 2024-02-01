@@ -1,6 +1,6 @@
 ---
 sidebar_label: 'Connect using Web Portal'
-title: 'Connect using Web Portal (Beta)'
+title: 'Connect using Web Portal'
 sidebar_position: 10
 ---
 The web portal enables users with SFTP To Go credentials to manage files in their designated storage (i.e., their home directory) using a web browser over a secure HTTPS channel.

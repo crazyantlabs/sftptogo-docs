@@ -40,9 +40,9 @@ html[data-theme='dark'] {
   --ifm-color-primary-lighter: #9294f5;
   --ifm-color-primary-lightest: #c1c2f9;
   --ifm-font-color-base: #f9fafb;
-  --ifm-background-color: #111827;
-  --ifm-navbar-background-color: #111827;
-  --ifm-footer-background-color: #111827;
+  --ifm-background-color: #13171c;
+  --ifm-navbar-background-color: #13171c;
+  --ifm-footer-background-color: #13171c;
   --ifm-link-hover-color: var(--ifm-color-primary-darker);
 }
 
