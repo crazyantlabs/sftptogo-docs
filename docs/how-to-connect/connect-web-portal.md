@@ -69,6 +69,6 @@ File and folder names can include any Unicode character. However, for compatibil
 
 Additionally, avoid using file or folder names longer than 255 characters.
 
-:::Note
- File upload through the web portal does not support resuming interrupted uploads.
+:::note
+File upload through the web portal does not support resuming interrupted uploads.
 :::
