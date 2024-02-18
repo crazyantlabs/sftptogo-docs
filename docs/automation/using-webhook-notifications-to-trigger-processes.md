@@ -7,6 +7,7 @@ Webhooks enable you to receive notifications whenever particular events occur wi
 
 * File upload and directory creation
 * File or directory deletion
+* File download
 
 Webhook notifications are sent as HTTP POST requests to a URL of your choosing. To integrate with webhooks, you need to implement a server endpoint that can receive and handle these requests.
 
@@ -48,7 +49,7 @@ After creating a webhook, you may do the following:
 * Pause/Resume - temporarily pause or resume webhook notifications.
 * Rotate secret - request a new signing secret. See [Securing Webhooks](#securing-webhooks)
 * Ping webhook - manually send a test event to your endpoint
-* View deliveries - View a log of the notifications that SFTP To Go has enqueued for delivery. Each notification has a `status` (one of `Succeeded`, `Failed`, 'Pending'), `Created` timestamp, `ID`, `Topic` (one of `file.created`, `file.deleted`, `file.downloaded`, `webhook.ping`) and `Duration`. You may also view the `Request payload`, `Response code`, and `Response body`as well as manually send a webhook payload from within the webhook delivery dialog.
+* View deliveries - View a log of the notifications that SFTP To Go has enqueued for delivery. Each notification has a `status` (one of `Succeeded`, `Failed`, 'Pending'), `Created` timestamp, `ID`, `Topic` (one of `file.created`, `file.deleted`, `file.downloaded`, `webhook.ping`) and `Duration`. You may also view the `Request payload`, `Response code`, and `Response body` as well as manually send a webhook payload from within the webhook delivery dialog.
 
 ### Receiving Webhooks
 
