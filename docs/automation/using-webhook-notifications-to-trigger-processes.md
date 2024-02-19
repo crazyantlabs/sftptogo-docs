@@ -7,6 +7,7 @@ Webhooks enable you to receive notifications whenever particular events occur wi
 
 * File upload and directory creation
 * File or directory deletion
+* File download
 
 Webhook notifications are sent as HTTP POST requests to a URL of your choosing. To integrate with webhooks, you need to implement a server endpoint that can receive and handle these requests.
 
@@ -48,7 +49,7 @@ After creating a webhook, you may do the following:
 * Pause/Resume - temporarily pause or resume webhook notifications.
 * Rotate secret - request a new signing secret. See [Securing Webhooks](#securing-webhooks)
 * Ping webhook - manually send a test event to your endpoint
-* View deliveries - View a log of the notifications that SFTP To Go has enqueued for delivery. Each notification has a `status` (one of `Succeeded`, `Failed`, 'Pending'), `Created` timestamp, `ID`, `Topic` (one of `file.created`, `file.deleted`, `webhook.ping`) and `Duration`. You may also view the `Request payload`, `Response code`, and `Response body`as well as manually send a webhook payload from within the webhook delivery dialog.
+* View deliveries - View a log of the notifications that SFTP To Go has enqueued for delivery. Each notification has a `status` (one of `Succeeded`, `Failed`, 'Pending'), `Created` timestamp, `ID`, `Topic` (one of `file.created`, `file.deleted`, `file.downloaded`, `webhook.ping`) and `Duration`. You may also view the `Request payload`, `Response code`, and `Response body` as well as manually send a webhook payload from within the webhook delivery dialog.
 
 ### Receiving Webhooks
 
@@ -119,7 +120,7 @@ You should always respond with a 200-level status code to indicate that you had 
 If you do not return a 200-level status code, SFTP To Go records the failure. The failure can be viewed in the deliveries log.
 :::
 
-The `Actor` key contains information on the user who performed the action. If the action was performed by an SFTP user, the `Type` would be `User` and the `Id` would be the username. If the action was performed by an IAM user (via S3 APIs), the `Type` would be `IAM` and the `Id` would be the IAM user ID.
+The `Actor` key contains information on the user who performed the action. If the action was performed by an SFTP / FTPS / Web Portal user, the `Type` would be `User` and the `Id` would be the **username**. If the action was performed by an IAM user (via S3 APIs), the `Type` would be `IAM` and the `Id` would be the IAM user ID.
 
 ### file.created Event Format
 
@@ -211,6 +212,54 @@ Data.Path is URL encoded - make sure to URL decode it to the get the correct pat
 When a Data.Path value ends with `/`, this indicates that a directory has been created. In all other instances, a file had been created.
 :::
 
+
+### file.downloaded Event Format
+
+```json
+{
+  "Id": "36cd78bc-0662-43b1-a7aa-0cde4876ab2a",
+  "Topic": "file.downloaded",
+  "CreatedAt": 1591106805970,
+  "UpdatedAt": 1591106805970,
+  "Actor": {
+    "Type": "User",
+    "Id": "4ddb9e1265b8edb7685b4e1a5d129f"
+  },
+  "Resource": "File",
+  "PreviousData": null,
+  "Data": {
+    "Path": "dir/file1.txt",
+    "Size": 357464,
+    "Metadata": {
+      "Protocol": "SFTP", // or "FTPS" or "WEB_PORTAL"
+      "ClientIp": "1.2.3.4",
+      "SessionId": "1234567890" // Optional, can help with debugging
+    }
+  },
+  "Metadata": {
+    "Organization": {
+      "Id": "d57060b1-23fe-2d59-afd0-7f56d9e1fc55"
+    },
+    "Webhook": {
+      "Id": "7f3c5b1d-5df4-409f-bbbd-3ac6a72d8b5a"
+    },
+    "Delivery": {
+      "Id": "0a4ed750-fbb8-4718-8a6c-86c35c9b6348"
+    },
+    "Attempt": {
+      "Id": "2cb02803-b3a4-4ccd-bd19-ad769c51b291"
+    },
+    "Event": {
+      "Id": "36cd78bc-0662-43b1-a7aa-0cde4876ab2a",
+      "Topic": "file.downloaded"
+    }
+  }
+}
+```
+
+:::note
+Data.Path is URL encoded - make sure to URL decode it to the get the correct path to the file.
+:::
 
 ### webhook.ping Event Format
 

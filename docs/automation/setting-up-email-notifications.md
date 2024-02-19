@@ -4,7 +4,7 @@ title: 'Setting up email notification'
 sidebar_position: 2
 ---
 
-SFTP To Go's email notifications alert you when files are uploaded or deleted. You can choose to receive notifications for all activities across your entire storage, or customize them to focus on specific files, paths, types, or even based on who performed the action.
+SFTP To Go's email notifications alert you when files are uploaded, downloaded or deleted. You can choose to receive notifications for all activities across your entire storage, or customize them to focus on specific files, paths, types, or even based on who performed the action.
 
 To create a new email notification, click **Webhooks** from the menu, and then click the `Add webhook` button.
 
@@ -16,9 +16,6 @@ In the dialog that opens, fill out the following:
   * Enter a single email address.
 * Topics - select the types of notifications you want to be informed about. You must include at least one topic.
 * Filter (optional) - apply filtering rules to trigger notifications that meet the specified criteria, i.e. have (or don't have) certain properties.
-  * File created - File upload and directory creation
-  * File deleted - File or directory deletion
-
 
 Finish by clicking `Add webhook`.
 
