@@ -18,7 +18,7 @@ To create more credentials to use and access your storage:
 |  Permissions  |                                                                                            |
 |------------|----------------------------------------------------------------------------------------------------------|
 | Read-only  | List files and directories<br/>Get files                                                                  |
-| Write-only | List files and directories<br/>Create directories<br/>Remove empty directories<br/>Put files (no overwrite) |
+| Write-only | List files and directories<br/>Create directories<br/>Remove files and directories<br/>Put files (no overwrite) |
 | Read-Write | List files and directories<br/>Create directories<br/>Remove files and directories<br/>Put files<br/>Get files         |
 | None       | Disabled login  |
 | Full Access<br/>(root) | List files and directories<br/>Create directories<br/>Remove files and directories<br/>Put files<br/>Get files<br/>Access all directories (i.e. root dir is the account's root directory)         |
