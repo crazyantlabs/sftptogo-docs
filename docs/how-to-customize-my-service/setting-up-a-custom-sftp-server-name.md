@@ -3,13 +3,14 @@ sidebar_label: 'Branding your SFTP service'
 title: 'Setting Up a Custom SFTP Server Name - Branding your SFTP'
 sidebar_position: 10
 ---
-To personalize your storage, you can replace SFTP To Go's hostname with a subdomain of a domain you own. To do so, copy your SFTP To Go host name from the dashboard and add a CNAME record to point to the host name. For example:
+To personalize your storage, you can replace SFTP To Go's hostname with a subdomain of a domain you own. To do so, copy your SFTP To Go hostname from the dashboard and add a CNAME record to point to the hostname. For example (make sure to use the hostname that shows in your dashboard as the target):
+
 
 | Record | Name | Target                               |
 |--------|------|--------------------------------------|
 | CNAME  | sftp | yellow-rectangle-14793.sftptogo.com. |
 
-Here are some links to the documentation regarding editing DNS records with popular domain providers. If your DNS provider isn't listed here, login to your provider's website and search their 'help' documents on adding DNS records.
+Here are some links to the documentation regarding editing DNS records with popular domain providers. If your DNS provider isn't listed here, login to your provider's website and search their documentation on adding DNS records.
 
 | DNS Provider | Documentation |
 |---|---|
@@ -27,3 +28,6 @@ Here are some links to the documentation regarding editing DNS records with popu
 | Wordpress | [Adding Custom DNS Records](https://wordpress.com/support/domains/custom-dns/#adding-custom-dns-records) |
 | Wix | [Adding or Updating CNAME Records](https://support.wix.com/en/article/adding-or-updating-cname-records-in-your-wix-account) |
 
+:::tip
+Adding a custom domain for your SFTP endpoint is available in all plans. However, if you'd like to change the domain that shows as default in SFTP To Go's admin dashboard, read more about this option [here](../getting-started/organization-settings#domains). This feature is only available with [certain plans](https://sftptogo.com/pricing).
+:::

@@ -23,7 +23,30 @@ Use the audit logs to monitor access to your storage. The Audit logs dialog lets
 
 Set your organization's password policy for credentials. This will not change existing passwords, but changes to passwords (either ones generated automatically or manually) must adhere to the organization's current password policy.
 
-## Inbound network rules
+## Network
+
+### Domains
+
+Custom domains allow you to customize and brand your SFTP To Go SFTP endpoints for both SFTP and web portal access.
+
+To add a new custom domain:
+
+1. Click **Add domain**.
+2. Enter the fully qualified domain you'd like to use as an endpoint. Note that root domains cannot be used (i.e., use files.example.io instead of example.io).
+3. Select the type of endpoint that the domain will be used for:
+    * SFTP/FTPS - For use with FTP clients. Requires adding a CNAME pointing to the endpoint.
+    * Web portal - Accessible with any web browser. Requires adding a CNAME pointing to the endpoint. TLS certificates are managed by SFTP To Go.
+4. Click **Add domain** to return to the list.
+5. Wait for instructions on what records to add in your DNS manager. Either apply them yourself or send them to your network manager.
+6. It may take some time for DNS records to apply. You can wait for the state of your domain to show as "Verified" or click the ... menu button to manually refresh the state.
+7. Once the domain has been verified, you can click the ... menu button to set it as the default domain, which will replace the default domain with the newly set up domain in the SFTP To Go admin dashboard.
+
+:::info
+Editing domains is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing).
+You can add CNAMEs to point to the SFTP/FTPS endpoint without adding them to the domains list - they will work just fine, but they won't show in the admin dashboard.
+:::
+
+### Inbound network rules
 
 Inbound network rules define IP address ranges from which a user can connect to your storage using the SFTP or FTPS protocols.
 
@@ -43,7 +66,7 @@ To add a new inbound rule:
 
 You can also edit, disable, enable, and delete inbound network rules by clicking the menu button (...) on a specific network rule followed by the relevant menu item.
 
-:::note
+:::info
 Editing inbound network rules is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
 :::
 
@@ -51,7 +74,7 @@ Editing inbound network rules is only available with certain plans. Read more ab
 
 The web portal enables users to sign in and manage files in their designated home directories directly through their web browser. To activate it, click the switch button. Once the web portal is enabled, your organization's login URL will be displayed here.
 
-:::note
+:::info
 When the web portal is activated in your organization, any credential can log in and manage files, provided the user or organization's inbound network rules permit access.
 :::
 
@@ -63,7 +86,7 @@ Input the information you want to be accessible to web portal users. The busines
 
 Customize your web portal's appearance by selecting your icon, logo, and colors for both light and dark modes.
 
-:::note
+:::info
 The icon serves as your site's favicon and the primary logo, unless you choose to use a logo URL instead. We recommend using a rectangular image with dimensions of 128x128 pixels.
 :::
 
@@ -84,7 +107,7 @@ In the billing portal, you can change your billing details (including credit car
 
 If you are billed for SFTP To Go by a partner (e.g. Heroku), the billing section may not show up in your organization section. You can change your billing settings through the relevant partner's website.
 
-:::note
+:::info
 If you'd like to change your plan during a trial, we ask that you please reach out to us via the live-chat button on the bottom-right corner of the screen and request that we modify it. Otherwise, your credit card may be automatically charged.
 :::
 
@@ -94,7 +117,7 @@ The access section lists the accounts that have access to an organization's mana
 
 To invite a new member to your organization, scroll down to the **Access** section and click **Invite team member**. Fill out the team member's name and email address and an invitation will be sent out for the new member to join your organization. After clicking the invitation link, the new member will be requested to create a password. Once logged in, the new member will be able to access the organization according to the assigned role.
 
-:::note
+:::info
 If access to SFTP To go is managed by a partner (e.g. Heroku), use the partner's access management to add or remove team members.
 :::
 
