@@ -34,6 +34,17 @@ In the dialog that opens, fill out the following:
 
 Finish by clicking `Add webhook`.
 
+:::tip
+Some common filters you can use:
+
+ - Path matches `^.*[^/]$` - trigger webhook for files, not for folders.
+ - Path ends with `/` - trigger webhook for folders, not for files.
+ - Path starts with `home/user/` - triggers webhook for files or folders within `home/user/`.
+ - Actor ID is `username` - triggers webhook for files or folders touched by `username`.
+ - Actor ID is not `username` - triggers webhook for files or folders touched by anyone but `username`.
+:::
+
+
 ### Securing Webhooks
 
 Once a webhook is created, a signing secret is generated and displayed one time. 

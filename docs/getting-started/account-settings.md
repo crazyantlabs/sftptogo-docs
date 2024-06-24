@@ -24,7 +24,7 @@ To enable multi-factor authentication, click **Setup Multi-factor Authentication
 
 You may always disable MFA by clicking **Disable Multi-factor Authentication**.
 
-:::note
+:::info
 Administrators in your organizations can monitor whether you have enabled or disabled MFA.
 :::
 
