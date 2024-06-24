@@ -27,7 +27,7 @@ Set your organization's password policy for credentials. This will not change ex
 
 ### Domains
 
-Custom domains allow you to customize and brand your SFTP To Go SFTP endpoints for both SFTP and web portal access.
+Custom domains allow you to customize and brand your SFTP To Go endpoints for both SFTP / FTPS and web portal access.
 
 To add a new custom domain:
 
