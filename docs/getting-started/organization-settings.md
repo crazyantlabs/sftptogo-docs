@@ -37,7 +37,7 @@ To add a new custom domain:
     * SFTP/FTPS - For use with FTP clients. Requires adding a CNAME pointing to the endpoint.
     * Web portal - Accessible with any web browser. Requires adding a CNAME pointing to the endpoint. TLS certificates are managed by SFTP To Go.
 4. Click **Add domain** to return to the list.
-5. Wait for instructions on what records to add in your DNS manager. Either apply them yourself or send them to your network manager.
+5. Wait for instructions on what records to add in your DNS provider. Either apply them yourself or send them to your network manager.
 6. It may take some time for DNS records to apply. You can wait for the state of your domain to show as "Verified" or click the ... menu button to manually refresh the state.
 7. Once the domain has been verified, you can click the ... menu button to set it as the default domain, which will replace the default domain with the newly set up domain in the SFTP To Go admin dashboard.
 
