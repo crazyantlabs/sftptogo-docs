@@ -42,9 +42,28 @@ To add a new custom domain:
 7. Once the domain has been verified, you can click the ... menu button to set it as the default domain, which will replace the default domain with the newly set up domain in the SFTP To Go admin dashboard.
 
 :::info
-Editing domains is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing).
-You can add CNAMEs to point to the SFTP/FTPS endpoint without adding them to the domains list - they will work just fine, but they won't show in the admin dashboard.
+SFTP domains can be added with any plan. Additionally, you can point subdomains to your SFTP endpoint without adding them to the domains list. Adding custom domains for use with the web portal is only available with certain plans. Read more about our various plans [here](https://sftptogo.com/pricing).
 :::
+
+
+Here are some links to documentation on editing DNS records with popular domain providers. If your DNS provider isn't listed, log in to your provider's website and search their documentation for adding DNS records.
+
+| DNS Provider | Documentation |
+|---|---|
+| AWS Route53 | [Supported DNS record types](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ResourceRecordTypes.html#CNAMEFormat) |
+| Cloudflare | [Managing DNS records in Cloudflare](https://support.cloudflare.com/hc/en-us/articles/360019093151) |
+| Digital Ocean | [How to Create, Edit, and Delete DNS Records](https://docs.digitalocean.com/products/networking/dns/how-to/manage-records/#cname-records) |
+| Dreamhost | [Adding custom DNS records](https://help.dreamhost.com/hc/en-us/articles/360035516812-Adding-custom-DNS-records) |
+| DNSimple | [Managing CNAME Records](https://support.dnsimple.com/articles/manage-cname-record/) |
+| GoDaddy | [Add a CNAME record](https://www.godaddy.com/help/add-a-cname-record-19236) |
+| Google Domains | [DNS basics](https://support.google.com/a/answer/48090) |
+| Kinsta DNS | [How to Add DNS Records](https://kinsta.com/knowledgebase/dns/#cname-record) |
+| HostGator | [Manage DNS Records with HostGator/eNom](https://www.hostgator.com/help/article/manage-dns-records-with-hostgatorenom) |
+| Namecheap | [How to create CNAME record for your domain](https://www.namecheap.com/support/knowledgebase/article.aspx/9646/2237/how-to-create-a-cname-record-for-your-domain/) |
+| Names.co.uk | [Changing your domain’s DNS settings](https://www.names.co.uk/support/articles/changing-your-domains-dns-settings/) |
+| Wordpress | [Adding Custom DNS Records](https://wordpress.com/support/domains/custom-dns/#adding-custom-dns-records) |
+| Wix | [Adding or Updating CNAME Records](https://support.wix.com/en/article/adding-or-updating-cname-records-in-your-wix-account) |
+
 
 ### Inbound network rules
 
