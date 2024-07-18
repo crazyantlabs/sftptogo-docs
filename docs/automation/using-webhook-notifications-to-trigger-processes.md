@@ -44,14 +44,123 @@ Some common filters you can use:
  - Actor ID is not `username` - triggers webhook for files or folders touched by anyone but `username`.
 :::
 
-
 ### Securing Webhooks
 
-Once a webhook is created, a signing secret is generated and displayed one time. 
+To ensure the authenticity of webhook requests originating from SFTP To Go and to prevent tampering, validate the signature in the X-Hub-Signature header before processing the delivery further. This helps you avoid processing unauthorized requests and prevents man-in-the-middle attacks.
 
-Each request is signed by SFTP To Go in the X-Hub-Signature header. If you’d like to verify the authenticity of our request, copy the signing secret and use it to verify the webhook signature. You can rotate the signing secret at any time to be assigned a new one.
+To do this, you need to:
+
+1. Once a webhook is created, a signing secret is generated and displayed one time (you can rotate and request a new secret at any time).
+2. Store the signing secret securely on your server.
+3. Validate incoming webhook payloads against the signature to verify they are from SFTP To Go and were not tampered with.
+
+:::important
+
+1. **Never** hardcode the signing secret in your code. Always store it securely and never expose it in your logs.
+2. **Never** use a plain comparison operator to compare the signatures. Use a secure comparison function to avoid timing attacks.
+:::
+
 
 You may also use an authorization header to verify that the request did, indeed, come from SFTP To Go. When properly set, the authorization header is passed through in the `Authorization` header in the request. It should be validated using the authorization mechanism of your choice on through your server.
+
+#### Validating Webhook Signature
+
+To ensure the authenticity of webhook requests originating from SFTP To Go and to ensure that the delivery was not tampered with, validate the signature in the `X-Hub-Signature` header before processing the delivery further. This helps you avoid processing unauthorized requests and prevents man-in-the-middle attacks.
+
+#### Testing the Webhook Signature Validation
+
+To test the validation process, you can use the following `secret` and `payload` values to verify that your implementation is working correctly.
+
+`secret`: "Very Secret Secret"  
+`payload`: "Hello! This is a test payload."  
+
+If your implementation is correct, the generated signature should be `sha256=8ba4c47558de1872150c3ec82211c34bf0cbd6d60fc4f9875b97853af06de917` and it can be validated against the signature provided in the `X-Hub-Signature` header.
+
+
+#### Examples
+
+Here are code examples for validating the webhook signature in different languages:
+
+**Ruby**
+
+```ruby
+require 'openssl'
+require 'json'
+
+payload = 'Hello! This is a test payload.'
+secret = 'Very Secret Secret' # ENV['SFTPTOGO_WEBHOOK_SINGING_SECRET']
+
+# This should be the value of the X-Hub-Signature header
+signature = 'sha256=8ba4c47558de1872150c3ec82211c34bf0cbd6d60fc4f9875b97853af06de917'
+
+computed_signature = 'sha256=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), secret, payload)
+
+if computed_signature.bytesize == signature.bytesize && OpenSSL.fixed_length_secure_compare(computed_signature, signature)
+  puts 'Signature is valid'
+else
+  puts 'Signature is invalid'
+end
+```
+
+**Python**
+
+```python
+import hmac
+import hashlib
+
+payload = 'Hello! This is a test payload.'
+secret = 'Very Secret Secret' # os.environ['SFTPTOGO_WEBHOOK_SINGING_SECRET']
+
+# This should be the value of the X-Hub-Signature header
+signature = 'sha256=8ba4c47558de1872150c3ec82211c34bf0cbd6d60fc4f9875b97853af06de917'
+
+computed_signature = 'sha256=' + hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
+
+if hmac.compare_digest(computed_signature, signature):
+    print('Signature is valid')
+else:
+    print('Signature is invalid')
+```
+
+**Node.js**
+
+```javascript
+const crypto = require('crypto');
+
+
+const payload = 'Hello! This is a test payload.'
+const secret = 'Very Secret Secret' // process.env.SFTPTOGO_WEBHOOK_SINGING_SECRET
+
+// This should be the value of the X-Hub-Signature header
+const signature = 'sha256=8ba4c47558de1872150c3ec82211c34bf0cbd6d60fc4f9875b97853af06de917';
+
+const computedSignature = 'sha256=' + crypto.createHmac('sha256', secret).update(payload).digest('hex');
+
+function safeCompare(a, b) {
+  var strA = String(a);
+  var strB = String(b);
+
+  var aLen = Buffer.byteLength(strA);
+  var bLen = Buffer.byteLength(strB);
+
+  // Always use length of a to avoid leaking the length. Even if this is a
+  // false positive because one is a prefix of the other, the explicit length
+  // check at the end will catch that.
+  var bufA = Buffer.alloc(aLen, 0, 'utf8');
+  bufA.write(strA);
+  var bufB = Buffer.alloc(aLen, 0, 'utf8');
+  bufB.write(strB);
+
+  return crypto.timingSafeEqual(bufA, bufB) && aLen === bLen;
+}
+
+if (safeCompare(computedSignature, signature)) {
+  console.log('Signature is valid');
+} else {
+  console.log('Signature is invalid');
+}
+
+```
 
 ### Managing Webhooks
 
