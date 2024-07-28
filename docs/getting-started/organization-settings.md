@@ -91,7 +91,7 @@ Editing inbound network rules is only available with certain plans. Read more ab
 
 ## Web Portal
 
-The web portal enables users to sign in and manage files in their designated home directories directly through their web browser. To activate it, click the switch button. Once the web portal is enabled, your organization's login URL will be displayed here.
+The web portal enables users to sign in and manage files in their designated home directories directly through their web browser. To activate it, click the switch button in the settings tab, under the web portal section. Once the web portal is enabled, your organization's login URL will be displayed here.
 
 :::info
 When the web portal is activated in your organization, any credential can log in and manage files, provided the user or organization's inbound network rules permit access.
