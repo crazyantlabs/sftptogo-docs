@@ -76,7 +76,7 @@ To remove an SSH key from a user, click the X next to the key and confirm deleti
 
 ### Editing inbound network rules for users
 
-Inbound network rules define IP address ranges that a user can connect to your storage within. They can be defined at the organization level (for all users) or at the user level (for specific users). The organization level and user level rules are combined with a single list with which an incoming connection is validated. This means that if a client's IP address is included in either the organization or the user list, it will be assumed valid.
+Inbound network rules specify which IP addresses can connect to your storage. These rules can be set for the entire organization (applies to all users) or for individual users, at the credential level. When a user attempts to connect, the system checks a combined list of both the organization-wide and credentials-specific rules. If the IP address is on either list, the connection is allowed.
 
 By default, the organization inbound network rules contain a single rule allowing access from any IP address to any endpoint or protocol (SFTP, FTPS or Web Portal). To restrict access, you will have to remove this rule or edit it to use a restrictive CIDR (Classless Inter-Domain Routing - an IP address range).
 
