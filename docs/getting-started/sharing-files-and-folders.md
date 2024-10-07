@@ -8,7 +8,7 @@ To share files or folders with others, SFTP To Go offers share links. To ensure 
 
 ## Who Can Share Files?
 
-By default, only the root account can create share links. To allow other users to create share links, assign them the [Full Access permission](creating-and-modifying-users).
+By default, only the default credentials can create share links. To allow other users to create share links, assign them the [Full Access permission](creating-and-modifying-users).
 
 ## How to Share a File or Folder Using SFTP To Go
 
@@ -24,7 +24,7 @@ Creating share links is only available in certain plans. Learn more about our pr
 5. Optionally, set an expiration time for the link. Once expired, the share link will no longer work, but the folder or file remains intact.
 6. Optionally, limit the number of accesses to the share. Once this limit is reached, the link is automatically deactivated.
 7. Optionally, set a password for the share link. Ensure the password adheres to your organization's password policy.
-8. Optionally, add notes to describe the purpose of the share.
+8. Optionally, add notes to describe the purpose of the share. Notes will only be visible to those that have permissions to share.
 9. Click `Create public link`. A shareable link will appear at the top of the dialog. You can copy it, browse it, or generate a QR code for others to scan and access the link directly.
 10. Click `Close`.
 
