@@ -18,6 +18,7 @@ To create more credentials to use and access your storage:
 
 |  Permissions  |                                                                                            |
 |------------|----------------------------------------------------------------------------------------------------------|
+| Full access| List files and directories<br/>Create directories<br/>Remove files and directories<br/>Put files<br/>Get files<br/>Create share links                                                               |
 | Read-only  | List files and directories<br/>Get files                                                                 |
 | Read and Write | List files and directories<br/>Create directories<br/>Remove files and directories<br/>Put files<br/>Get files         |
 | Read and Write without delete | List files and directories<br/>Create directories<br/>Put files<br/>Get files         |
