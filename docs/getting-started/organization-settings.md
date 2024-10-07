@@ -23,6 +23,10 @@ Use the audit logs to monitor access to your storage. The Audit logs dialog lets
 
 Set your organization's password policy for credentials. This will not change existing passwords, but changes to passwords (either ones generated automatically or manually) must adhere to the organization's current password policy.
 
+### Sharing policy
+
+Control how your users share files and folders with others. This will not change existing share links, but newly created share links will adhere to changes you make in the policy.
+
 ## Network
 
 ### Domains
