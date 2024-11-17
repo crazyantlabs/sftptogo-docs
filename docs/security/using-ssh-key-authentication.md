@@ -7,7 +7,7 @@ SSH key authentication allows you to connect to your cloud storage without a pas
 
 SFTP To Go accepts PEM formatted RSA, ECDSA, and ED25519 keys. If you have an SSH2 public key, you will have to [convert it](../questions-and-answers/ssh2).
 
-If you don't have a private/public key pair, generate a key pair on your local machine (See [here](https://sftptogo.com/blog/how-to-create-ssh-keys-on-windows-10/) for help). They should begin with 'ssh-rsa', 'ecdsa-sha2-nistp256', 'ecdsa-sha2-nistp384', 'ecdsa-sha2-nistp521', or 'ssh-ed25519'.
+If you don't have a private/public key pair, generate a key pair on your local machine. On Linux or Mac open a terminal, type in `ssh-keygen` and follow the on-screen instructions. See [here](https://sftptogo.com/blog/how-to-create-ssh-keys-on-windows-10/) for more information on how to create SSH keys in Windows 10 and above. The keys should begin with 'ssh-rsa', 'ecdsa-sha2-nistp256', 'ecdsa-sha2-nistp384', 'ecdsa-sha2-nistp521', or 'ssh-ed25519'.
 
 To connect using public key authentication, first add a public key to the credentials you'd like to use:
 
