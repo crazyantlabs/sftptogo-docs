@@ -6,8 +6,8 @@ sidebar_position: 10
 Use the **Credentials** tab to:
 
 1. Access your SFTP server information (host, usernames, and passwords). 
-2. Add, edit, seasrch or remove credentials.
-3. Manage access options for credentials (home directories, permissions, public keys, inbound network rules, passwords and email association).
+2. Add, edit, search or remove credentials.
+3. Manage access options for credentials (home directories, permissions, public keys, inbound network rules, passwords and email associations).
 
 :::tip
 We recommend rotating passwords every 90 days. The credentials list shows the password age for each credentials.
