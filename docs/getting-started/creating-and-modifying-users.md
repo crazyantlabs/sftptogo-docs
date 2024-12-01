@@ -12,8 +12,9 @@ To create more credentials to use and access your storage:
 3. This is an optional step: Select a home directory for the credentials. By default, each credential only has access to its own home directory (`/home/<username>`). You can change the credentials' home directory to have multiple credentials access the same directory. The users are chrooted to this directory, meaning that this directory acts as an isolated storage for them. They will not have access to any parent or sibling directories.
 4. Select the level of permissions accessible for the new user. By default, the user has read-only access to their home directory. For more information on the different permissions, see the table below.
 5. Set an optional access expiration date for the credentials. If left blank, credentials access will never expire.
-6. Choose a nickname for the credentials (optional). This shows up in the UI solely as a friendly user name.
-7. Click **Add credentials**. The user will then be assigned a random password according to your organization's password policy (and username, if left empty). 
+6. Optionally, associate the credentials with an email address. This allows the user to reset their password on their own or authenticate using a Magic Code (One Time Passwords sent over email). When you associate the credentials with an email address, an email is sent to this address with a verification code. Request the verification code from the recipient in order to continue and associate the email address with the credentials.
+7. Choose a nickname for the credentials (optional). This shows up in the UI solely as a friendly user name.
+8. Click **Add credentials**. The user will then be assigned a random password according to your organization's password policy (and username, if left empty). 
 
 
 |  Permissions  |                                                                                            |
@@ -28,7 +29,7 @@ To create more credentials to use and access your storage:
 
 ### Editing user credentials
 
-You may edit existing credentials by clicking the menu button (...) for the particular user you wish to edit and then selecting **Edit credentials** from the menu. You may change the username, home directory, user's permissions, and the nickname. 
+You may edit existing credentials by clicking the menu button (...) for the particular user you wish to edit and then selecting **Edit credentials** from the menu. You may change the username, home directory, user's permissions, email address, and the nickname. 
 
 ### Setting user passwords
 
@@ -93,3 +94,21 @@ To add user-level inbound network rules, please complete the following steps:
 5. Click **Add inbound rule**.
 
 To edit, disable, or delete a rule, click the menu button (...) next to the rule and select the action you'd like to perform.
+
+
+### <a name="email">Associating credentials with email addresses</a>
+
+When creating or editing credentials, you have the option to associate the credentials with an email address. This allows web portal users to:
+
+1. Initiate the "Forgot password" process to reset their password.
+2. If enabled at the organization level, use the Magic Code authentication method (only available with the web portal).
+
+:::tip
+The username and the email address are not required to be the same. In fact, the same email address can be associated with multiple credentials. 
+:::
+
+When adding or changing the associated email address, an email is sent to the address with a verification code. In order to complete the association process, you must enter in the verification code in the admin dashboard.
+
+:::note
+If you are the recipient of the verification email, make sure to provide the verification code to the person who added your email to SFTP To Go credentials. If you have any questions or concerns, you can also reach out to our support or safely ignore the email. Without the verification code, your email cannot be associated with SFTP To Go credentials.
+:::

@@ -11,6 +11,8 @@ To manage your organization, security, billing, and team settings, click **Setti
 
 SFTP To Go allows several authentication methods, which are ways to identify the client when they are logging into the server:
 
+* Magic Code - identification based on username and a unique, six character one-time-use code sent to the email address associated with the username. This form of authentication is only supported by the web portal.
+
 * Password authentication - identification based on username and password. This authentication method can be used with both SFTP and FTPS protocols.
 
 * Public key authentication - identification based on username and a cryptographic system that uses pairs of keys. To use it, add a public SSH key to each one of the credentials. This form of authentication is only supported by the SFTP protocol.
