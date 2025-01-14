@@ -180,6 +180,11 @@ You can verify the authenticity of these requests through any of the following w
 * The request’s Authorization header matches the value you provided when subscribing to notifications.
 * The request’s X-Hub-Signature header contains the HMAC SHA256 signature of the request body (signed with the given secret value provided when subscribing).
 
+:::tip
+Path is form-urlencoded, that is, spaces are encoded as `+` and `+` is encoded as `%2b`. Use the appropriate function to decode in order to avoid confusion between the two characters.
+:::
+
+
 A resulting webhook notification request resembles the following:
 
 ```
