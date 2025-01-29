@@ -11,6 +11,8 @@ To connect to your SFTP To Go storage using the SFTP protocol, follow these gene
 
 :::info 
 The SFTP endpoint is also available on the alternative ports 2222 and 22000. 
+
+For cases that require TCP "piggybacking" (when the SFTP server is accessed indirectly through another system), you can use the alternative port 2223.
 :::
 
 Follow this [link](https://sftptogo.com/blog/guides/) for more examples. You can also find useful code snippets in the dashboard by clicking the credentials' menu button (...) and then click `<> Code Snippets`.
