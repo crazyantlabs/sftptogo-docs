@@ -20,6 +20,7 @@ Credentials can access files using secure protocols such as SFTP, FTPS, and S3 u
 
 Public key authentication is available with SFTP. The supported algorithms are ssh-ed25519, rsa-sha2-256, rsa-sha2-512, ecdsa-sha2-nistp256, ecdsa-sha2-nistp384, and ecdsa-sha2-nistp521, including 4096-bit key pairs.
 
+MFA devices can be used with credentials when accessing the web portal.
 
 Authorization
 ---------

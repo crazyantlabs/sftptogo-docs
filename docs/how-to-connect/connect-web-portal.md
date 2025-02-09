@@ -10,7 +10,7 @@ Then, log in using your organization's portal login link, which can be found in 
 
 1. Enter a credentials username
 2. Enter a credentials password or click "Email sign-in code" if the credentials are associated with an email address and the [Magic Code](../getting-started/organization-settings#authentication-methods) authentication method is enabled).
-3. Click the "Sign in" button.
+3. If MFA is enabled, use an extra factor in the authentication process.
 
 :::note
 Alternatively, use a shortcut from your SFTP To Go dashboard to connect as any user on your credentials list. Click the menu button (...) and select "Open web portal".
@@ -53,6 +53,9 @@ Selecting all or some files/folders in the items list displays the count of sele
 * Move selected files to another folder
 * Delete selected items
 
+## User Settings
+
+Click the avatar at the top-right corner of the screen in order to change user settings such as Multi-factor authentication.
 
 ## Limitations
 

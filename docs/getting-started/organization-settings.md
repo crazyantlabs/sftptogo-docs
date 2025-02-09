@@ -17,6 +17,11 @@ SFTP To Go allows several authentication methods, which are ways to identify the
 
 * Public key authentication - identification based on username and a cryptographic system that uses pairs of keys. To use it, add a public SSH key to each one of the credentials. This form of authentication is only supported by the SFTP protocol.
 
+
+### Multi-factor authentication
+
+Select the factors to allow your users to use with Multi-factor authentication when connecting to the web portal.
+
 ### Audit logs
 
 Use the audit logs to monitor access to your storage. The Audit logs dialog lets you browse through your organization's logs, filter them by Username, session ID or timestamp range.

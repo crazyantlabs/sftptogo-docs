@@ -102,13 +102,10 @@ When creating or editing credentials, you have the option to associate the crede
 
 1. Initiate the "Forgot password" process to reset their password.
 2. If enabled at the organization level, use the Magic Code authentication method (only available with the web portal).
+3. If enabled at the organization level, enable email based multi-factor authentication for the credentials.
 
 :::tip
 The username and the email address are not required to be the same. In fact, the same email address can be associated with multiple credentials. 
 :::
 
-When adding or changing the associated email address, an email is sent to the address with a verification code. In order to complete the association process, you must enter in the verification code in the admin dashboard.
-
-:::note
-If you are the recipient of the verification email, make sure to provide the verification code to the person who added your email to SFTP To Go credentials. If you have any questions or concerns, you can also reach out to our support or safely ignore the email. Without the verification code, your email cannot be associated with SFTP To Go credentials.
-:::
+When adding or changing the associated email address, an email is sent to the address with a verification link. In order to complete the association process, the email recipient must click the link. You can re-send the verification email if needed.
