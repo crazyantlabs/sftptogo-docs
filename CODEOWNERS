@@ -1,0 +1,5 @@
+# All owners and maintainers are owners of the repo.
+* @@owners @@maintainers
+
+# The following people are code owners for CI/CD files:
+.github @motymichaely @saggineumann
