@@ -20,7 +20,7 @@ Expand an event and click the Username or Session ID links to quickly filter for
 
 <h2 id="export">Exporting Audit Logs</h2>
 
-To export audit logs to your SFTP To Go storage, click your organization's [settings tab](../getting-started/organization-settings#audit-logs), and scroll to Security - Audit Logs. Choose the time range you want and click Export to CSV to generate the files.
+To export audit logs to your SFTP To Go storage, click your organization's [settings tab](../getting-started/organization-settings#audit-logs), and scroll to Security - Audit Logs. Choose the time range you want and click Export to CSV to generate the files. Note that the time range is based on your local time.
 
 The audit data will be saved as CSV files under the /audit-logs folder in your storage, where you can access, download, or process them as needed. You will get an email notification when the process is complete. 
 
