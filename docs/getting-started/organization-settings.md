@@ -22,10 +22,6 @@ SFTP To Go allows several authentication methods, which are ways to identify the
 
 Select the factors to allow your users to use with Multi-factor authentication when connecting to the web portal.
 
-### Audit logs
-
-Use the audit logs to monitor access to your storage. The Audit logs dialog lets you browse through your organization's logs, filter them by Username, session ID or timestamp range.
-
 ### Password policy
 
 Set your organization's password policy for credentials. This will not change existing passwords, but changes to passwords (either ones generated automatically or manually) must adhere to the organization's current password policy.
@@ -33,6 +29,10 @@ Set your organization's password policy for credentials. This will not change ex
 ### Sharing policy
 
 Control how your users share files and folders with others. This will not change existing share links, but newly created share links will adhere to changes you make in the policy.
+
+### Audit logs
+
+Use the audit logs to monitor access to your storage. The Audit logs dialog lets you browse through your organization's logs, filter them by Username, session ID or timestamp range. You can also export audit logs as files into your storage for long term storage or further processing.
 
 ## Network
 
