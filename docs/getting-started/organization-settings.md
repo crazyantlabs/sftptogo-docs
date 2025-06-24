@@ -43,7 +43,7 @@ Custom domains allow you to customize and brand your SFTP To Go endpoints for bo
 To add a new custom domain:
 
 1. Click **Add domain**.
-2. Enter the fully qualified domain you'd like to use as an endpoint. Note that root domains cannot be used (i.e., use files.example.io instead of example.io).
+2. Enter the fully qualified domain you'd like to use as an endpoint. Note that root domains cannot be used (i.e., use files.example.io instead of example.io). Also, the domain you enter should be in a domain that you manage (i.e. not sftptogo.com).
 3. Select the type of endpoint that the domain will be used for:
     * SFTP/FTPS - For use with FTP clients. Requires adding a CNAME pointing to the endpoint.
     * Web portal - Accessible with any web browser. Requires adding a CNAME pointing to the endpoint. TLS certificates are managed by SFTP To Go.
