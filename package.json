@@ -20,7 +20,7 @@
     "@docusaurus/theme-classic": "^3.8.1",
     "clsx": "^2.1.1",
     "docusaurus-plugin-segment": "^1.0.4",
-    "dotenv": "^17.0.0",
+    "dotenv": "^17.2.1",
     "json5": "2.2.3",
     "prism-react-renderer": "^2.4.1",
     "react": "^19.1.0",
