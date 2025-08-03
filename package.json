@@ -15,16 +15,16 @@
   },
   "dependencies": {
     "@docsearch/react": "3.9.0",
-    "@docusaurus/core": "^3.7.0",
-    "@docusaurus/preset-classic": "^3.7.0",
-    "@docusaurus/theme-classic": "^3.7.0",
+    "@docusaurus/core": "^3.8.1",
+    "@docusaurus/preset-classic": "^3.8.1",
+    "@docusaurus/theme-classic": "^3.8.1",
     "clsx": "^2.1.1",
     "docusaurus-plugin-segment": "^1.0.4",
-    "dotenv": "^16.4.7",
+    "dotenv": "^17.2.1",
     "json5": "2.2.3",
     "prism-react-renderer": "^2.4.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "react-error-overlay": "^6.0.9"
   },
   "resolutions": {
