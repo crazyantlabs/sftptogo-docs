@@ -14,7 +14,7 @@ Covered entities who require a secure cloud storage service can use SFTP To Go a
 
 SFTP To Go completes an annual assessment of security risks in addition to ongoing risk analysis, to ensure that our service meets changing security requirements and threats. 
 
-As part of our commitment to HIPAA compliance, SFTP To Go will sign a BAA for customers in any plan, but recommend using a plan that enables features according to your security requirements.
+As part of our HIPAA program, we sign BAAs with customers on eligible plans. Contact our team for more information.
 
 ## Data location
 
@@ -42,3 +42,6 @@ SFTP To Go uses Amazon Web Services (AWS) for its infrastructure. SFTP To Go's s
 
 Amazon Web Services' SLA for S3 is [99.9%](http://aws.amazon.com/s3/sla/). It is designed for 99.99% availability and 99.999999999% durability.
 
+## Requesting a BAA
+
+BAAs are available on eligible plans. To request our standard BAA or to discuss custom BAAs, please contact us via the in-app chat or email.

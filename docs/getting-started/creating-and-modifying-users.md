@@ -8,7 +8,7 @@ sidebar_position: 20
 To create more credentials to use and access your storage:
 
 1. Click **+ Add credentials**.
-2. Select a username. The username must be unique service-wide and at least 10 characters long. We recommend to leave it blank and have SFTP To Go generate a unique name for the user.
+2. Select a username. The username must be unique service-wide and at least 10 characters long. We recommend to leave it blank and have SFTP To Go generate a unique name for the user. If the user is human, you may use the person's email address as the username. Remember to also associate the credentials with the same email address (see below).
 3. This is an optional step: Select a home directory for the credentials. By default, each credential only has access to its own home directory (`/home/<username>`). You can change the credentials' home directory to have multiple credentials access the same directory. The users are chrooted to this directory, meaning that this directory acts as an isolated storage for them. They will not have access to any parent or sibling directories.
 4. Select the level of permissions accessible for the new user. By default, the user has read-only access to their home directory. For more information on the different permissions, see the table below.
 5. Set an optional access expiration date for the credentials. If left blank, credentials access will never expire.
@@ -109,3 +109,7 @@ The username and the email address are not required to be the same. In fact, the
 :::
 
 When adding or changing the associated email address, an email is sent to the address with a verification link. In order to complete the association process, the email recipient must click the link. You can re-send the verification email if needed.
+
+:::tip
+If the username matches the email address, and web portal access is enabled, you only need to provide the portal URL. No secrets need to be shared since password reset flows go to that email.
+:::

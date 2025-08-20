@@ -129,7 +129,7 @@ Within the organization section, you may change your organization's name and obt
 
 ## Usage & Billing
 
-Track your usage - storage and bandwidth metrics (Note that the metrics are update at certain intervals and not in real-time).
+<p><span>Use metrics such as storage, bandwidth and number of files to track your usage. Metrics refresh periodically, not in real time. The figures are current as of the last update. To view historical data, click the   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false" vector-effect="non-scaling-stroke"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"></path></svg> button.</span></p>
 
 To change your organization's billing plan, Scroll to the billing section and click **Open your billing portal**.
 
