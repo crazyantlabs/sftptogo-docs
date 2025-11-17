@@ -158,3 +158,20 @@ To change an existing member role, click the menu button (...) and then **Change
 :::note
 An account must have at least one owner account.
 :::
+
+### SSO
+
+Enable your team to sign in to the SFTP To Go dashboard using your identity provider.
+To activate SSO (Single-Sign-On), turn it on in the SSO section and follow the on-screen steps to connect your provider.
+
+SFTP To Go supports Google Workspace, Microsoft ADFS, Microsoft Entra, Okta, OpenID, and custom SAML identity providers.
+
+Once connected, users will be redirected to your identity provider for authentication. Their access to the dashboard will follow the roles you assign inside SFTP To Go.
+
+With just-in-time provisioning, new users are created automatically when they sign in through your identity provider for the first time. You do not need to invite them manually. Their account is created on demand and assigned the default role you set in your organization settings. This keeps onboarding simple and ensures that access stays aligned with your identity provider.
+
+If just-in-time provisioning is not enabled, users must be invited manually before they can sign in with SSO. Only accounts that already exist in your organization will be allowed to authenticate through your identity provider.
+
+:::info
+Using SSO is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
+:::
