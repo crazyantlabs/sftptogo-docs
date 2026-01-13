@@ -17,7 +17,7 @@
     "@docsearch/react": "3.9.0",
     "@docusaurus/core": "^3.8.1",
     "@docusaurus/preset-classic": "^3.8.1",
-    "@docusaurus/theme-classic": "^3.8.1",
+    "@docusaurus/theme-classic": "^3.9.2",
     "clsx": "^2.1.1",
     "docusaurus-plugin-segment": "^1.0.4",
     "dotenv": "^17.2.1",
