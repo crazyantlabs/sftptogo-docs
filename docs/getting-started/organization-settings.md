@@ -18,9 +18,17 @@ SFTP To Go allows several authentication methods, which are ways to identify the
 * Public key authentication - identification based on username and a cryptographic system that uses pairs of keys. To use it, add a public SSH key to each one of the credentials. This form of authentication is only supported by the SFTP protocol.
 
 
-### Multi-factor authentication
+### Multi-factor Authentication
 
-Select the factors to allow your users to use with Multi-factor authentication when connecting to the web portal.
+Choose which factors users can use to verify their identity when connecting to the web portal.
+
+* **Require MFA for all users**: Toggle this to enforce mandatory MFA enrollment. You must enable at least one factor below for this to take effect.
+
+* **Authenticator App**: Allows the use of apps like Google Authenticator, 1Password, or Authy. This is the most secure method for generating verification codes.
+
+* **Email**: Allows users to receive a one-time password (OTP) via email. 
+  * **Requirement**: Users must have an [associated email address](../getting-started/creating-and-modifying-users#associating-credentials-with-email-addresses). 
+  * **Warning**: If MFA is enforced, users without an associated email address may be prompted for an OTP they cannot receive.
 
 ### Password policy
 
