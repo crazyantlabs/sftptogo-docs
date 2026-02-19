@@ -64,6 +64,16 @@ To add a new custom domain:
 SFTP domains can be added with any plan. Additionally, you can point subdomains to your SFTP endpoint without adding them to the domains list. Adding custom domains for use with the web portal is only available with certain plans. Read more about our various plans [here](https://sftptogo.com/pricing).
 :::
 
+:::warning
+If your domain has a [CAA (Certificate Authority Authorization) record](https://docs.aws.amazon.com/acm/latest/userguide/troubleshooting-caa.html) configured on the root domain or on the subdomain you are adding as a web portal domain, you must ensure that the CAA record authorizes certificate issuance by including at least one of the following values:
+
+* `amazon.com`
+* `amazontrust.com`
+* `awstrust.com`
+* `amazonaws.com`
+
+Without this, TLS certificate provisioning for your custom portal domain will fail. This requirement applies only to **Web portal** custom domains, as SFTP To Go manages TLS certificates on your behalf.
+:::
 
 Here are some links to documentation on editing DNS records with popular domain providers. If your DNS provider isn't listed, log in to your provider's website and search their documentation for adding DNS records.
 
