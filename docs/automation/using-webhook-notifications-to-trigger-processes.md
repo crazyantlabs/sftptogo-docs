@@ -440,7 +440,7 @@ Fired when a file is detected as infected during malware scanning. See [Malware 
 | `Data.ScanId` | The ID of the malware scan record |
 | `Data.ThreatName` | Name of the detected threat, as reported by the engine |
 | `Data.ThreatSeverity` | Severity of the detected threat: `low`, `medium`, `high`, or `critical` |
-| `Actor` | The user who uploaded the file. `Type` is `User` for SFTP/FTPS/web portal uploads, `share-link` for share link uploads, or `system` if the uploader could not be determined. |
+| `Actor` | The user who uploaded the file. `Type` is `user` for SFTP/FTPS/web portal uploads, `share-link` for share link uploads, or `system` if the uploader could not be determined. |
 
 :::note
 Data.Path is URL encoded - make sure to URL decode it to get the correct path to the file.
@@ -500,7 +500,7 @@ The following fields can be used in a webhook filter:
 
 * **Path**: The path to the file that triggered the event.
 * **Actor ID**: The identifier of the actor - the user that initiated the action that triggered the event. This can be the user ID in case of an SFTP/FTPS operation or the IAM access key in case of an S3 operation.
-* **Actor Type**: The type of the actor - "User" for SFTP/FTPS operations or "IAM" for S3 operations.
+* **Actor Type**: The type of the actor - `user` for SFTP/FTPS/web portal users, `share-link` for share link uploads, or `system` if the actor could not be determined.
 
 #### Operators
 
