@@ -8,6 +8,7 @@ Webhooks enable you to receive notifications whenever particular events occur wi
 * File upload and directory creation
 * File or directory deletion
 * File download
+* File infected by malware
 
 Webhook notifications are sent as HTTP POST requests to a URL of your choosing. To integrate with webhooks, you need to implement a server endpoint that can receive and handle these requests.
 
@@ -169,7 +170,7 @@ After creating a webhook, you may do the following:
 * Pause/Resume - temporarily pause or resume webhook notifications.
 * Rotate secret - request a new signing secret. See [Securing Webhooks](#securing-webhooks)
 * Ping webhook - manually send a test event to your endpoint
-* View deliveries - View a log of the notifications that SFTP To Go has enqueued for delivery. Each notification has a `status` (one of `Succeeded`, `Failed`, 'Pending'), `Created` timestamp, `ID`, `Topic` (one of `file.created`, `file.deleted`, `file.downloaded`, `webhook.ping`) and `Duration`. You may also view the `Request payload`, `Response code`, and `Response body` as well as manually send a webhook payload from within the webhook delivery dialog.
+* View deliveries - View a log of the notifications that SFTP To Go has enqueued for delivery. Each notification has a `status` (one of `Succeeded`, `Failed`, 'Pending'), `Created` timestamp, `ID`, `Topic` (one of `file.created`, `file.deleted`, `file.downloaded`, `file.infected`, `webhook.ping`) and `Duration`. You may also view the `Request payload`, `Response code`, and `Response body` as well as manually send a webhook payload from within the webhook delivery dialog.
 
 ### Receiving Webhooks
 
@@ -384,6 +385,65 @@ When a Data.Path value ends with `/`, this indicates that a directory has been c
 
 :::note
 Data.Path is URL encoded - make sure to URL decode it to the get the correct path to the file.
+:::
+
+### file.infected Event Format {#file-infected}
+
+Fired when a file is detected as infected during malware scanning. See [Malware Protection](../security/malware-protection) for more details.
+
+```json
+{
+  "Id": "7a3f1d2e-9b4c-48a1-bc5e-2f8d0e6a1234",
+  "Topic": "file.infected",
+  "CreatedAt": 1591106805970,
+  "UpdatedAt": 1591106805970,
+  "Actor": {
+    "Type": "User",
+    "Id": "4ddb9e1265b8edb7685b4e1a5d129f"
+  },
+  "Resource": "File",
+  "PreviousData": null,
+  "Data": {
+    "Path": "uploads/malicious-file.exe",
+    "Size": 1048576,
+    "Engine": "metadefender-cloud",
+    "ScanId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "ThreatName": "Trojan.GenericKD.47394274",
+    "ThreatSeverity": "high"
+  },
+  "Metadata": {
+    "Organization": {
+      "Id": "d57060b1-23fe-2d59-afd0-7f56d9e1fc55"
+    },
+    "Webhook": {
+      "Id": "7f3c5b1d-5df4-409f-bbbd-3ac6a72d8b5a"
+    },
+    "Delivery": {
+      "Id": "0a4ed750-fbb8-4718-8a6c-86c35c9b6348"
+    },
+    "Attempt": {
+      "Id": "2cb02803-b3a4-4ccd-bd19-ad769c51b291"
+    },
+    "Event": {
+      "Id": "7a3f1d2e-9b4c-48a1-bc5e-2f8d0e6a1234",
+      "Topic": "file.infected"
+    }
+  }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `Data.Path` | URL-encoded path of the infected file. Decode before use. |
+| `Data.Size` | File size in bytes |
+| `Data.Engine` | The scanning engine that detected the threat (e.g. `metadefender-cloud`) |
+| `Data.ScanId` | The ID of the malware scan record |
+| `Data.ThreatName` | Name of the detected threat, as reported by the engine |
+| `Data.ThreatSeverity` | Severity of the detected threat: `low`, `medium`, `high`, or `critical` |
+| `Actor` | The user who uploaded the file. `Type` is `User` for SFTP/FTPS/web portal uploads, `share-link` for share link uploads, or `system` if the uploader could not be determined. |
+
+:::note
+Data.Path is URL encoded - make sure to URL decode it to get the correct path to the file.
 :::
 
 ### webhook.ping Event Format
