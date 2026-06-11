@@ -292,7 +292,7 @@ When a Data.Path value ends with `/`, this indicates that a directory has been c
 :::
 
 :::note
-Data.Path is URL encoded - make sure to URL decode it to the get the correct path to the file.
+Data.Path is form-urlencoded, that is, spaces are encoded as `+` and `+` is encoded as `%2b`. Use the appropriate function to decode in order to avoid confusion between the two characters.
 :::
 
 ### file.deleted Event Format
