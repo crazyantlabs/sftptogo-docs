@@ -45,3 +45,88 @@ CSV file structure:
 
 If you need to inspect S3 access logs (for direct S3 access), please reach out to our support and we'll provide you with the logs you need. Note that webhooks trigger for activities performed by direct S3 requests as well.
 
+<h2 id="stream">Streaming audit logs</h2>
+
+:::info
+Streaming audit logs is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing).
+:::
+
+In addition to inspecting audit logs in the dashboard or exporting them to your storage, you can stream events in near real-time to a SIEM (Security Information and Event Management) or observability platform of your choice. This lets you correlate SFTP To Go activity with the rest of your security telemetry, set up alerts, and meet compliance requirements that mandate centralized log retention.
+
+Each streamed event mirrors the structure of the [CSV export](#export) above and is delivered as it happens, so you can react to suspicious activity (e.g., failed logins, access from unexpected locations, mass downloads) without waiting for a scheduled export.
+
+### Supported destinations
+
+| Destination | Description |
+|--|--|
+| **Amazon EventBridge** | Stream events to an EventBridge event bus in your AWS account. From there you can fan out to Lambda, Kinesis Data Firehose, S3, CloudWatch, or any other EventBridge target. |
+| **Datadog** | Stream events to Datadog Logs via the HTTP intake. Choose your Datadog site (US1, US3, US5, EU, GovCloud, AP1) when you configure the destination. |
+| **Splunk Cloud** | Stream events to a Splunk HTTP Event Collector (HEC) endpoint. |
+| **Webhook** | Stream events to a custom HTTPS endpoint as JSON. Useful for sending events to your own service, internal SIEM, or any platform that accepts authenticated webhook deliveries. |
+
+### Add a streaming destination
+
+1. Go to your organization's [**Settings** tab](../getting-started/organization-settings#audit-logs) and scroll to the **Stream audit logs** section.
+2. Click **Add destination**.
+3. Pick a destination type and click **Next**.
+4. Enter a **Destination name** (used to identify the destination in the dashboard) and the provider-specific configuration:
+   - **Amazon EventBridge** — provide the **AWS account ID** that owns the event bus, the **Region**, and the **Event bus name**. After you save the destination, SFTP To Go shows the **resource policy** you need to attach to your event bus's **Permissions** tab. See [Amazon EventBridge destination](#amazon-eventbridge-destination) below for details.
+   - **Datadog** — pick your **Datadog site** and paste a Datadog **API key**. We probe the [Datadog validate endpoint](https://docs.datadoghq.com/api/latest/authentication/) to confirm the key is valid before we save the destination.
+   - **Splunk Cloud** — provide your **HEC endpoint** (must start with `https://`) and a **HEC token**. We probe the collector to confirm the token is accepted before we save the destination.
+   - **Webhook** — provide an HTTPS **Endpoint** and the **Authorization header name** + **value** to authenticate the requests. See [Webhook destination](#webhook-destination) below for details.
+5. Click **Add destination** to save.
+
+If the credentials don't validate, the destination won't be saved and you'll see an error explaining what went wrong. The destination starts in the **Active** state, and you can pause or resume it from the **Edit destination** dialog.
+
+### Manage destinations
+
+You can configure multiple destinations and stream the same events to all of them. From the destinations table you can:
+
+- **Edit destination** — change the name, rotate credentials, switch the state between **Active** and **Disabled**.
+- **Delete destination** — stop streaming and remove all related resources.
+
+:::note
+Disabling a destination stops the flow of new events but keeps the configuration around so you can re-enable it later without re-entering credentials.
+:::
+
+### Amazon EventBridge destination
+
+An Amazon EventBridge destination delivers events to an event bus in your AWS account. SFTP To Go uses a shared service IAM role on our side, and authorization is granted by a **resource-based policy** that you attach to your event bus — no IAM role creation or trust policies needed on your end.
+
+**Setup**
+
+1. Pick or create the EventBridge bus that should receive events in your AWS account.
+2. In SFTP To Go, start adding a destination of type **Amazon EventBridge** with your AWS **account ID**, the bus **region**, and the **event bus name** (leave blank for the `default` bus). As you fill the form, SFTP To Go renders a ready-to-paste **resource policy** prefilled with our service role ARN, your account ID, your region, and your bus name.
+3. In the AWS console, open your event bus → **Permissions** tab → paste the policy.
+4. Save the destination in SFTP To Go.
+
+**What the policy grants**
+
+The policy lets SFTP To Go's service role call `events:PutEvents` on your specific event bus, only when the call originates from our AWS account (`aws:SourceAccount` condition guards against confused-deputy attacks). It does not grant any other permissions.
+
+**Event shape**
+
+Each delivered event carries `detail-type: "Audit Log"`, and its `source` is `sftptogo`. Use these to write EventBridge rules that target audit log events. The event detail mirrors the structure of the [CSV export](#export) above.
+
+**Validation**
+
+We don't probe the event bus before saving the destination — there's no cross-account API to test the resource policy against. If the policy is missing or wrong, you'll see delivery failures in your AWS CloudWatch metrics for the EventBridge rule. Update the policy and deliveries will resume on the next event.
+
+### Webhook destination
+
+A Webhook destination sends events as authenticated HTTPS `POST` requests to an endpoint you control. Each request body is the event as a JSON object (`Content-Type: application/json`), one event per request.
+
+**Authentication**
+
+You provide a header name and value that we attach to every request. The most common combinations:
+
+- `Authorization` + `Bearer <token>` for OAuth/JWT-style bearer tokens
+- `Authorization` + `Basic <base64>` for HTTP Basic auth
+- `X-API-Key` + `<key>` for endpoints that expect an API-key header
+
+The header value is stored in AWS Secrets Manager and never returned through the API or UI after it's saved.
+
+**Validating the endpoint**
+
+Before saving the destination, we send a ping `POST` to the endpoint using the configured authentication. The endpoint must respond with a `2xx` status code for the destination to be saved.
+
