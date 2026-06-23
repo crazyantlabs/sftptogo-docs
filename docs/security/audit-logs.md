@@ -82,11 +82,11 @@ If the credentials don't validate, the destination won't be saved and you'll see
 
 You can configure multiple destinations and stream the same events to all of them. From the destinations table you can:
 
-- **Edit destination** — change the name, rotate credentials, switch the state between **Active** and **Disabled**.
+- **Edit destination** — change the name, rotate credentials, switch the state between **Active** and **Paused**.
 - **Delete destination** — stop streaming and remove all related resources.
 
 :::note
-Disabling a destination stops the flow of new events but keeps the configuration around so you can re-enable it later without re-entering credentials.
+Pausing a destination stops the flow of new events but keeps the configuration around so you can resume it later without re-entering credentials.
 :::
 
 ### Amazon EventBridge destination
@@ -110,11 +110,15 @@ Each delivered event carries `detail-type: "Audit Log"`, and its `source` is `sf
 
 **Validation**
 
-We don't probe the event bus before saving the destination — there's no cross-account API to test the resource policy against. If the policy is missing or wrong, you'll see delivery failures in your AWS CloudWatch metrics for the EventBridge rule. Update the policy and deliveries will resume on the next event.
+We don't probe the event bus before saving the destination — there's no cross-account API to test the resource policy against. If the policy is missing or wrong, the destination's row in the dashboard shows a **Delivery failing** badge once the first event fails to deliver, with the underlying error code and message in the tooltip. The signal is updated as new failures occur, so once the policy is fixed and events start flowing again you can verify that the badge stops updating.
 
 ### Webhook destination
 
 A Webhook destination sends events as authenticated HTTPS `POST` requests to an endpoint you control. Each request body is the event as a JSON object (`Content-Type: application/json`), one event per request.
+
+:::warning
+Your endpoint must return a response within **5 seconds**. Requests that take longer are treated as failures and retried. Make sure your handler returns `2xx` immediately and processes the event asynchronously if needed.
+:::
 
 **Authentication**
 
