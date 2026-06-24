@@ -185,7 +185,6 @@ A Sumo Logic destination delivers events to a [Sumo Logic HTTP Logs source](http
 ```
 Content-Type: application/json
 X-Sumo-Token: <your-Auth-Header-token>
-X-Sumo-Client: sftptogo-audit-logs-streaming
 ```
 
 Each request body is one event wrapped in:
