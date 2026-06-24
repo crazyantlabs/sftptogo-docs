@@ -62,6 +62,7 @@ Each streamed event mirrors the structure of the [CSV export](#export) above and
 | **Amazon EventBridge** | Stream events to an EventBridge event bus in your AWS account. From there you can fan out to Lambda, Kinesis Data Firehose, S3, CloudWatch, or any other EventBridge target. |
 | **Datadog** | Stream events to Datadog Logs via the HTTP intake. Choose your Datadog site (US1, US3, US5, EU, GovCloud, AP1) when you configure the destination. |
 | **Splunk Cloud** | Stream events to a Splunk HTTP Event Collector (HEC) endpoint. |
+| **Sumo Logic** | Stream events to a Sumo Logic HTTP Logs source using the **Auth Header** flow. |
 | **Webhook** | Stream events to a custom HTTPS endpoint as JSON. Useful for sending events to your own service, internal SIEM, or any platform that accepts authenticated webhook deliveries. |
 
 ### Add a streaming destination
@@ -72,7 +73,8 @@ Each streamed event mirrors the structure of the [CSV export](#export) above and
 4. Enter a **Destination name** (used to identify the destination in the dashboard) and the provider-specific configuration:
    - **Amazon EventBridge** — provide the **AWS account ID** that owns the event bus, the **Region**, and the **Event bus name**. After you save the destination, SFTP To Go shows the **resource policy** you need to attach to your event bus's **Permissions** tab. See [Amazon EventBridge destination](#amazon-eventbridge-destination) below for details.
    - **Datadog** — pick your **Datadog site** and paste a Datadog **API key**. We probe the [Datadog validate endpoint](https://docs.datadoghq.com/api/latest/authentication/) to confirm the key is valid before we save the destination.
-   - **Splunk Cloud** — provide your **HEC endpoint** (must start with `https://`) and a **HEC token**. We probe the collector to confirm the token is accepted before we save the destination.
+   - **Splunk Cloud** — provide your **HEC endpoint** (must start with `https://`) and a **HEC token**. We probe the collector to confirm the token is accepted before we save the destination. See [Splunk Cloud destination](#splunk-cloud-destination) below for details.
+   - **Sumo Logic** — provide your **HTTP source URL** (the unique URL Sumo Logic generates for the source) and the **Authentication token** from the source's **Auth Header** option. We probe the source to confirm the token is accepted before we save the destination. See [Sumo Logic destination](#sumo-logic-destination) below for details.
    - **Webhook** — provide an HTTPS **Endpoint** and the **Authorization header name** + **value** to authenticate the requests. See [Webhook destination](#webhook-destination) below for details.
 5. Click **Add destination** to save.
 
@@ -112,9 +114,113 @@ Each delivered event carries `detail-type: "Audit Log"`, and its `source` is `sf
 
 We don't probe the event bus before saving the destination — there's no cross-account API to test the resource policy against. If the policy is missing or wrong, the destination's row in the dashboard shows a **Delivery failing** badge once the first event fails to deliver, with the underlying error code and message in the tooltip. The signal is updated as new failures occur, so once the policy is fixed and events start flowing again you can verify that the badge stops updating.
 
+### Datadog destination
+
+A Datadog destination delivers events to your Datadog org via the [Datadog Logs HTTP intake](https://docs.datadoghq.com/api/latest/logs/), authenticated with a Datadog **API key**. We probe the [Datadog validate endpoint](https://docs.datadoghq.com/api/latest/authentication/) with the key before we save the destination.
+
+**Request shape**
+
+`POST https://http-intake.logs.<your-site>/api/v2/logs`
+
+```
+Content-Type: application/json
+DD-API-KEY: <your-API-key>
+```
+
+Each request body is one event wrapped in the Datadog ingest envelope:
+
+```json
+{
+  "message": { /* the audit log event */ },
+  "ddsource": "sftptogo",
+  "service": "audit-logs",
+  "ddtags": "org:<your-organization-id>"
+}
+```
+
+In Datadog Logs Explorer you can filter on `source:sftptogo`, `service:audit-logs`, or `org:<id>`. The `message` field carries the audit log object whose shape mirrors the [CSV export](#export) above.
+
+### Splunk Cloud destination
+
+A Splunk Cloud destination delivers events to a [Splunk HTTP Event Collector (HEC)](https://help.splunk.com/en/splunk-enterprise/leverage-rest-apis/rest-api-reference/10.4/input-endpoints/input-endpoint-descriptions) endpoint, authenticated with a HEC token.
+
+**Request shape**
+
+`POST <your-HEC-endpoint>/services/collector/raw`
+
+```
+Content-Type: application/json
+Authorization: Splunk <your-HEC-token>
+```
+
+Each request body is one event wrapped in the Splunk HEC envelope:
+
+```json
+{
+  "event": { /* the audit log event */ },
+  "source": "sftptogo",
+  "time": 1716897600000
+}
+```
+
+:::warning
+The `time` field is the event's `Timestamp` in **milliseconds since epoch**. Splunk HEC's default `time` parser expects seconds. Either configure your HEC token to accept milliseconds, or add a `SOURCETYPE`/props.conf rule that divides by 1000.
+:::
+
+### Sumo Logic destination
+
+A Sumo Logic destination delivers events to a [Sumo Logic HTTP Logs source](https://www.sumologic.com/help/docs/send-data/hosted-collectors/http-source/logs-metrics/) using the **Auth Header** flow — the URL identifies the source, and the authentication token is sent as a separate header on every request. We probe the source with the token before we save the destination.
+
+**Setup**
+
+1. In Sumo Logic, create an **HTTP Logs and Metrics** source on a hosted collector.
+2. Enable the **Auth Header** option on the source. Sumo Logic generates an authentication token; copy it.
+3. Copy the source's **URL**.
+4. In SFTP To Go, paste the **HTTP source URL** and the **Authentication token** into the Sumo Logic destination form.
+
+**Request shape**
+
+`POST <your-source-URL>`
+
+```
+Content-Type: application/json
+X-Sumo-Token: <your-Auth-Header-token>
+X-Sumo-Client: sftptogo-audit-logs-streaming
+```
+
+Each request body is one event wrapped in:
+
+```json
+{
+  "message": { /* the audit log event */ },
+  "source": "sftptogo",
+  "service": "audit-logs",
+  "host": "<your-organization-id>"
+}
+```
+
 ### Webhook destination
 
-A Webhook destination sends events as authenticated HTTPS `POST` requests to an endpoint you control. Each request body is the event as a JSON object (`Content-Type: application/json`), one event per request.
+A Webhook destination sends events as authenticated HTTPS `POST` requests to an endpoint you control.
+
+**Request shape**
+
+`POST <your-endpoint>`
+
+```
+Content-Type: application/json
+<your-Authorization-header-name>: <your-Authorization-header-value>
+```
+
+Each request body is one event wrapped in:
+
+```json
+{
+  "Event": { /* the audit log event */ },
+  "Source": "sftptogo",
+  "Service": "audit-logs"
+}
+```
 
 :::warning
 Your endpoint must return a response within **5 seconds**. Requests that take longer are treated as failures and retried. Make sure your handler returns `2xx` immediately and processes the event asynchronously if needed.
