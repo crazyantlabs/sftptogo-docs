@@ -84,13 +84,15 @@ Unlike the CSV export — where `Data` is stringified to fit a CSV cell — the 
    - **Webhook** — provide an HTTPS **Endpoint** and the **Authorization header name** + **value** to authenticate the requests. See [Webhook destination](#webhook-destination) below for details.
 5. Click **Add destination** to save.
 
-If the credentials don't validate, the destination won't be saved and you'll see an error explaining what went wrong. The destination starts in the **Active** state, and you can pause or resume it from the **Edit destination** dialog.
+If the credentials don't validate, the destination won't be saved and you'll see an error explaining what went wrong. The destination starts in the **Active** state, and you can pause or resume it any time from the actions menu.
 
 ### Manage destinations
 
-You can configure multiple destinations and stream the same events to all of them. From the destinations table you can:
+You can configure multiple destinations and stream the same events to all of them. From the destinations table's actions menu (the **⋯** button on each row) you can:
 
-- **Edit destination** — change the name, rotate credentials, switch the state between **Active** and **Paused**.
+- **Edit destination** — change the name, rotate credentials, or switch the state between **Active** and **Paused**.
+- **Pause destination** — stop delivering new events to this destination without removing it. The action is only shown when the destination is **Active**.
+- **Resume destination** — resume deliveries to a paused destination. The action is only shown when the destination is **Paused**.
 - **Delete destination** — stop streaming and remove all related resources.
 
 :::note
