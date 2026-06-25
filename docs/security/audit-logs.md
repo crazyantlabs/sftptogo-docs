@@ -55,6 +55,10 @@ In addition to inspecting audit logs in the dashboard or exporting them to your 
 
 Each streamed event mirrors the structure of the [CSV export](#export) above and is delivered as it happens, so you can react to suspicious activity (e.g., failed logins, access from unexpected locations, mass downloads) without waiting for a scheduled export.
 
+:::note
+Unlike the CSV export — where `Data` is stringified to fit a CSV cell — the streaming payload keeps `Data` as a nested JSON object so your SIEM can index and search its fields directly.
+:::
+
 ### Supported destinations
 
 | Destination | Description |
@@ -218,7 +222,11 @@ You need to provision a few Azure resources before adding the destination in SFT
    [
      {
        "TimeGenerated": "2026-06-24T10:30:00.000Z",
-       "Event": {
+       "Source": "sftptogo",
+       "Service": "audit-logs",
+       "EventType": "user.login",
+       "OrganizationId": "00000000-0000-0000-0000-000000000000",
+       "Data": {
          "Id": "00000000-0000-0000-0000-000000000000",
          "Type": "user.login",
          "PrincipalId": "user-id",
@@ -233,7 +241,7 @@ You need to provision a few Azure resources before adding the destination in SFT
    ]
    ```
 
-   This tells Sentinel that the incoming stream has two columns: `TimeGenerated` (datetime) and `Event` (dynamic).
+   This tells Sentinel the incoming stream has six columns: `TimeGenerated` (datetime), `Source` (string), `Service` (string), `EventType` (string), `OrganizationId` (string), and `Data` (dynamic). The first five are hoisted top-level so you can write KQL filters like `EventType == "user.login"` without descending into `Data`.
 
 2. **Register a Microsoft Entra application.** In the Azure portal, go to **Microsoft Entra ID** → **App registrations** → **New registration**. Note down the **Application (client) ID** and the **Directory (tenant) ID** from the app's Overview page.
 
@@ -245,7 +253,7 @@ You need to provision a few Azure resources before adding the destination in SFT
    - `properties.endpoints.logsIngestion` — this is the **Data collection endpoint URL** (looks like `https://<name>.<region>.ingest.monitor.azure.com`).
    - `properties.immutableId` — this is the **DCR immutable ID** (looks like `dcr-` followed by a 32-character hex string).
 
-6. **Note the stream name.** On the DCR, open **Data sources** → look for the stream declaration (e.g., `Custom-SftptogoAuditLog`). This is the **Stream name**.
+6. **Note the stream name.** On the DCR, open **Data sources** → look for the stream declaration (e.g., `Custom-SFTPToGoAuditLog`). This is the **Stream name**.
 
 7. **In SFTP To Go**, paste all six values into the Microsoft Sentinel destination form.
 
@@ -264,12 +272,16 @@ Each request body is a single-element JSON array:
 [
   {
     "TimeGenerated": "2026-06-24T10:30:00.000Z",
-    "Event": { /* the audit log event */ }
+    "Source": "sftptogo",
+    "Service": "audit-logs",
+    "EventType": "user.login",
+    "OrganizationId": "<your-organization-id>",
+    "Data": { /* the audit log event */ }
   }
 ]
 ```
 
-The audit log object whose shape mirrors the [CSV export](#export) above is delivered under the `Event` column. `TimeGenerated` is the canonical timestamp column that Sentinel uses for time-range filtering.
+The audit log object whose shape mirrors the [CSV export](#export) above is delivered under the `Data` column. `TimeGenerated` is the canonical timestamp column Sentinel uses for time-range filtering, while `Source`, `Service`, `EventType`, and `OrganizationId` are hoisted top-level so common KQL queries (e.g., `EventType == "user.login-failed"`) don't need to descend into the nested payload.
 
 **Authentication**
 
