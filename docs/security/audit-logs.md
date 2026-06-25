@@ -65,9 +65,9 @@ Unlike the CSV export — where `Data` is stringified to fit a CSV cell — the 
 |--|--|
 | **Amazon EventBridge** | Stream events to an EventBridge event bus in your AWS account. From there you can fan out to Lambda, Kinesis Data Firehose, S3, CloudWatch, or any other EventBridge target. |
 | **Datadog** | Stream events to Datadog Logs via the HTTP intake. Choose your Datadog site (US1, US3, US5, EU, GovCloud, AP1) when you configure the destination. |
-| **Microsoft Sentinel** | Stream events to a Log Analytics workspace via the [Azure Monitor Logs Ingestion API](https://learn.microsoft.com/azure/azure-monitor/logs/logs-ingestion-api-overview). Azure public cloud only. |
-| **Splunk Cloud** | Stream events to a Splunk HTTP Event Collector (HEC) endpoint. |
-| **Sumo Logic** | Stream events to a Sumo Logic HTTP Logs source using the **Auth Header** flow. |
+| **Microsoft Sentinel** _(Beta)_ | Stream events to a Log Analytics workspace via the [Azure Monitor Logs Ingestion API](https://learn.microsoft.com/azure/azure-monitor/logs/logs-ingestion-api-overview). Azure public cloud only. |
+| **Splunk Cloud** _(Beta)_ | Stream events to a Splunk HTTP Event Collector (HEC) endpoint. |
+| **Sumo Logic** _(Beta)_ | Stream events to a Sumo Logic HTTP Logs source using the **Auth Header** flow. |
 | **Webhook** | Stream events to a custom HTTPS endpoint as JSON. Useful for sending events to your own service, internal SIEM, or any platform that accepts authenticated webhook deliveries. |
 
 ### Add a streaming destination
@@ -116,7 +116,60 @@ The policy lets SFTP To Go's service role call `events:PutEvents` on your specif
 
 **Event shape**
 
-Each delivered event carries `detail-type: "Audit Log"`, and its `source` is `sftptogo`. Use these to write EventBridge rules that target audit log events. The event detail mirrors the structure of the [CSV export](#export) above.
+Each delivered event carries `detail-type: "Audit Log"`, and its `source` is `sftptogo`. The event detail mirrors the structure of the [CSV export](#export) above.
+
+A delivered event looks like this on the bus:
+
+```json
+{
+  "version": "0",
+  "id": "9a1c8fcf-7a01-4c4d-b8aa-1bc8b3d2c3d1",
+  "detail-type": "Audit Log",
+  "source": "sftptogo",
+  "account": "123456789012",
+  "time": "2026-06-25T10:30:00Z",
+  "region": "us-east-1",
+  "resources": [],
+  "detail": {
+    "Id": "00000000-0000-0000-0000-000000000000",
+    "Type": "user.login",
+    "PrincipalId": "alice",
+    "PrincipalType": "user",
+    "UserName": "alice",
+    "SessionId": "session-id",
+    "OriginalIpAddress": "203.0.113.42",
+    "Geo": "San Francisco, California, US",
+    "UserAgent": "Chrome - macOS 14.5.0",
+    "Timestamp": 1782556800000,
+    "Data": { /* event-specific fields */ }
+  }
+}
+```
+
+**Writing EventBridge rules**
+
+To target SFTP To Go audit log events, write a rule with this event pattern:
+
+```json
+{
+  "source": ["sftptogo"],
+  "detail-type": ["Audit Log"]
+}
+```
+
+To narrow further by event type — for example, only failed logins and explicit access-denied events — match nested fields in `detail`:
+
+```json
+{
+  "source": ["sftptogo"],
+  "detail-type": ["Audit Log"],
+  "detail": {
+    "Type": ["user.login-failed", "user.access-denied"]
+  }
+}
+```
+
+Any field in the [delivered event detail](#amazon-eventbridge-destination) can be used in the event pattern. See [Amazon EventBridge event patterns](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html) for the full filter syntax (prefix, anything-but, numeric matching, etc.).
 
 **Validation**
 
@@ -150,6 +203,10 @@ In Datadog Logs Explorer you can filter on `source:sftptogo`, `service:audit-log
 
 ### Splunk Cloud destination
 
+:::info
+This destination is currently in **Beta**. The integration is functional but hasn't been validated end-to-end against a customer environment yet — please report any issues to support.
+:::
+
 A Splunk Cloud destination delivers events to a [Splunk HTTP Event Collector (HEC)](https://help.splunk.com/en/splunk-enterprise/leverage-rest-apis/rest-api-reference/10.4/input-endpoints/input-endpoint-descriptions) endpoint, authenticated with a HEC token.
 
 **Request shape**
@@ -176,6 +233,10 @@ The `time` field is the event's `Timestamp` in **milliseconds since epoch**. Spl
 :::
 
 ### Sumo Logic destination
+
+:::info
+This destination is currently in **Beta**. The integration is functional but hasn't been validated end-to-end against a customer environment yet — please report any issues to support.
+:::
 
 A Sumo Logic destination delivers events to a [Sumo Logic HTTP Logs source](https://www.sumologic.com/help/docs/send-data/hosted-collectors/http-source/logs-metrics/) using the **Auth Header** flow — the URL identifies the source, and the authentication token is sent as a separate header on every request. We probe the source with the token before we save the destination.
 
@@ -207,6 +268,10 @@ Each request body is one event wrapped in:
 ```
 
 ### Microsoft Sentinel destination
+
+:::info
+This destination is currently in **Beta**. The integration is functional but hasn't been validated end-to-end against a customer environment yet — please report any issues to support.
+:::
 
 A Microsoft Sentinel destination delivers events to a [Log Analytics workspace](https://learn.microsoft.com/azure/azure-monitor/logs/log-analytics-workspace-overview) via the [Azure Monitor Logs Ingestion API](https://learn.microsoft.com/azure/azure-monitor/logs/logs-ingestion-api-overview), authenticated with an OAuth 2.0 client credentials flow against Microsoft Entra ID. The events land in a [custom table](https://learn.microsoft.com/azure/azure-monitor/logs/create-custom-table) that you create in your workspace, where they're available to Microsoft Sentinel for queries, analytics rules, and workbooks.
 
