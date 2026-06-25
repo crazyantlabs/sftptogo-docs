@@ -61,6 +61,7 @@ Each streamed event mirrors the structure of the [CSV export](#export) above and
 |--|--|
 | **Amazon EventBridge** | Stream events to an EventBridge event bus in your AWS account. From there you can fan out to Lambda, Kinesis Data Firehose, S3, CloudWatch, or any other EventBridge target. |
 | **Datadog** | Stream events to Datadog Logs via the HTTP intake. Choose your Datadog site (US1, US3, US5, EU, GovCloud, AP1) when you configure the destination. |
+| **Microsoft Sentinel** | Stream events to a Log Analytics workspace via the [Azure Monitor Logs Ingestion API](https://learn.microsoft.com/azure/azure-monitor/logs/logs-ingestion-api-overview). Azure public cloud only. |
 | **Splunk Cloud** | Stream events to a Splunk HTTP Event Collector (HEC) endpoint. |
 | **Sumo Logic** | Stream events to a Sumo Logic HTTP Logs source using the **Auth Header** flow. |
 | **Webhook** | Stream events to a custom HTTPS endpoint as JSON. Useful for sending events to your own service, internal SIEM, or any platform that accepts authenticated webhook deliveries. |
@@ -73,6 +74,7 @@ Each streamed event mirrors the structure of the [CSV export](#export) above and
 4. Enter a **Destination name** (used to identify the destination in the dashboard) and the provider-specific configuration:
    - **Amazon EventBridge** — provide the **AWS account ID** that owns the event bus, the **Region**, and the **Event bus name**. After you save the destination, SFTP To Go shows the **resource policy** you need to attach to your event bus's **Permissions** tab. See [Amazon EventBridge destination](#amazon-eventbridge-destination) below for details.
    - **Datadog** — pick your **Datadog site** and paste a Datadog **API key**. We probe the [Datadog validate endpoint](https://docs.datadoghq.com/api/latest/authentication/) to confirm the key is valid before we save the destination.
+   - **Microsoft Sentinel** — provide your **Data collection endpoint URL**, **DCR immutable ID**, **Stream name**, **Tenant ID**, **Client ID**, and **Client secret**. We acquire an Azure AD access token and POST a validation event to the data collection rule to confirm everything is wired correctly before saving. See [Microsoft Sentinel destination](#microsoft-sentinel-destination) below for setup details.
    - **Splunk Cloud** — provide your **HEC endpoint** (must start with `https://`) and a **HEC token**. We probe the collector to confirm the token is accepted before we save the destination. See [Splunk Cloud destination](#splunk-cloud-destination) below for details.
    - **Sumo Logic** — provide your **HTTP source URL** (the unique URL Sumo Logic generates for the source) and the **Authentication token** from the source's **Auth Header** option. We probe the source to confirm the token is accepted before we save the destination. See [Sumo Logic destination](#sumo-logic-destination) below for details.
    - **Webhook** — provide an HTTPS **Endpoint** and the **Authorization header name** + **value** to authenticate the requests. See [Webhook destination](#webhook-destination) below for details.
@@ -197,6 +199,100 @@ Each request body is one event wrapped in:
   "host": "<your-organization-id>"
 }
 ```
+
+### Microsoft Sentinel destination
+
+A Microsoft Sentinel destination delivers events to a [Log Analytics workspace](https://learn.microsoft.com/azure/azure-monitor/logs/log-analytics-workspace-overview) via the [Azure Monitor Logs Ingestion API](https://learn.microsoft.com/azure/azure-monitor/logs/logs-ingestion-api-overview), authenticated with an OAuth 2.0 client credentials flow against Microsoft Entra ID. The events land in a [custom table](https://learn.microsoft.com/azure/azure-monitor/logs/create-custom-table) that you create in your workspace, where they're available to Microsoft Sentinel for queries, analytics rules, and workbooks.
+
+:::info
+SFTP To Go supports Azure public cloud only. Microsoft Azure operated by 21Vianet and Azure US Government clouds are not supported.
+:::
+
+**Setup**
+
+You need to provision a few Azure resources before adding the destination in SFTP To Go. The steps below describe the minimum setup.
+
+1. **Create a custom table in your Log Analytics workspace.** Open your workspace → **Tables** → **Create** → **New custom log (DCR-based)**. Use a table name ending in `_CL` (e.g., `SftptogoAuditLog_CL`). The Azure portal flow will guide you through creating a data collection rule (DCR) and a data collection endpoint (DCE) at the same time. When asked for sample data, paste a single event like:
+
+   ```json
+   [
+     {
+       "TimeGenerated": "2026-06-24T10:30:00.000Z",
+       "Event": {
+         "Id": "00000000-0000-0000-0000-000000000000",
+         "Type": "user.login",
+         "PrincipalId": "user-id",
+         "PrincipalType": "user",
+         "Username": "alice",
+         "SessionId": "session-id",
+         "IpAddress": "203.0.113.42",
+         "Timestamp": 1782556800000,
+         "Data": {}
+       }
+     }
+   ]
+   ```
+
+   This tells Sentinel that the incoming stream has two columns: `TimeGenerated` (datetime) and `Event` (dynamic).
+
+2. **Register a Microsoft Entra application.** In the Azure portal, go to **Microsoft Entra ID** → **App registrations** → **New registration**. Note down the **Application (client) ID** and the **Directory (tenant) ID** from the app's Overview page.
+
+3. **Create a client secret.** On the app, open **Certificates & secrets** → **New client secret**. Copy the secret **Value** (not the Secret ID) — it's only shown once.
+
+4. **Grant the app the `Monitoring Metrics Publisher` role on the DCR.** Open **Monitor** → **Data collection rules** → your DCR → **Access control (IAM)** → **Add role assignment** → **Monitoring Metrics Publisher** → assign to the Entra application from step 2.
+
+5. **Collect the ingestion endpoint and DCR immutable ID.** Open your DCR → **JSON view** (set API version to the latest). Copy:
+   - `properties.endpoints.logsIngestion` — this is the **Data collection endpoint URL** (looks like `https://<name>.<region>.ingest.monitor.azure.com`).
+   - `properties.immutableId` — this is the **DCR immutable ID** (looks like `dcr-` followed by a 32-character hex string).
+
+6. **Note the stream name.** On the DCR, open **Data sources** → look for the stream declaration (e.g., `Custom-SftptogoAuditLog`). This is the **Stream name**.
+
+7. **In SFTP To Go**, paste all six values into the Microsoft Sentinel destination form.
+
+**Request shape**
+
+`POST {Data collection endpoint URL}/dataCollectionRules/{DCR immutable ID}/streams/{Stream name}?api-version=2023-01-01`
+
+```
+Content-Type: application/json
+Authorization: Bearer <Azure AD access token>
+```
+
+Each request body is a single-element JSON array:
+
+```json
+[
+  {
+    "TimeGenerated": "2026-06-24T10:30:00.000Z",
+    "Event": { /* the audit log event */ }
+  }
+]
+```
+
+The audit log object whose shape mirrors the [CSV export](#export) above is delivered under the `Event` column. `TimeGenerated` is the canonical timestamp column that Sentinel uses for time-range filtering.
+
+**Authentication**
+
+SFTP To Go uses the OAuth 2.0 client credentials flow against Microsoft Entra ID:
+
+`POST https://login.microsoftonline.com/{Tenant ID}/oauth2/v2.0/token`
+
+```
+Content-Type: application/x-www-form-urlencoded
+```
+
+```
+grant_type=client_credentials
+&client_id=<Client ID>
+&client_secret=<Client secret>
+&scope=https://monitor.azure.com/.default
+```
+
+Tokens are cached and refreshed automatically. The **Client secret** is stored in AWS Secrets Manager and never returned through the API or UI after it's saved.
+
+**Validation**
+
+Before saving the destination, we exchange your credentials for an access token and POST a single validation event to the DCR ingestion endpoint. If anything is misconfigured — Entra app credentials rejected, missing role assignment, wrong DCR ID, wrong stream name, or stream schema mismatch — the save is rejected with an error explaining what went wrong.
 
 ### Webhook destination
 
