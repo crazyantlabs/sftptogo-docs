@@ -67,7 +67,7 @@ Unlike the CSV export — where `Data` is stringified to fit a CSV cell — the 
 | **Datadog** | Stream events to Datadog Logs via the HTTP intake. Choose your Datadog site (US1, US3, US5, EU, GovCloud, AP1) when you configure the destination. |
 | **Microsoft Sentinel** _(Beta)_ | Stream events to a Log Analytics workspace via the [Azure Monitor Logs Ingestion API](https://learn.microsoft.com/azure/azure-monitor/logs/logs-ingestion-api-overview). Azure public cloud only. |
 | **Splunk Cloud** _(Beta)_ | Stream events to a Splunk HTTP Event Collector (HEC) endpoint. |
-| **Sumo Logic** _(Beta)_ | Stream events to a Sumo Logic HTTP Logs source using the **Auth Header** flow. |
+| **Sumo Logic** | Stream events to a Sumo Logic HTTP Logs source using the **Auth Header** flow. |
 | **Webhook** | Stream events to a custom HTTPS endpoint as JSON. Useful for sending events to your own service, internal SIEM, or any platform that accepts authenticated webhook deliveries. |
 
 ### Add a streaming destination
@@ -233,10 +233,6 @@ The `time` field is the event's `Timestamp` in **milliseconds since epoch**. Spl
 :::
 
 ### Sumo Logic destination
-
-:::info
-This destination is currently in **Beta**. The integration is functional but hasn't been validated end-to-end against a customer environment yet — please report any issues to support.
-:::
 
 A Sumo Logic destination delivers events to a [Sumo Logic HTTP Logs source](https://www.sumologic.com/help/docs/send-data/hosted-collectors/http-source/logs-metrics/) using the **Auth Header** flow — the URL identifies the source, and the authentication token is sent as a separate header on every request. We probe the source with the token before we save the destination.
 
