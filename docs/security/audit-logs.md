@@ -32,7 +32,7 @@ CSV file structure:
 |--|--|
 |Id|	ID of the event|
 |Timestamp (UTC) |	Time and date at which the event took place  (UTC)|
-|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`|
+|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed`|
 |Principal ID|	ID of the principal responsible for the event|
 |Principal Type|	Type of the principal responsible for the event. e.g. `user`, `share-link`, `admin`, `system`|
 |Username|	Username of the principal responsible for the event|
@@ -110,10 +110,6 @@ When a destination flips from healthy to failing:
 - An **audit log entry of type `audit-logs.streaming-destination.failed`** is recorded with the system principal. The event's data includes the destination ID, destination name, provider, error code, and error message — useful for compliance review or post-mortem.
 
 The alert fires only once per healthy-to-failing transition, not on every retry, so a steady-state failure doesn't spam owners. To clear the alert, fix the underlying issue on the receiving side; once a delivery succeeds the badge stops updating, and a future transition will fire a fresh notification.
-
-:::note
-The error message in the badge tooltip, audit log, and email is capped at 256 characters and stripped of control characters before being stored. The full raw error from the receiver is retained internally for support investigations.
-:::
 
 ### Amazon EventBridge destination
 
