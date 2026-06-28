@@ -99,6 +99,22 @@ You can configure multiple destinations and stream the same events to all of the
 Pausing a destination stops the flow of new events but keeps the configuration around so you can resume it later without re-entering credentials.
 :::
 
+### Delivery health and failure alerts
+
+Every destination is monitored for delivery failures. If new audit log events stop being accepted by the receiving endpoint — invalid credentials, a 4xx/5xx from the receiver, a missing EventBridge resource policy, etc. — SFTP To Go retries with exponential backoff up to a 24-hour window. If the retries are exhausted, the destination is marked as **Delivery failing**.
+
+When a destination flips from healthy to failing:
+
+- A **Delivery failing** badge appears next to the destination in the table. Hover the badge to see the error code, sanitized error message, and the time of the last failure.
+- An **email alert is sent to all organization owners** whose Security email notifications are enabled (Account → Profile → Notifications → Security). This mirrors the same delivery model used by malware-scan alerts — only owners receive it, and they can opt out individually if they prefer to monitor the dashboard instead.
+- An **audit log entry of type `audit-logs.streaming-destination.failed`** is recorded with the system principal. The event's data includes the destination ID, destination name, provider, error code, and error message — useful for compliance review or post-mortem.
+
+The alert fires only once per healthy-to-failing transition, not on every retry, so a steady-state failure doesn't spam owners. To clear the alert, fix the underlying issue on the receiving side; once a delivery succeeds the badge stops updating, and a future transition will fire a fresh notification.
+
+:::note
+The error message in the badge tooltip, audit log, and email is capped at 256 characters and stripped of control characters before being stored. The full raw error from the receiver is retained internally for support investigations.
+:::
+
 ### Amazon EventBridge destination
 
 An Amazon EventBridge destination delivers events to an event bus in your AWS account. SFTP To Go uses a shared service IAM role on our side, and authorization is granted by a **resource-based policy** that you attach to your event bus — no IAM role creation or trust policies needed on your end.
