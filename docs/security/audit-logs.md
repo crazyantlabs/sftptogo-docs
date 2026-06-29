@@ -106,7 +106,7 @@ Every destination is monitored for delivery failures. If new audit log events st
 When a destination flips from healthy to failing:
 
 - A **Delivery failing** badge appears next to the destination in the table. Hover the badge to see the error code, sanitized error message, and the time of the last failure.
-- An **email alert is sent to all organization owners** whose Security email notifications are enabled (Account → Profile → Notifications → Security). This mirrors the same delivery model used by malware-scan alerts — only owners receive it, and they can opt out individually if they prefer to monitor the dashboard instead.
+- An **email alert is sent to all organization owners** whose Security email notifications are enabled (Account → Profile → Notifications → Security). Only owners receive it, and individual owners can opt out if they prefer to monitor the dashboard instead.
 - An **audit log entry of type `audit-logs.streaming-destination.failed`** is recorded with the system principal. The event's data includes the destination ID, destination name, provider, error code, and error message — useful for compliance review or post-mortem.
 
 The alert fires only once per healthy-to-failing transition, not on every retry, so a steady-state failure doesn't spam owners. To clear the alert, fix the underlying issue on the receiving side; once a delivery succeeds the badge stops updating, and a future transition will fire a fresh notification.
@@ -223,7 +223,7 @@ A Splunk Cloud destination delivers events to a [Splunk HTTP Event Collector (HE
 
 **Request shape**
 
-`POST <your-HEC-endpoint>/services/collector/raw`
+`POST <your-HEC-endpoint>/services/collector/event`
 
 ```
 Content-Type: application/json
@@ -236,13 +236,11 @@ Each request body is one event wrapped in the Splunk HEC envelope:
 {
   "event": { /* the audit log event */ },
   "source": "sftptogo",
-  "time": 1716897600000
+  "time": 1716897600.5
 }
 ```
 
-:::warning
-The `time` field is the event's `Timestamp` in **milliseconds since epoch**. Splunk HEC's default `time` parser expects seconds. Either configure your HEC token to accept milliseconds, or add a `SOURCETYPE`/props.conf rule that divides by 1000.
-:::
+The `time` field is the event's timestamp in Unix-seconds-with-fractional-milliseconds (`<sec>.<ms>`) — the default format Splunk HEC expects. Splunk indexes each event at this time, preserving sub-second precision.
 
 ### Sumo Logic destination
 
