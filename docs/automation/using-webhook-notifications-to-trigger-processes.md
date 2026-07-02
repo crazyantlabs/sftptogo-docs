@@ -247,6 +247,14 @@ If you do not return a 200-level status code, SFTP To Go records the failure. Th
 
 The `Actor` key contains information on the user who performed the action. If the action was performed by an SFTP / FTPS / Web Portal user, the `Type` would be `User` and the `Id` would be the **username**. If the action was performed by an IAM user (via S3 APIs), the `Type` would be `IAM` and the `Id` would be the IAM user ID.
 
+### Retry policy
+
+If a delivery fails — your endpoint returns a non-2xx status code, closes the connection, or doesn't respond in time — SFTP To Go automatically retries it with an exponential backoff (plus a small random jitter). Only transient failures are retried: server errors (`5xx`), rate limiting (`429`), request timeouts (`408`), and network or connection errors. Permanent client errors — other `4xx` responses such as `400`, `401`, `403`, or `404` — are not retried, since repeating the request is unlikely to help, and the delivery is marked `Failed` right away. While a delivery is waiting for its next attempt it shows a `Retrying` status in the deliveries log, together with its attempt count and the time of the next attempt; once all retries are exhausted (or a permanent error occurs) it is marked `Failed`. You can re-send any failed delivery manually from the deliveries log.
+
+:::warning
+Because deliveries can be retried, your endpoint may receive the same event more than once. Make sure your processing is idempotent — for example, by de-duplicating on the event `Id` in the payload.
+:::
+
 ### file.created Event Format
 
 ```json
