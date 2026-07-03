@@ -255,6 +255,16 @@ If a delivery fails — your endpoint returns a non-2xx status code, closes the 
 Because deliveries can be retried, your endpoint may receive the same event more than once. Make sure your processing is idempotent — for example, by de-duplicating on the event `Id` in the payload.
 :::
 
+### Automatic pausing
+
+If a webhook's deliveries keep failing, SFTP To Go automatically pauses it. After **5 consecutive failed deliveries** (each one a delivery that failed after its retries were exhausted), the webhook is paused and its organization owners are emailed to let them know. Only real event deliveries count toward this — test pings and manually re-sent deliveries are ignored — and the streak resets as soon as a delivery succeeds.
+
+While paused, a webhook doesn't receive new events. Once you've fixed the issue on the receiving side, **resume** the webhook from the webhooks list to start delivering again; resuming clears the failure count.
+
+:::note
+The pause is also recorded in your [audit log](../security/audit-logs) as a `webhook.paused` event.
+:::
+
 ### file.created Event Format
 
 ```json
