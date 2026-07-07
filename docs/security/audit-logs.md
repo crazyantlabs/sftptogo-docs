@@ -18,7 +18,7 @@ The logs are sorted in a descending order (latest activity to earliest activity)
 Expand an event and click the Username or Session ID links to quickly filter for the same username or session ID.
 :::
 
-<h2 id="export">Exporting Audit Logs</h2>
+## Exporting Audit Logs {#export}
 
 To export audit logs to your SFTP To Go storage, click your organization's [Settings tab](../getting-started/organization-settings#audit-logs), and scroll to Export Audit Logs. Choose the time range you want and click Export to CSV to generate the files. Note that the time range is based on your local time.
 
@@ -45,7 +45,7 @@ CSV file structure:
 
 If you need to inspect S3 access logs (for direct S3 access), please reach out to our support and we'll provide you with the logs you need. Note that webhooks trigger for activities performed by direct S3 requests as well.
 
-<h2 id="stream">Streaming audit logs</h2>
+## Streaming audit logs {#stream}
 
 :::info
 Streaming audit logs is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing).
