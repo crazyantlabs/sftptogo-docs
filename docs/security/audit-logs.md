@@ -18,7 +18,7 @@ The logs are sorted in a descending order (latest activity to earliest activity)
 Expand an event and click the Username or Session ID links to quickly filter for the same username or session ID.
 :::
 
-<h2 id="export">Exporting Audit Logs</h2>
+## Exporting Audit Logs {#export}
 
 To export audit logs to your SFTP To Go storage, click your organization's [Settings tab](../getting-started/organization-settings#audit-logs), and scroll to Export Audit Logs. Choose the time range you want and click Export to CSV to generate the files. Note that the time range is based on your local time.
 
@@ -32,11 +32,7 @@ CSV file structure:
 |--|--|
 |Id|	ID of the event|
 |Timestamp (UTC) |	Time and date at which the event took place  (UTC)|
-<<<<<<< feature/streaming-destinations
-|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed`|
-=======
-|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `webhook.delivery.failed`|
->>>>>>> main
+|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed`, `webhook.delivery.failed`, `webhook.paused`|
 |Principal ID|	ID of the principal responsible for the event|
 |Principal Type|	Type of the principal responsible for the event. e.g. `user`, `share-link`, `admin`, `system`|
 |Username|	Username of the principal responsible for the event|
@@ -49,7 +45,7 @@ CSV file structure:
 
 If you need to inspect S3 access logs (for direct S3 access), please reach out to our support and we'll provide you with the logs you need. Note that webhooks trigger for activities performed by direct S3 requests as well.
 
-<h2 id="stream">Streaming audit logs</h2>
+## Streaming audit logs {#stream}
 
 :::info
 Streaming audit logs is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing).
