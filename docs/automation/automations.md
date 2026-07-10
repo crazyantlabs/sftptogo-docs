@@ -57,7 +57,25 @@ The webhook action sends an HTTP POST request with a JSON body describing the tr
 For security, the authorization header is never shown again after you save it. Leave the field blank when editing to keep the stored value, type a new value to replace it, or clear the field to remove it. Duplicating an automation does not copy its authorization header.
 :::
 
-If you want to receive a notification for an event rather than act on the file, consider a [webhook notification](./using-webhook-notifications-to-trigger-processes) instead — it retries deliveries and signs each request.
+If you want to receive a notification for an event rather than act on the file, consider a [webhook notification](./using-webhook-notifications-to-trigger-processes) instead — it signs each request with a shared secret.
+
+#### Request headers and retries
+
+Requests are retried when the endpoint times out, refuses the connection, or answers `429` or a `5xx` status. Delivery is therefore **at least once**: your endpoint may receive the same request more than once, and it must be safe to process a repeat.
+
+Every request carries these headers:
+
+| Header | Description |
+|--|--|
+|`X-Idempotency-Key`| Identifies the unit of work. Stable across every retry of the same action, and different for every automation run. Deduplicate on this |
+|`X-Automation-Id`| The automation that sent the request |
+|`X-Automation-Execution-Id`| The execution that sent the request |
+|`X-Automation-Action-Id`| The action within that execution |
+|`X-Automation-Attempt`| `0` on the first attempt, then `1`, `2`, … on each retry |
+
+The same values are repeated in a `Metadata` object in the request body, alongside the `trigger`.
+
+To handle retries safely, record the `X-Idempotency-Key` of each request you process and ignore a request whose key you have already seen. An `X-Automation-Attempt` greater than `0` tells you the request is a redelivery.
 
 ## Variables
 
