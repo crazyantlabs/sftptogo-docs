@@ -9,6 +9,7 @@ TL;DR - what are home directories?
 - Each user has a home folder and lands there after login.
 - Each user can access only that folder and its subfolders. It would appear as the top level `/` to them when they access it.
 - You can use the same home directory with multiple users if you'd like them to have access to the same files. For tiered access, you can nest folders.
+- To give a single credential access to several unrelated locations under names you choose, use [virtual folders](./setting-up-virtual-folders.md) instead of a single home directory.
 
 Introduction
 -----
