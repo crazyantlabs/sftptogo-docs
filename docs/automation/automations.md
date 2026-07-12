@@ -57,7 +57,51 @@ The webhook action sends an HTTP POST request with a JSON body describing the tr
 For security, the authorization header is never shown again after you save it. Leave the field blank when editing to keep the stored value, type a new value to replace it, or clear the field to remove it. Duplicating an automation does not copy its authorization header.
 :::
 
-If you want to receive a notification for an event rather than act on the file, consider a [webhook notification](./using-webhook-notifications-to-trigger-processes) instead — it signs each request with a shared secret.
+#### Request body
+
+The request body is a JSON object describing the triggering event, with a `Metadata` object identifying the automation, execution, action and attempt:
+
+```json
+{
+  "Id": "b2c3…",
+  "Topic": "file.created",
+  "Resource": "File",
+  "PreviousData": null,
+  "Data": { "Path": "/uploads/report.pdf", "Size": 1048576 },
+  "Actor": { "Id": "…", "Type": "User" },
+  "CreatedAt": 1783695150000,
+  "UpdatedAt": 1783695150000,
+  "Metadata": {
+    "Organization": { "Id": "…" },
+    "Automation": { "Id": "…" },
+    "Execution": { "Id": "…" },
+    "Action": { "Id": "…" },
+    "Attempt": { "Id": "…", "Count": 0 },
+    "Event": { "Id": "b2c3…", "Topic": "file.created" },
+    "IdempotencyKey": "…"
+  }
+}
+```
+
+#### Verifying the signature
+
+Each automation has a signing secret, shown once when the automation is created and whenever you rotate it. Every webhook request is signed with it, so you can confirm a request genuinely came from SFTP To Go and was not tampered with.
+
+The signature is sent in the `X-Hub-Signature` header as `sha256=<hmac>`, the HMAC-SHA256 of the exact request body computed with your signing secret. To verify a request:
+
+1. Store the signing secret securely on your server. **Never** hardcode it or log it.
+2. Compute the HMAC-SHA256 of the raw request body using the secret.
+3. Compare it to the `X-Hub-Signature` header using a constant-time comparison to avoid timing attacks.
+
+To check your implementation, this secret and body should produce this exact signature:
+
+```
+secret: your-signing-secret
+body:   {"hello":"world"}
+X-Hub-Signature: sha256=3cbbff88ab4a82398a21ab3e2934ee47e53c3a5ba0609866587a80feddb7f755
+```
+
+Rotating the secret invalidates the old one: requests are immediately signed with the new secret. To rotate, open the automation's actions menu and click **Rotate signing secret**.
 
 #### Request headers and retries
 
@@ -72,8 +116,9 @@ Every request carries these headers:
 |`X-Automation-Execution-Id`| The execution that sent the request |
 |`X-Automation-Action-Id`| The action within that execution |
 |`X-Automation-Attempt`| `0` on the first attempt, then `1`, `2`, … on each retry |
+|`X-Hub-Signature`| `sha256=<hmac>` signature of the request body — see [Verifying the signature](#verifying-the-signature) |
 
-The same values are repeated in a `Metadata` object in the request body, alongside the `trigger`.
+The same values are also available in the `Metadata` object of the request body.
 
 To handle retries safely, record the `X-Idempotency-Key` of each request you process and ignore a request whose key you have already seen. An `X-Automation-Attempt` greater than `0` tells you the request is a redelivery.
 
