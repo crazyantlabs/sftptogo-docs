@@ -118,7 +118,7 @@ To view an automation's executions, open its actions menu and click **View execu
 Expand an execution and click **Rerun** to run the automation again against the same trigger that started it.
 
 :::warning
-A rerun runs the automation's real actions again. It may fail if the file the original run acted on no longer exists, or if its current state differs from the original trigger — for example, if a previous run already moved or deleted it. Reruns are recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution-rerun`.
+A rerun runs the automation's real actions again. It may fail if the file the original run acted on no longer exists, or if its current state differs from the original trigger — for example, if a previous run already moved or deleted it. Reruns are recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution.rerun`.
 :::
 
 ## Loop prevention

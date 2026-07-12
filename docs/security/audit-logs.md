@@ -32,7 +32,7 @@ CSV file structure:
 |--|--|
 |Id|	ID of the event|
 |Timestamp (UTC) |	Time and date at which the event took place  (UTC)|
-|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed`, `webhook.delivery.failed`, `webhook.paused`, `automation.created`, `automation.updated`, `automation.deleted`, `automation.paused`, `automation.resumed`, `automation.execution-rerun`, `automation.action-executed`, `automation.execution-failed`|
+|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed`, `webhook.delivery.failed`, `webhook.paused`, `automation.created`, `automation.updated`, `automation.deleted`, `automation.paused`, `automation.resumed`, `automation.execution.rerun`, `automation.action-executed`, `automation.execution-failed`|
 |Principal ID|	ID of the principal responsible for the event|
 |Principal Type|	Type of the principal responsible for the event. e.g. `user`, `share-link`, `admin`, `system`|
 |Username|	Username of the principal responsible for the event|
@@ -57,7 +57,7 @@ Administrative events are attributed to the admin who made the change:
 |`automation.updated`| An automation was updated |
 |`automation.deleted`| An automation was deleted |
 |`automation.resumed`| An automation was resumed |
-|`automation.execution-rerun`| An admin re-ran a past execution. The `Data` object's `Id` is the source execution and `NewExecutionId` is the execution the rerun created |
+|`automation.execution.rerun`| An admin re-ran a past execution. The `Data` object's `Id` is the source execution and `NewExecutionId` is the execution the rerun created |
 
 The remaining events are recorded by the system, so their principal type is `system` rather than the admin who created the automation:
 
