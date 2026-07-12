@@ -107,17 +107,19 @@ For example, a `Move file or folder` action with a destination of `/archive/{{da
 A variable that doesn't match any of the names above is not replaced, and the action fails rather than creating a file with a literal `{{...}}` in its name.
 :::
 
-## Testing an automation
-
-Click **Test** on an automation to run it once against a path you choose.
-
-:::warning
-A test runs the automation's real actions against your real files. A test of an automation with a delete or move action will delete or move the file at the path you provide. Tests are recorded in your [audit logs](../security/audit-logs#automations) as `automation.tested`.
-:::
-
 ## Execution history
 
-Every run of an automation is recorded as an execution, showing whether it succeeded and the result of each individual action, including the error reported by any action that failed. Executions are retained for 30 days.
+Every run of an automation is recorded as an execution, showing whether it succeeded and the state and result of each individual action, including the error reported by any action that failed. Executions are retained for 30 days.
+
+To view an automation's executions, open its actions menu and click **View executions**.
+
+### Rerunning an execution
+
+Expand an execution and click **Rerun** to run the automation again against the same trigger that started it.
+
+:::warning
+A rerun runs the automation's real actions again. It may fail if the file the original run acted on no longer exists, or if its current state differs from the original trigger — for example, if a previous run already moved or deleted it. Reruns are recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution-rerun`.
+:::
 
 ## Loop prevention
 

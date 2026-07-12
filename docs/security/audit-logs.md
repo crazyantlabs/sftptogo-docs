@@ -32,7 +32,7 @@ CSV file structure:
 |--|--|
 |Id|	ID of the event|
 |Timestamp (UTC) |	Time and date at which the event took place  (UTC)|
-|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed`, `webhook.delivery.failed`, `webhook.paused`, `automation.created`, `automation.updated`, `automation.deleted`, `automation.paused`, `automation.resumed`, `automation.tested`, `automation.action-executed`, `automation.execution-failed`|
+|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed`, `webhook.delivery.failed`, `webhook.paused`, `automation.created`, `automation.updated`, `automation.deleted`, `automation.paused`, `automation.resumed`, `automation.execution-rerun`, `automation.action-executed`, `automation.execution-failed`|
 |Principal ID|	ID of the principal responsible for the event|
 |Principal Type|	Type of the principal responsible for the event. e.g. `user`, `share-link`, `admin`, `system`|
 |Username|	Username of the principal responsible for the event|
@@ -57,15 +57,15 @@ Administrative events are attributed to the admin who made the change:
 |`automation.updated`| An automation was updated |
 |`automation.deleted`| An automation was deleted |
 |`automation.resumed`| An automation was resumed |
-|`automation.tested`| An automation was tested. The `Data` object includes the `Topic` and the `Path` the test ran against |
+|`automation.execution-rerun`| An admin re-ran a past execution. The `Data` object's `Id` is the source execution and `NewExecutionId` is the execution the rerun created |
 
 The remaining events are recorded by the system, so their principal type is `system` rather than the admin who created the automation:
 
 | Type | Description |
 |--|--|
 |`automation.paused`| An automation was paused, either by an admin or automatically after consecutive failed executions. When paused automatically, the `Data` object includes a `Reason` of `consecutive-execution-failures` and the `ConsecutiveFailuresCount` |
-|`automation.action-executed`| An automation moved, renamed or deleted a file or folder. The `Data` object includes the `AutomationId`, `ExecutionId`, `ActionId`, `ActionType`, and the `SourcePath` and `DestinationPath` involved |
-|`automation.execution-failed`| An automation execution failed. The `Data` object includes the `AutomationId`, `ExecutionId`, the triggering `Path`, and the `Error` reported by the failing action |
+|`automation.action-executed`| An automation moved, renamed or deleted a file or folder. The `Data` object's `Id` is the execution, plus the `AutomationId`, `ActionId`, `ActionType`, and the `SourcePath` and `DestinationPath` involved |
+|`automation.execution-failed`| An automation execution failed. The `Data` object's `Id` is the execution, plus the `AutomationId`, the triggering `Path`, and the `Error` reported by the failing action |
 
 :::note
 Automations act on your files using SFTP To Go's own credentials, so the resulting `file.created` and `file.deleted` events are attributed to the `system` principal. Use the `automation.action-executed` event to trace a moved, renamed or deleted file back to the automation and execution responsible for it.
