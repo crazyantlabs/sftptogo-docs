@@ -18,9 +18,17 @@ SFTP To Go allows several authentication methods, which are ways to identify the
 * Public key authentication - identification based on username and a cryptographic system that uses pairs of keys. To use it, add a public SSH key to each one of the credentials. This form of authentication is only supported by the SFTP protocol.
 
 
-### Multi-factor authentication
+### Multi-factor Authentication
 
-Select the factors to allow your users to use with Multi-factor authentication when connecting to the web portal.
+Choose which factors users can use to verify their identity when connecting to the web portal.
+
+* **Require MFA for all users**: Toggle this to enforce mandatory MFA enrollment. You must enable at least one factor below for this to take effect.
+
+* **Authenticator App**: Allows the use of apps like Google Authenticator, 1Password, or Authy. This is the most secure method for generating verification codes.
+
+* **Email**: Allows users to receive a one-time password (OTP) via email. 
+  * **Requirement**: Users must have an [associated email address](../getting-started/creating-and-modifying-users#associating-credentials-with-email-addresses). 
+  * **Warning**: If MFA is enforced, users without an associated email address may be prompted for an OTP they cannot receive.
 
 ### Password policy
 
@@ -56,6 +64,16 @@ To add a new custom domain:
 SFTP domains can be added with any plan. Additionally, you can point subdomains to your SFTP endpoint without adding them to the domains list. Adding custom domains for use with the web portal is only available with certain plans. Read more about our various plans [here](https://sftptogo.com/pricing).
 :::
 
+:::warning
+If your domain has a [CAA (Certificate Authority Authorization) record](https://docs.aws.amazon.com/acm/latest/userguide/troubleshooting-caa.html) configured on the root domain or on the subdomain you are adding as a web portal domain, you must ensure that the CAA record authorizes certificate issuance by including at least one of the following values:
+
+* `amazon.com`
+* `amazontrust.com`
+* `awstrust.com`
+* `amazonaws.com`
+
+Without this, TLS certificate provisioning for your custom portal domain will fail. This requirement applies only to **Web portal** custom domains, as SFTP To Go manages TLS certificates on your behalf.
+:::
 
 Here are some links to documentation on editing DNS records with popular domain providers. If your DNS provider isn't listed, log in to your provider's website and search their documentation for adding DNS records.
 
@@ -157,4 +175,21 @@ To change an existing member role, click the menu button (...) and then **Change
 
 :::note
 An account must have at least one owner account.
+:::
+
+### SSO
+
+Enable your team to sign in to the SFTP To Go dashboard using your identity provider.
+To activate SSO (Single-Sign-On), turn it on in the SSO section and follow the on-screen steps to connect your provider.
+
+SFTP To Go supports Google Workspace, Microsoft ADFS, Microsoft Entra, Okta, OpenID, and custom SAML identity providers.
+
+Once connected, users will be redirected to your identity provider for authentication. Their access to the dashboard will follow the roles you assign inside SFTP To Go.
+
+With just-in-time provisioning, new users are created automatically when they sign in through your identity provider for the first time. You do not need to invite them manually. Their account is created on demand and assigned the default role you set in your organization settings. This keeps onboarding simple and ensures that access stays aligned with your identity provider.
+
+If just-in-time provisioning is not enabled, users must be invited manually before they can sign in with SSO. Only accounts that already exist in your organization will be allowed to authenticate through your identity provider.
+
+:::info
+Using SSO is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
 :::

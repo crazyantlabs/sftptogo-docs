@@ -18,7 +18,13 @@ const config = {
   url,
   baseUrl,
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'throw',
+  markdown: {
+    hooks: {
+      // Moved from the top-level `onBrokenMarkdownLinks` option, deprecated in
+      // Docusaurus v3 and removed in v4.
+      onBrokenMarkdownLinks: 'throw',
+    },
+  },
   favicon: '/img/favicon-96x96.png',
   organizationName: 'crazyantlabs',
   projectName: 'sftptogo-docs',

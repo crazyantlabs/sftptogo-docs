@@ -14,21 +14,21 @@
     "write-heading-ids": "docusaurus write-heading-ids"
   },
   "dependencies": {
-    "@docsearch/react": "3.9.0",
-    "@docusaurus/core": "^3.8.1",
-    "@docusaurus/preset-classic": "^3.8.1",
-    "@docusaurus/theme-classic": "^3.8.1",
+    "@docsearch/react": "4.6.3",
+    "@docusaurus/core": "^3.10.1",
+    "@docusaurus/preset-classic": "^3.10.1",
+    "@docusaurus/theme-classic": "^3.10.1",
     "clsx": "^2.1.1",
     "docusaurus-plugin-segment": "^1.0.4",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.4.2",
     "json5": "2.2.3",
     "prism-react-renderer": "^2.4.1",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-error-overlay": "^6.0.9"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-error-overlay": "^6.1.0"
   },
   "resolutions": {
-    "react-error-overlay": "^6.0.9"
+    "react-error-overlay": "^6.1.0"
   },
   "browserslist": {
     "production": [
