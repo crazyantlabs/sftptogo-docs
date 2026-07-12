@@ -41,10 +41,13 @@ Click **Save** to create the automation. It starts running on matching events im
 | Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
 | Delete file or folder | Deletes the file | File created, File downloaded |
 | Send webhook request | Sends an HTTP POST request describing the trigger to an endpoint you choose | File created, File downloaded, File deleted |
+| Send Slack message | Posts a message describing the trigger to a Slack incoming webhook | File created, File downloaded, File deleted |
+| Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | File created, File downloaded, File deleted |
+| Send email | Emails a notification describing the trigger to an address you choose | File created, File downloaded, File deleted |
 
 Actions run one after another. By default, if an action fails the automation stops and the remaining actions don't run. Enable **Continue to next action on failure** on an action to let the automation carry on regardless.
 
-Each action after the first can operate either on the file that triggered the automation, or on the file produced by the previous action — useful for chaining, for example copying a file and then renaming the copy.
+The file actions (copy, move, rename, delete) after the first can operate either on the file that triggered the automation, or on the file produced by the previous action — useful for chaining, for example copying a file and then renaming the copy. The notification actions (webhook, Slack, Microsoft Teams and email) always describe the file that triggered the automation.
 
 ### Send webhook request
 
@@ -121,6 +124,24 @@ Every request carries these headers:
 The same values are also available in the `Metadata` object of the request body.
 
 To handle retries safely, record the `X-Idempotency-Key` of each request you process and ignore a request whose key you have already seen. An `X-Automation-Attempt` greater than `0` tells you the request is a redelivery.
+
+### Send Slack message
+
+Posts a formatted message describing the triggering event to Slack.
+
+* `Incoming webhook URL` — the Slack [incoming webhook](https://api.slack.com/messaging/webhooks) URL to post to. Must be a public HTTPS URL. The message is delivered to whichever channel the incoming webhook is configured for.
+
+### Send Microsoft Teams message
+
+Posts a formatted message describing the triggering event to Microsoft Teams.
+
+* `Incoming webhook URL` — the Microsoft Teams [incoming webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook) URL to post to. Must be a public HTTPS URL. The message is delivered to whichever channel the incoming webhook is configured for.
+
+### Send email
+
+Emails a notification describing the triggering event.
+
+* `Recipient email` — the address to send the notification to.
 
 ## Variables
 
