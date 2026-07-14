@@ -55,7 +55,7 @@ The webhook action sends an HTTP POST request with a JSON body describing the tr
 
 * `Endpoint URL` — must be a public HTTPS URL. Private, loopback and link-local addresses are rejected, as are URLs containing credentials. Variables are supported in the path and query string, but not in the host name.
 * `Authorization header` (optional) — sent as the `Authorization` header value with the request.
-* `API version` — the API version that determines the request payload format sent to your endpoint. New automations use the latest version; change it only to adopt a newer format for an existing automation.
+* `API version` — determines the format of the request payload sent to your endpoint. New automations use the latest version. See [API versions](#api-versions) below.
 
 :::note
 For security, the authorization header is never shown again after you save it. Leave the field blank when editing to keep the stored value, type a new value to replace it, or clear the field to remove it. Duplicating an automation does not copy its authorization header.
@@ -76,7 +76,7 @@ The request body is a JSON object describing the triggering event, with a `Metad
   "CreatedAt": 1783695150000,
   "UpdatedAt": 1783695150000,
   "Metadata": {
-    "ApiVersion": "2020-01-01",
+    "ApiVersion": "2026-07-01.atlas",
     "Organization": { "Id": "…" },
     "Automation": { "Id": "…" },
     "Execution": { "Id": "…" },
@@ -89,6 +89,15 @@ The request body is a JSON object describing the triggering event, with a `Metad
 ```
 
 `Metadata.ApiVersion` identifies the payload format, so you can branch on it if the format ever changes. It matches the **API version** selected on the action.
+
+#### API versions
+
+The API version pins the payload contract, so an existing automation keeps working even after a newer format ships. The versions differ only in how the file path in `Data.Path` is encoded:
+
+* `2026-07-01.atlas` — **latest**, and the default for new automations. `Data.Path` is the **decoded** path — spaces and other special characters appear as-is (e.g. `/uploads/my report.pdf`).
+* `2020-01-01` — `Data.Path` is the raw, **URL-encoded** S3 object key, matching [webhook notifications](./using-webhook-notifications-to-trigger-processes) (e.g. `/uploads/my+report.pdf`, where a space is `+`). Use this if your endpoint already handles that format.
+
+A newer version becomes the default for automations created after it ships; existing automations stay on the version they were created with until you change it.
 
 #### Verifying the signature
 
