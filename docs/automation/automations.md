@@ -55,7 +55,7 @@ The webhook action sends an HTTP POST request with a JSON body describing the tr
 
 * `Endpoint URL` — must be a public HTTPS URL. Private, loopback and link-local addresses are rejected, as are URLs containing credentials. Variables are supported in the path and query string, but not in the host name.
 * `Authorization header` (optional) — sent as the `Authorization` header value with the request.
-* `Payload version` — the version of the request payload sent to your endpoint. New automations use the latest version; change it only to adopt a newer payload format for an existing automation.
+* `API version` — the API version that determines the request payload format sent to your endpoint. New automations use the latest version; change it only to adopt a newer format for an existing automation.
 
 :::note
 For security, the authorization header is never shown again after you save it. Leave the field blank when editing to keep the stored value, type a new value to replace it, or clear the field to remove it. Duplicating an automation does not copy its authorization header.
@@ -76,7 +76,7 @@ The request body is a JSON object describing the triggering event, with a `Metad
   "CreatedAt": 1783695150000,
   "UpdatedAt": 1783695150000,
   "Metadata": {
-    "Version": "2020-01-01",
+    "ApiVersion": "2020-01-01",
     "Organization": { "Id": "…" },
     "Automation": { "Id": "…" },
     "Execution": { "Id": "…" },
@@ -88,7 +88,7 @@ The request body is a JSON object describing the triggering event, with a `Metad
 }
 ```
 
-`Metadata.Version` identifies the payload format, so you can branch on it if the format ever changes. It matches the **Payload version** selected on the action.
+`Metadata.ApiVersion` identifies the payload format, so you can branch on it if the format ever changes. It matches the **API version** selected on the action.
 
 #### Verifying the signature
 
