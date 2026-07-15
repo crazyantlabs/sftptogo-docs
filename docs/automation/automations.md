@@ -25,15 +25,10 @@ In the dialog that opens, fill out the following:
 * `Name` (optional) — a descriptive name for your automation. Limited to 80 characters.
 * `Trigger events` — one or more events that start the automation. The automation runs whenever any of the selected events occurs:
   * `File created` — a file or folder was created by any means (SFTP/FTPS, the web portal, or the S3 API).
-  * `File uploaded` — a file was uploaded over SFTP or FTPS.
   * `File downloaded` — a file was downloaded.
   * `File deleted` — a file or folder was deleted.
   * `File upload failed` — an SFTP or FTPS upload failed to complete.
   * `File download failed` — an SFTP or FTPS download failed to complete.
-
-  :::note
-  `File created` fires for **any** write to storage, so it also fires for an SFTP/FTPS upload — for which `File uploaded` fires as well. Choose `File uploaded` when you specifically want protocol uploads, and avoid selecting both unless you intend the automation to run twice for such uploads.
-  :::
 * `Filter` (optional) — only run the automation when the triggering event matches your rules. Filter on the file `Path`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
 * `Actions` — the actions to run, in order. An automation can have up to 5 actions.
 
@@ -43,10 +38,10 @@ Click **Save** to create the automation. It starts running on matching events im
 
 | Action | Description | Available for |
 |--|--|--|
-| Copy file or folder | Copies the file to a destination path, leaving the original in place | File created, File uploaded, File downloaded |
-| Move file or folder | Copies the file to a destination path and deletes the original | File created, File uploaded, File downloaded |
-| Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File uploaded, File downloaded |
-| Delete file or folder | Deletes the file | File created, File uploaded, File downloaded |
+| Copy file or folder | Copies the file to a destination path, leaving the original in place | File created, File downloaded |
+| Move file or folder | Copies the file to a destination path and deletes the original | File created, File downloaded |
+| Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
+| Delete file or folder | Deletes the file | File created, File downloaded |
 | Send webhook request | Sends an HTTP POST request describing the trigger to an endpoint you choose | All trigger events |
 | Send Slack message | Posts a message describing the trigger to a Slack incoming webhook | All trigger events |
 | Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | All trigger events |
