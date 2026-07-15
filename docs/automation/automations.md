@@ -23,7 +23,7 @@ To create an automation, click **Automations** from the menu, and then click **A
 In the dialog that opens, fill out the following:
 
 * `Name` (optional) — a descriptive name for your automation. Limited to 80 characters.
-* `Trigger event` — the event that starts the automation:
+* `Trigger events` — one or more events that start the automation. The automation runs whenever any of the selected events occurs:
   * `File created` — a file or folder was created by any means (SFTP/FTPS, the web portal, or the S3 API).
   * `File uploaded` — a file was uploaded over SFTP or FTPS.
   * `File downloaded` — a file was downloaded.
