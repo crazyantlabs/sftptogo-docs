@@ -24,9 +24,16 @@ In the dialog that opens, fill out the following:
 
 * `Name` (optional) — a descriptive name for your automation. Limited to 80 characters.
 * `Trigger event` — the event that starts the automation:
-  * `File created` — a file was uploaded or a folder was created.
+  * `File created` — a file or folder was created by any means (SFTP/FTPS, the web portal, or the S3 API).
+  * `File uploaded` — a file was uploaded over SFTP or FTPS.
   * `File downloaded` — a file was downloaded.
   * `File deleted` — a file or folder was deleted.
+  * `File upload failed` — an SFTP or FTPS upload failed to complete.
+  * `File download failed` — an SFTP or FTPS download failed to complete.
+
+  :::note
+  `File created` fires for **any** write to storage, so it also fires for an SFTP/FTPS upload — for which `File uploaded` fires as well. Choose `File uploaded` when you specifically want protocol uploads, and avoid selecting both unless you intend the automation to run twice for such uploads.
+  :::
 * `Filter` (optional) — only run the automation when the triggering event matches your rules. Filter on the file `Path`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
 * `Actions` — the actions to run, in order. An automation can have up to 5 actions.
 
@@ -36,14 +43,14 @@ Click **Save** to create the automation. It starts running on matching events im
 
 | Action | Description | Available for |
 |--|--|--|
-| Copy file or folder | Copies the file to a destination path, leaving the original in place | File created, File downloaded |
-| Move file or folder | Copies the file to a destination path and deletes the original | File created, File downloaded |
-| Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
-| Delete file or folder | Deletes the file | File created, File downloaded |
-| Send webhook request | Sends an HTTP POST request describing the trigger to an endpoint you choose | File created, File downloaded, File deleted |
-| Send Slack message | Posts a message describing the trigger to a Slack incoming webhook | File created, File downloaded, File deleted |
-| Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | File created, File downloaded, File deleted |
-| Send email | Emails a notification describing the trigger to an address you choose | File created, File downloaded, File deleted |
+| Copy file or folder | Copies the file to a destination path, leaving the original in place | File created, File uploaded, File downloaded |
+| Move file or folder | Copies the file to a destination path and deletes the original | File created, File uploaded, File downloaded |
+| Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File uploaded, File downloaded |
+| Delete file or folder | Deletes the file | File created, File uploaded, File downloaded |
+| Send webhook request | Sends an HTTP POST request describing the trigger to an endpoint you choose | All trigger events |
+| Send Slack message | Posts a message describing the trigger to a Slack incoming webhook | All trigger events |
+| Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | All trigger events |
+| Send email | Emails a notification describing the trigger to an address you choose | All trigger events |
 
 Actions run one after another. By default, if an action fails the automation stops and the remaining actions don't run. Enable **Continue to next action on failure** on an action to let the automation carry on regardless.
 
@@ -191,6 +198,12 @@ A variable that doesn't match any of the names above is not replaced, and the ac
 Every run of an automation is recorded as an execution, showing whether it succeeded and the state and result of each individual action, including the error reported by any action that failed. Executions are retained for 30 days.
 
 To view an automation's executions, open its actions menu and click **View executions**.
+
+### Running an automation manually
+
+Open an automation's actions menu and click **Run now** to run it on demand against a file you choose, without waiting for a matching event — useful for testing an automation or reprocessing a specific file. Enter the file path, pick the trigger event to record on the run, and click **Run now**.
+
+A manual run ignores the automation's filter and runs its real actions, so it may change files in your storage. It runs even when the automation is paused or disabled, which lets you test a fix before resuming. Manual runs are shown with a **Run now** marker in the execution history and recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution.manual-run`.
 
 ### Rerunning an execution
 
