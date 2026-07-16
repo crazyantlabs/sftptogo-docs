@@ -40,6 +40,8 @@ Click **Save** to create the automation. It starts running on matching events im
 | Move file or folder | Copies the file to a destination path and deletes the original | File created, File downloaded |
 | Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
 | Delete file or folder | Deletes the file | File created, File downloaded |
+| PGP encrypt file | Encrypts the file to a PGP key's public key | File created, File downloaded |
+| PGP decrypt file | Decrypts a PGP-encrypted file with a private key | File created, File downloaded |
 | Send webhook request | Sends an HTTP POST request describing the trigger to an endpoint you choose | File created, File downloaded, File deleted |
 | Send Slack message | Posts a message describing the trigger to a Slack incoming webhook | File created, File downloaded, File deleted |
 | Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | File created, File downloaded, File deleted |
@@ -48,6 +50,19 @@ Click **Save** to create the automation. It starts running on matching events im
 Actions run one after another. By default, if an action fails the automation stops and the remaining actions don't run. Enable **Allow failure** on an action to let the automation continue to the next action instead of stopping if that action fails.
 
 The file actions (copy, move, rename, delete) after the first can operate either on the file that triggered the automation, or on the file produced by the previous action — useful for chaining, for example copying a file and then renaming the copy. The notification actions (webhook, Slack, Microsoft Teams and email) always describe the file that triggered the automation.
+
+### PGP encrypt and decrypt
+
+The PGP actions encrypt or decrypt a single file using a key from your [PGP key store](../security/pgp-keys) (**Settings → Keys**). The key is referenced by selection — no key material is stored on the automation.
+
+* `PGP key` — the key to use. For **PGP encrypt**, pick a key that can encrypt (any public or private key). For **PGP decrypt**, pick a private key. The **+ New key** option lets you generate or import a key without leaving the builder.
+* `Destination path` (optional) — where to write the result. By default, **encrypt** appends a `.pgp` extension to the source path, and **decrypt** removes a trailing `.pgp`, `.gpg` or `.asc` extension.
+
+The original file is left in place — chain a **Move** or **Delete** action after the PGP action if you want to replace it. Like the other file actions, a PGP action after the first can operate on the file produced by the previous action, so you can, for example, encrypt a file and then move the encrypted copy.
+
+:::note
+PGP actions operate on a single file (not a folder) and support files up to 100 MB. Decryption of a file that is both signed and encrypted is supported — the file is decrypted normally; the signature is not verified.
+:::
 
 ### Send webhook request
 
