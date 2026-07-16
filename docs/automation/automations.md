@@ -27,8 +27,6 @@ In the dialog that opens, fill out the following:
   * `File created` — a file or folder was created by any means (SFTP/FTPS, the web portal, or the S3 API).
   * `File downloaded` — a file was downloaded.
   * `File deleted` — a file or folder was deleted.
-  * `File upload failed` — an SFTP or FTPS upload failed to complete.
-  * `File download failed` — an SFTP or FTPS download failed to complete.
 * `Filter` (optional) — only run the automation when the triggering event matches your rules. Filter on the file `Path`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
 * `Actions` — the actions to run, in order. An automation can have up to 5 actions.
 
@@ -42,10 +40,10 @@ Click **Save** to create the automation. It starts running on matching events im
 | Move file or folder | Copies the file to a destination path and deletes the original | File created, File downloaded |
 | Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
 | Delete file or folder | Deletes the file | File created, File downloaded |
-| Send webhook request | Sends an HTTP POST request describing the trigger to an endpoint you choose | All trigger events |
-| Send Slack message | Posts a message describing the trigger to a Slack incoming webhook | All trigger events |
-| Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | All trigger events |
-| Send email | Emails a notification describing the trigger to an address you choose | All trigger events |
+| Send webhook request | Sends an HTTP POST request describing the trigger to an endpoint you choose | File created, File downloaded, File deleted |
+| Send Slack message | Posts a message describing the trigger to a Slack incoming webhook | File created, File downloaded, File deleted |
+| Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | File created, File downloaded, File deleted |
+| Send email | Emails a notification describing the trigger to an address you choose | File created, File downloaded, File deleted |
 
 Actions run one after another. By default, if an action fails the automation stops and the remaining actions don't run. Enable **Continue to next action on failure** on an action to let the automation carry on regardless.
 
