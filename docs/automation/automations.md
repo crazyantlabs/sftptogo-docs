@@ -45,7 +45,7 @@ Click **Save** to create the automation. It starts running on matching events im
 | Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | File created, File downloaded, File deleted |
 | Send email | Emails a notification describing the trigger to an address you choose | File created, File downloaded, File deleted |
 
-Actions run one after another. By default, if an action fails the automation stops and the remaining actions don't run. Enable **Continue to next action on failure** on an action to let the automation carry on regardless.
+Actions run one after another. By default, if an action fails the automation stops and the remaining actions don't run. Enable **Allow failure** on an action to let the automation continue to the next action instead of stopping if that action fails.
 
 The file actions (copy, move, rename, delete) after the first can operate either on the file that triggered the automation, or on the file produced by the previous action — useful for chaining, for example copying a file and then renaming the copy. The notification actions (webhook, Slack, Microsoft Teams and email) always describe the file that triggered the automation.
 
