@@ -32,6 +32,10 @@ In the dialog that opens, fill out the following:
 
 Click **Save** to create the automation. It starts running on matching events immediately, unless you create it paused.
 
+:::note
+Automations don't trigger on **system-generated actions**. In particular, a file created, moved, renamed, or deleted by another automation won't start a new automation — this prevents automations from triggering each other in a loop. To run several steps on the same file, add them as multiple actions in a single automation (later file actions can operate on the file produced by the previous one).
+:::
+
 ## Actions
 
 | Action | Description | Available for |
@@ -49,13 +53,17 @@ Click **Save** to create the automation. It starts running on matching events im
 
 Actions run one after another. By default, if an action fails the automation stops and the remaining actions don't run. Enable **Allow failure** on an action to let the automation continue to the next action instead of stopping if that action fails.
 
-The file actions (copy, move, rename, delete) after the first can operate either on the file that triggered the automation, or on the file produced by the previous action — useful for chaining, for example copying a file and then renaming the copy. The notification actions (webhook, Slack, Microsoft Teams and email) always describe the file that triggered the automation.
+The file actions (copy, move, rename, delete) after the first can operate either on the file that triggered the automation, or on the file produced by the previous action — useful for chaining, for example copying a file and then renaming the copy.
+
+The notification actions (webhook, Slack, Microsoft Teams and email) after the first can describe either the **triggering event** or the **previous action's result**. This lets you announce what a step did — for example, encrypt a file and then notify about the encrypted file, or delete a file and notify that it was removed. When set to the previous action, the notification is sent in the same format as any other file event: a **`file.created`** event for the file the step produced (copy, move, rename, PGP encrypt/decrypt), or a **`file.deleted`** event for the file a delete removed.
+
+By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files only — folder operations always overwrite.
 
 ### PGP encrypt and decrypt
 
 The PGP actions encrypt or decrypt a single file using a key from your [PGP key store](../security/pgp-keys) (**Settings → Keys**). The key is referenced by selection — no key material is stored on the automation.
 
-* `PGP key` — the key to use. For **PGP encrypt**, pick a key that can encrypt (any public or private key). For **PGP decrypt**, pick a private key. The **+ New key** option lets you generate or import a key without leaving the builder.
+* `PGP key` — the key to use. For **PGP encrypt**, pick a key that can encrypt (any public or private key). For **PGP decrypt**, pick the private key the file was encrypted to — a file can only be decrypted with a private key it was encrypted to (you must be one of its recipients). The **+ New key** option lets you generate or import a key without leaving the builder.
 * `Destination path` (optional) — where to write the result. By default, **encrypt** appends a `.pgp` extension to the source path, and **decrypt** removes a trailing `.pgp`, `.gpg` or `.asc` extension.
 
 The original file is left in place — chain a **Move** or **Delete** action after the PGP action if you want to replace it. Like the other file actions, a PGP action after the first can operate on the file produced by the previous action, so you can, for example, encrypt a file and then move the encrypted copy.

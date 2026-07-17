@@ -13,6 +13,11 @@ PGP keys let you encrypt and decrypt files as part of an [automation](../automat
 
 Each key shows its capabilities (**Can encrypt** / **Can decrypt**), whether it includes a **Private key**, its fingerprint, and an expiry date if it has one.
 
+## Supported algorithms
+
+* **Import** — RSA keys (2048–4096 bit) and ECC keys on Curve25519, the NIST curves (P-256, P-384, P-521), and the Brainpool curves. To be usable for encryption, a key must include an encryption-capable (sub)key — sign-only keys can be stored but can't encrypt.
+* **Generate** — **ECC (Curve25519)** (recommended), **RSA 2048**, or **RSA 4096**.
+
 ## Importing a key
 
 Go to **Settings → Keys**, click **Import key**, and provide:
