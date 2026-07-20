@@ -32,9 +32,9 @@ CSV file structure:
 |--|--|
 |Id|	ID of the event|
 |Timestamp (UTC) |	Time and date at which the event took place  (UTC)|
-|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed`, `webhook.delivery.failed`, `webhook.paused`|
+|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed`, `webhook.delivery.failed`, `webhook.paused`, `automation.created`, `automation.updated`, `automation.deleted`, `automation.paused`, `automation.resumed`, `automation.execution.rerun`, `automation.execution.manual-run`, `automation.secret.rotated`, `automation.action.executed`, `automation.action.failed`, `automation.execution.failed`|
 |Principal ID|	ID of the principal responsible for the event|
-|Principal Type|	Type of the principal responsible for the event. e.g. `user`, `share-link`, `admin`, `system`|
+|Principal Type|	Type of the principal responsible for the event. e.g. `user`, `share-link`, `admin`, `system`, `iam` (a direct S3 request made with IAM credentials)|
 |Username|	Username of the principal responsible for the event|
 |Session ID|	ID of the event session|
 |IP Address|	IP address of the event actor|
@@ -44,6 +44,35 @@ CSV file structure:
 
 
 If you need to inspect S3 access logs (for direct S3 access), please reach out to our support and we'll provide you with the logs you need. Note that webhooks trigger for activities performed by direct S3 requests as well.
+
+## Automation events {#automations}
+
+[Automations](../automation/automations) record both the changes admins make to them and the work they perform on your files.
+
+Administrative events are attributed to the admin who made the change:
+
+| Type | Description |
+|--|--|
+|`automation.created`| An automation was created |
+|`automation.updated`| An automation was updated |
+|`automation.deleted`| An automation was deleted |
+|`automation.resumed`| An automation was resumed |
+|`automation.execution.rerun`| An admin re-ran a past execution. The `Data` object's `Id` is the source execution and `NewExecutionId` is the execution the rerun created |
+|`automation.execution.manual-run`| An admin ran an automation on demand against a file they chose. The `Data` object's `AutomationId` is the automation and `NewExecutionId` is the execution the run created |
+|`automation.secret.rotated`| An admin rotated the automation's webhook signing secret. The `Data` object's `Id` is the automation |
+
+The remaining events are recorded by the system, so their principal type is `system` rather than the admin who created the automation:
+
+| Type | Description |
+|--|--|
+|`automation.paused`| An automation was paused, either by an admin or automatically after consecutive failed executions. When paused automatically, the `Data` object includes a `Reason` of `consecutive-execution-failures` and the `ConsecutiveFailuresCount` |
+|`automation.action.executed`| An automation action ran — any action, including the notification ones. The `Data` object's `Id` is the execution, plus the `AutomationId`, `ActionId` and `ActionType`, and for actions that act on a file the `SourcePath` and `DestinationPath` involved. A PGP action also records the key it used as `PgpKeyName` and `PgpKeyKeyId` (its OpenPGP key id), plus the internal `PgpKeyId` |
+|`automation.action.failed`| An automation action failed. Recorded even when the automation is set to continue past the failure, in which case the execution itself may still succeed. The `Data` object carries the execution `Id`, `AutomationId`, `ActionId`, `ActionType`, the `Error`, any `SourcePath` / `DestinationPath` involved, and for a PGP action the key it used (`PgpKeyName`, `PgpKeyKeyId`, `PgpKeyId`) |
+|`automation.execution.failed`| An automation execution failed. The `Data` object's `Id` is the execution, plus the `AutomationId`, the triggering `Path`, and the `Error` reported by the failing action |
+
+:::note
+Automations act on your files using SFTP To Go's own credentials, so the resulting `file.created` and `file.deleted` events are attributed to the `system` principal. Every automation action also records an `automation.action.executed` event — use it to trace a file back to the automation and execution responsible for it, and to see that a notification step ran.
+:::
 
 ## Streaming audit logs {#stream}
 
