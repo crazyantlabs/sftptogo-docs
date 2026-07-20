@@ -66,11 +66,11 @@ The remaining events are recorded by the system, so their principal type is `sys
 | Type | Description |
 |--|--|
 |`automation.paused`| An automation was paused, either by an admin or automatically after consecutive failed executions. When paused automatically, the `Data` object includes a `Reason` of `consecutive-execution-failures` and the `ConsecutiveFailuresCount` |
-|`automation.action.executed`| An automation moved, renamed or deleted a file or folder. The `Data` object's `Id` is the execution, plus the `AutomationId`, `ActionId`, `ActionType`, and the `SourcePath` and `DestinationPath` involved |
+|`automation.action.executed`| An automation action ran — any action, including the notification ones. The `Data` object's `Id` is the execution, plus the `AutomationId`, `ActionId` and `ActionType`, and for actions that act on a file the `SourcePath` and `DestinationPath` involved |
 |`automation.execution.failed`| An automation execution failed. The `Data` object's `Id` is the execution, plus the `AutomationId`, the triggering `Path`, and the `Error` reported by the failing action |
 
 :::note
-Automations act on your files using SFTP To Go's own credentials, so the resulting `file.created` and `file.deleted` events are attributed to the `system` principal. Use the `automation.action.executed` event to trace a moved, renamed or deleted file back to the automation and execution responsible for it.
+Automations act on your files using SFTP To Go's own credentials, so the resulting `file.created` and `file.deleted` events are attributed to the `system` principal. Every automation action also records an `automation.action.executed` event — use it to trace a file back to the automation and execution responsible for it, and to see that a notification step ran.
 :::
 
 ## Streaming audit logs {#stream}

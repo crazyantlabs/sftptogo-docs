@@ -244,6 +244,6 @@ A webhook action whose endpoint is temporarily unavailable — timing out, or an
 
 ## Auditing
 
-Automations record what they do to your files. Because automations act using SFTP To Go's own credentials, the `file.created` and `file.deleted` events they generate are attributed to the `system` principal. To trace a moved, renamed or deleted file back to the automation responsible, use the `automation.action.executed` event.
+Automations record what they do. Because automations act using SFTP To Go's own credentials, the `file.created` and `file.deleted` events they generate are attributed to the `system` principal. Every action an automation runs — file operations and notifications alike — also records an `automation.action.executed` event, which traces the change back to the automation and execution responsible for it.
 
 See [Automation events](../security/audit-logs#automations) for the full list.
