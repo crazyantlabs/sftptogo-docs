@@ -45,6 +45,24 @@ Each item includes a menu button (...) for actions such as:
 * Copy or move file to another folder
 * Copy file path to clipboard.
 
+### Searching, sorting and filtering
+
+With advanced search enabled, the file browser adds a search bar, a file type filter, and sortable columns:
+
+* **Search**: Type in the search bar to find files and folders anywhere under the current folder — the search looks through all subfolders, not just the visible list. Matches are case-insensitive and work in any language. Each result shows the folder it lives in, and clicking a result takes you right to it. When nothing matches your exact text, close matches are shown instead, so a small typo still finds the file you're after.
+* **Filter by type**: Use the type dropdown to narrow the list to folders, documents, pictures, archives, spreadsheets, and more.
+* **Sort**: Click the name, type, size, or modified column headers to sort the list; click again to reverse the order. Folders are always listed before files.
+
+Search, filters, and sorting also work in shared folder links, scoped to the shared folder.
+
+:::note
+Search covers the files that existed when your organization's search index was created, plus every change since — new uploads typically appear in search results within seconds.
+:::
+
+:::info
+This feature is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
+:::
+
 ### Bulk oprations
 
 Selecting all or some files/folders in the items list displays the count of selected items above the list, along with a menu button (...). This allows bulk operations on the selected items:
