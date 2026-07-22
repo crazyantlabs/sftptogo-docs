@@ -140,7 +140,7 @@ The icon serves as your site's favicon and the primary logo, unless you choose t
 
 ### Advanced search
 
-Find any file in seconds — advanced search lets web portal users search, filter, and sort across their entire storage, no matter how many files they have. Read more about how it works in the web portal [here](../how-to-connect/connect-web-portal#searching-sorting-and-filtering).
+Find any file in seconds — advanced search lets your web portal users search, filter, and sort across their accessible folders, no matter how many files you store. Read more about how it works in the web portal [here](../how-to-connect/connect-web-portal#searching-sorting-and-filtering).
 
 Toggle **Enable advanced search** to control whether the search bar, file type and date filters, and sortable columns are available in the web portal. When off, the web portal falls back to plain folder listings.
 
