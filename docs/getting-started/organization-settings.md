@@ -140,15 +140,11 @@ The icon serves as your site's favicon and the primary logo, unless you choose t
 
 ### Advanced search
 
-Advanced search lets web portal users instantly search, sort, and filter files and folders — even across millions of files. Read more about how it works in the web portal [here](../how-to-connect/connect-web-portal#searching-sorting-and-filtering).
+Find any file in seconds — advanced search lets web portal users search, filter, and sort across their entire storage, no matter how many files they have. Read more about how it works in the web portal [here](../how-to-connect/connect-web-portal#searching-sorting-and-filtering).
 
-Use the advanced search settings to control what is available to your portal users:
+Toggle **Enable advanced search** to control whether the search bar, file type and date filters, and sortable columns are available in the web portal. When off, the web portal falls back to plain folder listings.
 
-* **Enable advanced search in the web portal**: The master switch. When off, the web portal falls back to plain folder listings.
-* **Search and filters**: Shows the search bar and the file type filter in the file browser.
-* **Sortable columns**: Makes the name, type, size, and modified columns clickable for sorting.
-
-These settings apply to web portal sessions and shared folder links alike. Changes take effect on new sessions and on the next folder refresh for active ones.
+The setting applies to web portal sessions and shared folder links alike. Changes take effect on new sessions and on the next folder refresh for active ones.
 
 :::info
 This feature is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
