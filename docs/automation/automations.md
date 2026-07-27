@@ -50,7 +50,7 @@ Choose **On a schedule** as the trigger, then set:
   * `Never` — runs a single time, at the start date and time, then stops.
   * `Hourly`, `Daily`, `Weekly`, `Monthly`, `Annually` — the common cadences. Weekly lets you pick the days; monthly offers the day of the month, or that weekday's position in the month — for example the fourth Sunday, or the last Sunday.
   * `On rate-based schedule` — repeats every set number of minutes, hours, days or weeks, spaced evenly from the start.
-  * `On cron-based schedule` — for patterns the options above can't describe. See [Cron expressions](#cron-expressions).
+  * `On cron-based schedule` — for patterns the options above can't describe, using standard cron syntax. See [Cron expressions](#cron-expressions).
 * `Ends` (optional) — `Never`, on a date, or after a set number of runs.
 * `Source path` — the file or folder the actions run on each time. A schedule has no triggering file, so this is what the automation acts on. Variables are supported, so a path such as `/incoming/{{date.year}}-{{date.month}}-{{date.day}}/` follows the calendar.
 * `If a run is already in progress` — `Skip the run` (the default) drops the new run so only one is ever in flight; `Run anyway` starts it regardless, allowing runs to overlap.
@@ -65,19 +65,23 @@ Changing the schedule of an automation that ends after a set number of runs star
 
 ### Cron expressions
 
-A cron-based schedule takes an expression with six fields — minutes, hours, day of month, month, day of week, and year:
+A cron-based schedule takes a standard cron expression with five fields — minute, hour, day of month, month, and day of week:
 
 ```
-0 9 1,15 * ? *
+0 9 1,15 * *
 ```
 
-That runs at 09:00 on the 1st and 15th of every month. Set either the day of month or the day of week and put `?` in the other — they can't both be set.
+That runs at 09:00 on the 1st and 15th of every month. This is the same syntax used by `crontab` and by tools like [crontab.guru](https://crontab.guru), so an expression you already have will work as written.
+
+Day of week is `0`–`6` starting from Sunday, and `7` is Sunday as well. You can use names instead — `MON-FRI`. Two extras are supported in the day fields: `L` for the last day of the month, and `#` for a particular weekday of the month, so `0 9 * * 2#2` runs at 09:00 on the second Tuesday.
+
+Set either the day of month or the day of week and leave the other as `*` — a schedule can't be driven by both.
+
+The shorthand macros are supported too: `@hourly`, `@daily` (or `@midnight`), `@weekly`, `@monthly`, and `@yearly` (or `@annually`).
 
 The **Presets** menu next to the field fills in the common patterns, including several the other options can't express: every hour on weekdays between 08:00 and 18:00, twice a month, and the last day of the month.
 
-:::note
-Upcoming runs aren't listed for a cron-based schedule.
-:::
+As with every other schedule, the editor describes the expression in words and lists its upcoming runs, so you can check it before saving.
 
 ## Actions
 
