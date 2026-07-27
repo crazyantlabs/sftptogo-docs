@@ -97,6 +97,15 @@ As with every other schedule, the editor describes the expression in words and l
 | Send Slack message | Posts a message describing the trigger to a Slack incoming webhook | File created, File downloaded, File deleted |
 | Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | File created, File downloaded, File deleted |
 | Send email | Emails a notification describing the trigger to an address you choose | File created, File downloaded, File deleted |
+| Delay | Pauses the automation at this step before continuing to the next action | Any trigger |
+
+### Delay
+
+A **Delay** action pauses the automation at that step, then continues with the next action. Set an amount and a unit — seconds, minutes, hours or days — up to a maximum of 7 days.
+
+Use it to leave time for something outside the automation to happen: a partner to collect a file before it's archived, an upload to settle before it's encrypted, or a gap between two notifications.
+
+While an automation is waiting, its execution stays open and the delay step shows when it resumes. The steps after it haven't run yet.
 
 Actions run one after another. By default, if an action fails the automation stops and the remaining actions don't run. Enable **Allow failure** on an action to let the automation continue to the next action instead of stopping if that action fails.
 
