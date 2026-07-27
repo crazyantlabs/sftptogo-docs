@@ -47,7 +47,7 @@ If you need to inspect S3 access logs (for direct S3 access), please reach out t
 
 ## Event types {#event-types}
 
-Events fall into three principal types. Activity on your storage is recorded with the `user` or `share-link` principal of whoever performed it. Actions performed by organization admins in the dashboard are recorded with the `admin` principal — the Username column shows the admin's email, and the event's `Data` includes an `Actor` object with the admin's ID, name, and email, so the actor is identified even in exported or streamed events. Events recorded by the platform itself (e.g., a delivery failure) use the `system` principal.
+Every event is recorded under one of four principal types: `user`, `share-link`, `admin`, or `system`. Activity on your storage is recorded with the `user` or `share-link` principal of whoever performed it. Actions performed by organization admins in the dashboard are recorded with the `admin` principal — the Username column shows the admin's email, and the event's `Data` includes an `Actor` object with the admin's ID, name, and email, so the actor is identified even in exported or streamed events. Events recorded by the platform itself (e.g., a delivery failure) use the `system` principal.
 
 | Area | Types |
 |--|--|
