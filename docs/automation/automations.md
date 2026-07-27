@@ -107,6 +107,8 @@ Use it to leave time for something outside the automation to happen: a partner t
 
 While an automation is waiting, its execution stays open and the delay step shows when it resumes. The steps after it haven't run yet.
 
+A delay doesn't interrupt the chain between actions. An action set to operate on **the file or folder created by the previous action** still means the last action that created one, so you can insert a delay between two file actions without changing what the second one works on.
+
 Actions run one after another. By default, if an action fails the automation stops and the remaining actions don't run. Enable **Allow failure** on an action to let the automation continue to the next action instead of stopping if that action fails.
 
 The file actions (copy, move, rename, delete) after the first **default to operating on the file produced by the previous action** — the intuitive chaining flow, for example copying a file and then renaming the copy — but you can switch a step back to the file that triggered the automation.
