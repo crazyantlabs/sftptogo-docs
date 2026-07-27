@@ -55,7 +55,7 @@ Choose **On a schedule** as the trigger, then set:
 * `Source path` — the file or folder the actions run on each time. A schedule has no triggering file, so this is what the automation acts on. Variables are supported, so a path such as `/incoming/{{date.year}}-{{date.month}}-{{date.day}}/` follows the calendar.
 * `If a run is already in progress` — `Skip the run` (the default) drops the new run so only one is ever in flight; `Run anyway` starts it regardless, allowing runs to overlap.
 
-While you're editing, the editor lists the next runs the schedule produces, so you can check the cadence before saving.
+While you're editing, the editor describes the schedule in words — "Every day at 9:00 AM", "At 09:00 AM, Monday through Friday" — and lists the runs it produces next, so you can check the cadence before saving. Those runs are shown in your own time zone rather than the schedule's, so a schedule set in another region still tells you when it lands for you; hover a date to see it spelled out.
 
 Times follow the time zone you pick, and adjust for daylight saving — a daily 09:00 schedule stays at 09:00 through the change. Rate-based schedules are the exception: they keep a fixed spacing, so they don't shift.
 
@@ -288,6 +288,8 @@ A variable that doesn't match any of the names above is not replaced, and the ac
 ## Execution history
 
 Every run of an automation is recorded as an execution, showing whether it succeeded and the state and result of each individual action, including the error reported by any action that failed. Executions are retained for 30 days.
+
+Expanding a run shows what it worked on. For a file event that's the file that triggered it — its path and size. For a scheduled run there is no triggering file, so it shows the schedule it belongs to and the source path the run used, with any variables already substituted, so you see the path the actions actually received rather than the template. A run started with **Run now** shows the same details.
 
 To view an automation's executions, open its actions menu and click **View executions**.
 
