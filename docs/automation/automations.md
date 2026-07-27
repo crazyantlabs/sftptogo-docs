@@ -4,7 +4,7 @@ title: 'Automating file workflows'
 sidebar_position: 1
 ---
 
-Automations run a sequence of actions on your files whenever something happens in your storage. Use them to sort uploads into dated folders, archive downloads, clean up temporary files, or notify another system — without running any infrastructure of your own.
+Automations run a sequence of actions on your files — either whenever something happens in your storage, or on a schedule you set. Use them to sort uploads into dated folders, archive downloads, clean up temporary files, deliver a report every morning, or notify another system — without running any infrastructure of your own.
 
 :::info
 Automations are only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
@@ -23,17 +23,60 @@ To create an automation, click **Automations** from the menu, and then click **A
 In the dialog that opens, fill out the following:
 
 * `Name` (optional) — a descriptive name for your automation. Limited to 80 characters.
-* `Trigger events` — one or more events that start the automation. The automation runs whenever any of the selected events occurs:
+* `Trigger` — what starts the automation, either **On a file or folder event** or **On a schedule**. An automation uses one or the other, not both.
+* `Events` — for an event trigger, one or more events that start the automation. It runs whenever any of the selected events occurs:
   * `File created` — a file or folder was created by any means (SFTP/FTPS, the web portal, or the S3 API).
   * `File downloaded` — a file was downloaded.
   * `File deleted` — a file or folder was deleted.
-* `Filter` (optional) — only run the automation when the triggering event matches your rules. Filter on the file `Path`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
+  * `File infected` — malware scanning found a file to be infected. Available when malware scanning is enabled.
+* `Filter` (optional) — for an event trigger, only run the automation when the triggering event matches your rules. Filter on the file `Path`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
+* `Schedule` — for a schedule trigger, when and how often to run. See [Running on a schedule](#running-on-a-schedule).
 * `Actions` — the actions to run, in order. An automation can have up to 5 actions.
 
 Click **Save** to create the automation. It starts running on matching events immediately, unless you create it paused.
 
 :::note
 Automations don't trigger on **system-generated actions**. In particular, a file created, moved, renamed, or deleted by another automation won't start a new automation — this prevents automations from triggering each other in a loop. To run several steps on the same file, add them as multiple actions in a single automation (later file actions can operate on the file produced by the previous one).
+:::
+
+## Running on a schedule
+
+A scheduled automation runs at times you choose rather than in response to a file event. Use it to deliver a report every weekday morning, archive a folder at the end of each month, or collect a partner's overnight drop before the working day starts.
+
+Choose **On a schedule** as the trigger, then set:
+
+* `Starts on` — the date, time and time zone the schedule begins. Everything else is read from this instant: an hourly schedule runs at its minutes past the hour, a daily one at its time of day, and an annual one on its date.
+* `Repeats` — how often it runs from that point:
+  * `Never` — runs a single time, at the start date and time, then stops.
+  * `Hourly`, `Daily`, `Weekly`, `Monthly`, `Annually` — the common cadences. Weekly lets you pick the days; monthly offers the day of the month, or that weekday's position in the month — for example the fourth Sunday, or the last Sunday.
+  * `On rate-based schedule` — repeats every set number of minutes, hours, days or weeks, spaced evenly from the start.
+  * `On cron-based schedule` — for patterns the options above can't describe. See [Cron expressions](#cron-expressions).
+* `Ends` (optional) — `Never`, on a date, or after a set number of runs.
+* `Source path` — the file or folder the actions run on each time. A schedule has no triggering file, so this is what the automation acts on. Variables are supported, so a path such as `/incoming/{{date.year}}-{{date.month}}-{{date.day}}/` follows the calendar.
+* `If a run is already in progress` — `Skip the run` (the default) drops the new run so only one is ever in flight; `Run anyway` starts it regardless, allowing runs to overlap.
+
+While you're editing, the editor lists the next runs the schedule produces, so you can check the cadence before saving.
+
+Times follow the time zone you pick, and adjust for daylight saving — a daily 09:00 schedule stays at 09:00 through the change. Rate-based schedules are the exception: they keep a fixed spacing, so they don't shift.
+
+:::note
+Changing the schedule of an automation that ends after a set number of runs starts that count again. Renaming an automation, or editing its actions, does not.
+:::
+
+### Cron expressions
+
+A cron-based schedule takes an expression with six fields — minutes, hours, day of month, month, day of week, and year:
+
+```
+0 9 1,15 * ? *
+```
+
+That runs at 09:00 on the 1st and 15th of every month. Set either the day of month or the day of week and put `?` in the other — they can't both be set.
+
+The **Presets** menu next to the field fills in the common patterns, including several the other options can't express: every hour on weekdays between 08:00 and 18:00, twice a month, and the last day of the month.
+
+:::note
+Upcoming runs aren't listed for a cron-based schedule.
 :::
 
 ## Actions
@@ -114,6 +157,17 @@ The request body is a JSON object describing the triggering event, with a `Metad
 
 `Metadata.ApiVersion` identifies the payload format, so you can branch on it if the format ever changes. It matches the **API version** selected on the action.
 
+For a scheduled run the same shape is sent, with the differences a schedule implies: the `Topic` is `schedule.triggered`, `Data.Path` is the schedule's source path with any variables resolved, `Data.Size` is `null` because no file was transferred, and the `Actor` is the automation itself:
+
+```json
+{
+  "Topic": "schedule.triggered",
+  "Resource": "File",
+  "Data": { "Path": "reports/daily.csv", "Size": null },
+  "Actor": { "Id": "<automation id>", "Type": "Automation" }
+}
+```
+
 #### API versions
 
 The API version pins the payload contract, so an existing automation keeps working even after a newer format ships. The versions differ only in how the file path in `Data.Path` is encoded:
@@ -180,9 +234,13 @@ Emails a notification describing the triggering event.
 
 * `Recipient email` — the address to send the notification to.
 
+:::note
+When the automation runs on a schedule there is no file event to describe, so the Slack, Microsoft Teams and email notifications say the automation ran on schedule and name the path it ran on.
+:::
+
 ## Variables
 
-Destination paths, new names and webhook endpoint URLs can include variables, which are replaced with values from the triggering event when the automation runs.
+Destination paths, new names, webhook endpoint URLs and a schedule's source path can include variables, which are replaced with real values when the automation runs.
 
 | Variable | Description | Example |
 |--|--|--|
@@ -192,8 +250,10 @@ Destination paths, new names and webhook endpoint URLs can include variables, wh
 |`{{file.path}}`| Full path of the file | `/uploads/report.pdf` |
 |`{{file.parent_folder}}`| Parent folder path | `/uploads` |
 |`{{file.size}}`| File size in bytes | `1048576` |
-|`{{actor.id}}`| ID of the user or system that triggered the event | |
+|`{{actor.id}}`| ID of the user, system or automation that triggered the run | |
 |`{{actor.type}}`| Type of the actor | `User` |
+|`{{automation.id}}`| ID of this automation | |
+|`{{execution.id}}`| ID of this run | |
 |`{{date.year}}`| Year the automation ran (UTC) | `2026` |
 |`{{date.month}}`| Month, zero padded (UTC) | `07` |
 |`{{date.day}}`| Day of month, zero padded (UTC) | `10` |
@@ -218,7 +278,7 @@ To view an automation's executions, open its actions menu and click **View execu
 
 ### Running an automation manually
 
-Open an automation's actions menu and click **Run now** to run it on demand against a file you choose, without waiting for a matching event — useful for testing an automation or reprocessing a specific file. Enter the file path, pick the trigger event to record on the run, and click **Run now**.
+Open an automation's actions menu and click **Run now** to run it on demand, without waiting for a matching event or for its next scheduled time — useful for testing an automation or reprocessing a specific file. For an event-triggered automation, enter the file path and pick the trigger event to record on the run. A scheduled automation runs against its own source path, so there's nothing to enter.
 
 A manual run ignores the automation's filter and runs its real actions, so it may change files in your storage. It runs even when the automation is paused or disabled, which lets you test a fix before resuming. Manual runs are shown with a **Run now** marker in the execution history and recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution.manual-run`.
 
@@ -232,7 +292,7 @@ A rerun runs the automation's real actions again. It may fail if the file the or
 
 ## Loop prevention
 
-Actions that write to your storage — copy, move and rename — generate `file.created` events of their own. These events do **not** trigger automations, so an automation that copies a file into a folder it also watches will not run forever.
+Actions that write to your storage — copy, move and rename — generate `file.created` events of their own. These events do **not** trigger automations, so an automation that copies a file into a folder it also watches will not run forever. The same applies to anything an automation caused, however it was started.
 
 ## When an automation fails
 
@@ -245,5 +305,7 @@ A webhook action whose endpoint is temporarily unavailable — timing out, or an
 ## Auditing
 
 Automations record what they do. Because automations act using SFTP To Go's own credentials, the `file.created` and `file.deleted` events they generate are attributed to the `system` principal. Every action an automation runs — file operations and notifications alike — also records an `automation.action.executed` event, which traces the change back to the automation and execution responsible for it.
+
+A run started by a schedule is attributed to the automation itself rather than to a person, and a failed run records which kind of trigger started it, so a scheduled failure can be told apart from one caused by a file event.
 
 See [Automation events](../security/audit-logs#automations) for the full list.
