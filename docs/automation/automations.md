@@ -311,7 +311,7 @@ Actions that write to your storage — copy, move and rename — generate `file.
 
 ## When an automation fails
 
-If an automation fails 5 times in a row, SFTP To Go pauses it automatically and emails your organization's owners. This prevents a misconfigured automation — a destination that no longer resolves, or an endpoint that rejects every request — from failing on every file indefinitely.
+If an automation fails 10 times in a row, SFTP To Go pauses it automatically and emails your organization's owners. This prevents a misconfigured automation — a destination that no longer resolves, or an endpoint that rejects every request — from failing on every file indefinitely.
 
 Review the execution history to find the failing action, correct the automation, and click **Resume** to start it again.
 
