@@ -47,110 +47,38 @@ If you need to inspect S3 access logs (for direct S3 access), please reach out t
 
 ## Event types {#event-types}
 
-### File access
+Every event is recorded under one of four principal types: `user`, `share-link`, `admin`, or `system`. Activity on your storage is recorded with the `user` or `share-link` principal of whoever performed it. Actions performed by organization admins in the dashboard are recorded with the `admin` principal — the Username column shows the admin's email, and the event's `Data` includes an `Actor` object with the admin's ID, name, and email, so the actor is identified even in exported or streamed events. Events recorded by the platform itself (e.g., a delivery failure) use the `system` principal.
 
-| Event type | Description |
-|---|---|
-| `file.created` | A file or directory was uploaded or created |
-| `file.deleted` | A file or directory was deleted |
-| `file.downloaded` | A file was downloaded |
-| `file.access-denied` | Access to a file was denied |
+| Area | Types |
+|--|--|
+| File activity | `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied` |
+| User access | `user.login`, `user.login-failed`, `user.logout`, `user.access-denied`, `user.access-expired`, `user.password-updated`, `user.password-reset-email-sent` |
+| Share link access | `share-link.access`, `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `share-link.reported` |
+| Organization | `organization.updated` |
+| Team members | `organization.member.invited`, `organization.member.joined` (invitation accepted), `organization.member.role.updated`, `organization.member.removed`, `organization.member.left`. Member events include the affected member's name and email |
+| Credential management | `user.created`, `user.updated`, `user.deleted`, `user.activated`, `user.deactivated`, `user.password.updated` (rotated by an admin — recorded alongside the credential's own `user.password-updated`), `user.aws-credentials.rotated`, `user.ssh-public-key.added`, `user.ssh-public-key.removed`, `user.mfa-factor.added`, `user.mfa-factor.updated`, `user.mfa-factor.removed` |
+| Share links and web portal | `share-link.created`, `share-link.updated`, `share-link.deleted`, `organization.portal-link.activated` and `organization.portal-link.deactivated` (web portal turned on or off) |
+| Webhooks | `webhook.created`, `webhook.updated`, `webhook.deleted`, `webhook.paused` (by an admin, or automatically after consecutive delivery failures), `webhook.resumed`, `webhook.tested`, `webhook.secret.rotated`, `webhook.delivery.resent`, `webhook.delivery.failed` |
+| Domains | `domain.created`, `domain.updated`, `domain.deleted` |
+| Audit logs | `audit-logs.export-requested` (the `Data` includes the requested `StartDate` and `EndDate`), `audit-logs.export-uploaded`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed` |
+| Malware scans | `malware-scan.started`, `malware-scan.completed`, `malware-scan.threat-detected` (a file was detected as infected), `malware-scan.failed`, `malware-scan.restored` (file access restored after a detection), `malware-scan.false-detection-reported` |
 
-### User sessions
+### Change tracking on update events
 
-| Event type | Description |
-|---|---|
-| `user.login` | A user logged in successfully |
-| `user.login-failed` | A login attempt failed |
-| `user.logout` | A user logged out |
-| `user.access-denied` | A user was denied access |
-| `user.access-expired` | A user's access expired |
-| `user.password-updated` | A user changed their own password |
-| `user.password-reset-email-sent` | A password reset email was sent |
+Events that modify an existing object — `organization.updated`, `user.updated`, `share-link.updated`, `webhook.updated`, `organization.member.role.updated`, and `audit-logs.streaming-destination.updated` — record a `Changes` object in their `Data`, listing each property that actually changed with its previous (`From`) and new (`To`) values:
 
-### Share links
+```json
+{
+  "Changes": {
+    "Alias": { "From": "old-alias", "To": "new-alias" },
+    "Settings.Network.InboundRules": { "From": [], "To": [{ "Cidr": "10.0.0.0/8" }] }
+  }
+}
+```
 
-| Event type | Description |
-|---|---|
-| `share-link.access-failed` | An attempt to access a share link failed |
-| `share-link.access-expired` | A share link was accessed after expiry |
-| `share-link.access-limit-reached` | A share link's access limit was reached |
-| `share-link.created` | A share link was created by an admin |
-| `share-link.updated` | A share link was updated by an admin |
-| `share-link.deleted` | A share link was deleted by an admin |
-
-### Credentials (users)
-
-| Event type | Description |
-|---|---|
-| `user.created` | A credential was created |
-| `user.updated` | A credential was updated |
-| `user.deleted` | A credential was deleted |
-| `user.activated` | A credential was activated |
-| `user.deactivated` | A credential was deactivated |
-| `user.password.updated` | A credential's password was rotated by an admin |
-| `user.aws-credentials.rotated` | A credential's AWS access key was rotated |
-| `user.ssh-public-key.added` | An SSH public key was added to a credential |
-| `user.ssh-public-key.removed` | An SSH public key was removed from a credential |
-| `user.mfa-factor.added` | An MFA factor was added to a credential |
-| `user.mfa-factor.removed` | An MFA factor was removed from a credential |
-| `user.mfa-factor.updated` | An MFA factor was updated on a credential |
-
-### Organization
-
-| Event type | Description |
-|---|---|
-| `organization.updated` | Organization settings were updated |
-| `organization.member.invited` | A member was invited to the organization |
-| `organization.member.joined` | A member accepted an invitation and joined |
-| `organization.member.left` | A member removed themselves from the organization |
-| `organization.member.removed` | A member was removed by an admin |
-| `organization.member.role.updated` | A member's role was changed |
-| `organization.member.login` | An organization member logged into the dashboard |
-| `organization.member.logout` | An organization member logged out of the dashboard |
-
-### Domains
-
-| Event type | Description |
-|---|---|
-| `domain.created` | A custom domain was added |
-| `domain.updated` | A custom domain was updated |
-| `domain.deleted` | A custom domain was removed |
-
-### Webhooks
-
-| Event type | Description |
-|---|---|
-| `webhook.created` | A webhook was created |
-| `webhook.updated` | A webhook was updated |
-| `webhook.deleted` | A webhook was deleted |
-| `webhook.paused` | A webhook was paused |
-| `webhook.resumed` | A webhook was resumed |
-| `webhook.tested` | A webhook ping was sent |
-| `webhook.secret.rotated` | A webhook signing secret was rotated |
-| `webhook.delivery.resent` | A webhook delivery was manually resent |
-| `webhook.delivery.failed` | A webhook delivery permanently failed after retries were exhausted |
-
-### Malware scans
-
-| Event type | Description |
-|---|---|
-| `malware-scan.started` | A malware scan was initiated |
-| `malware-scan.completed` | A malware scan completed (clean or unknown result) |
-| `malware-scan.threat-detected` | A file was detected as infected |
-| `malware-scan.failed` | A malware scan failed |
-| `malware-scan.restored` | File access was restored after an infected detection |
-| `malware-scan.false-detection-reported` | A false detection was reported |
-
-### Audit logs
-
-| Event type | Description |
-|---|---|
-| `audit-logs.export-requested` | An audit log export was requested |
-| `audit-logs.streaming-destination.created` | An audit log streaming destination was created |
-| `audit-logs.streaming-destination.updated` | An audit log streaming destination was updated |
-| `audit-logs.streaming-destination.deleted` | An audit log streaming destination was deleted |
-| `audit-logs.streaming-destination.failed` | An audit log streaming destination failed to deliver and was paused |
+:::note
+Secret values are never stored in audit logs. When a secret-bearing property changes — a share link password, a webhook signing secret, or an authorization header — the change is recorded with `[REDACTED]` in place of the value.
+:::
 
 ## Streaming audit logs {#stream}
 
