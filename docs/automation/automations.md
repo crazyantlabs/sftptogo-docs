@@ -253,6 +253,35 @@ Emails a notification describing the triggering event.
 When the automation runs on a schedule there is no file event to describe, so the Slack, Microsoft Teams and email notifications say the automation ran on schedule and name the path it ran on.
 :::
 
+## Allowing our IP addresses
+
+If the endpoint an automation sends to only accepts traffic from known addresses, add ours to its allowlist. Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions always arrive from one of these addresses:
+
+<!-- TODO — DO NOT MERGE UNTIL FILLED IN.
+
+     Three addresses, read from the deployed production environment.
+
+     Deliberately left blank rather than filled with plausible-looking
+     placeholders: a wrong address here is worse than no list at all. A customer
+     who allowlists it will block the traffic that is actually arriving, and the
+     failure looks like our service being broken rather than like a stale doc.
+
+     They must also be live in production before this page is published. Until
+     then requests still arrive from arbitrary addresses, so a correct-looking
+     list would be just as wrong. -->
+
+* _(addresses to be added)_
+* _(addresses to be added)_
+* _(addresses to be added)_
+
+Add all of them, not just one. Any given request may arrive from any address in the list, and which one it is varies from run to run — allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
+
+These addresses are stable, and we will give notice before they change.
+
+:::note
+The [Send email](#send-email) action is delivered by our email provider, so its messages do not come from these addresses. Nothing needs allowlisting for email — but if your mail system filters by sender, allow `support@sftptogo.com`.
+:::
+
 ## Variables
 
 Destination paths, new names, webhook endpoint URLs and a schedule's source path can include variables, which are replaced with real values when the automation runs.
