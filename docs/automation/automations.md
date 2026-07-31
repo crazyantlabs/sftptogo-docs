@@ -106,16 +106,16 @@ A **Create file or folder** action makes something new at a path you choose, rat
 
 What it creates depends on how the path ends:
 
-* A path ending in `/` — for example `/archive/2026/` — creates a **folder**.
-* A path ending in a file name — for example `/archive/done.txt` — creates an **empty file**.
+* A path ending in `/` — for example `/inbound/2026-07-31/` — creates a **folder**.
+* A path ending in a file name — for example `/inbound/readme.txt` — creates an **empty file**.
 
-Any folders in the path are created as well, so `/archive/2026/07/done.txt` works even when `/archive/2026/` doesn't exist yet.
+Any folders in the path are created as well, so `/inbound/2026/07/` works even when `/inbound/2026/` doesn't exist yet.
 
-The usual reason to use it is to signal to another system that something has finished. A partner that polls your storage can watch for a marker file — often called a trigger or sentinel file — and start its own work only once that file appears. Put the marker after the actions that do the real work, and it won't be written if any of them fail.
+The usual reason to use it is to have a folder ready before anything needs to go in it. Many SFTP clients won't create a folder on the fly, and a user restricted to a specific path often can't create one at all — so a partner uploading to `/inbound/2026-07-31/` needs that folder to already exist.
+
+Variables make that practical on a schedule. An automation that runs each evening with the path `/inbound/{{date.year}}-{{date.month}}-{{date.day}}/` keeps tomorrow's folder waiting without anyone creating it by hand.
 
 Because it doesn't act on the triggering file, this action has no source to choose and works with every trigger, including [a schedule](#running-on-a-schedule). An action after it can still operate on **the file or folder created by the previous action**.
-
-Variables are supported in the path, so a scheduled automation can create a dated folder such as `/archive/{{date.year}}-{{date.month}}-{{date.day}}/`.
 
 Turning off **Overwrite existing files** makes the action fail rather than replace a file that's already there. It has no effect when creating a folder — writing a folder that already exists changes nothing.
 
