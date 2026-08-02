@@ -31,7 +31,7 @@ In the dialog that opens, fill out the following:
   * `File infected` — malware scanning found a file to be infected. Available when malware scanning is enabled.
 * `Filter` (optional) — for an event trigger, only run the automation when the triggering event matches your rules. Filter on the file `Path`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
 * `Schedule` — for a schedule trigger, when and how often to run. See [Running on a schedule](#running-on-a-schedule).
-* `Actions` — the actions to run, in order. An automation can have up to 5 actions.
+* `Actions` — the actions to run, in order. An automation can have up to 10 actions.
 
 Click **Save** to create the automation. It starts running on matching events immediately, unless you create it paused.
 
@@ -52,8 +52,9 @@ Choose **On a schedule** as the trigger, then set:
   * `On rate-based schedule` — repeats every set number of minutes, hours, days or weeks, spaced evenly from the start.
   * `On cron-based schedule` — for patterns the options above can't describe, using standard cron syntax. See [Cron expressions](#cron-expressions).
 * `Ends` (optional) — `Never`, on a date, or after a set number of runs.
-* `Source path` — the file or folder the actions run on each time. A schedule has no triggering file, so this is what the automation acts on. Variables are supported, so a path such as `/incoming/{{date.year}}-{{date.month}}-{{date.day}}/` follows the calendar.
 * `If a run is already in progress` — `Skip the run` (the default) drops the new run so only one is ever in flight; `Run anyway` starts it regardless, allowing runs to overlap.
+
+Because a schedule has no triggering file, an action that reads one — copy, move, rename, delete, or either PGP action — must say which file it means. Set its source to **A specific file or folder** and give the path; variables are supported, so `/incoming/{{date.year}}-{{date.month}}-{{date.day}}/` follows the calendar. An action that reads nothing (creating a file or folder, or a delay), or that only describes the run (the notifications), needs no path at all. An action can also work on **the file or folder created by the previous action**, so only the first step in a chain needs a path.
 
 While you're editing, the editor describes the schedule in words — "Every day at 9:00 AM", "At 09:00 AM, Monday through Friday" — and lists the runs it produces next, so you can check the cadence before saving. Those runs are shown in your own time zone rather than the schedule's, so a schedule set in another region still tells you when it lands for you; hover a date to see it spelled out.
 
@@ -172,13 +173,13 @@ The request body is a JSON object describing the triggering event, with a `Metad
 
 `Metadata.ApiVersion` identifies the payload format, so you can branch on it if the format ever changes. It matches the **API version** selected on the action.
 
-For a scheduled run the same shape is sent, with the differences a schedule implies: the `Topic` is `schedule.triggered`, `Data.Path` is the schedule's source path with any variables resolved, `Data.Size` is `null` because no file was transferred, and the `Actor` is the automation itself:
+For a scheduled run the same shape is sent, with the differences a schedule implies: the `Topic` is `schedule.triggered`, the `Resource` is `Schedule` rather than `File`, `Data` is empty because no file was transferred, and the `Actor` is the automation itself:
 
 ```json
 {
   "Topic": "schedule.triggered",
-  "Resource": "File",
-  "Data": { "Path": "reports/daily.csv", "Size": null },
+  "Resource": "Schedule",
+  "Data": {},
   "Actor": { "Id": "<automation id>", "Type": "Automation" }
 }
 ```
@@ -284,7 +285,7 @@ The [Send email](#send-email) action is delivered by our email provider, so its 
 
 ## Variables
 
-Destination paths, new names, webhook endpoint URLs and a schedule's source path can include variables, which are replaced with real values when the automation runs.
+Destination paths, source paths, new names and webhook endpoint URLs can include variables, which are replaced with real values when the automation runs.
 
 | Variable | Description | Example |
 |--|--|--|
@@ -318,13 +319,13 @@ A variable that doesn't match any of the names above is not replaced, and the ac
 
 Every run of an automation is recorded as an execution, showing whether it succeeded and the state and result of each individual action, including the error reported by any action that failed. Executions are retained for 30 days.
 
-Expanding a run shows what it worked on. For a file event that's the file that triggered it — its path and size. For a scheduled run there is no triggering file, so it shows the schedule it belongs to and the source path the run used, with any variables already substituted, so you see the path the actions actually received rather than the template. A run started with **Run now** shows the same details.
+Expanding a run shows what it worked on. For a file event that's the file that triggered it — its path and size. For a scheduled run there is no triggering file, so it shows the schedule it belongs to; each action shows the path it worked on, with any variables already substituted, so you see the path the action actually received rather than the template. A run started with **Run now** shows the same details.
 
 To view an automation's executions, open its actions menu and click **View executions**.
 
 ### Running an automation manually
 
-Open an automation's actions menu and click **Run now** to run it on demand, without waiting for a matching event or for its next scheduled time — useful for testing an automation or reprocessing a specific file. For an event-triggered automation, enter the file path and pick the trigger event to record on the run. A scheduled automation runs against its own source path, so there's nothing to enter.
+Open an automation's actions menu and click **Run now** to run it on demand, without waiting for a matching event or for its next scheduled time — useful for testing an automation or reprocessing a specific file. For an event-triggered automation, enter the file path and pick the trigger event to record on the run. A scheduled automation's actions carry their own paths, so there's nothing to enter.
 
 A manual run ignores the automation's filter and runs its real actions, so it may change files in your storage. It runs even when the automation is paused or disabled, which lets you test a fix before resuming. Manual runs are shown with a **Run now** marker in the execution history and recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution.manual-run`.
 
