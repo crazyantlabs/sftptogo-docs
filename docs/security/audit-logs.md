@@ -34,7 +34,7 @@ CSV file structure:
 |Timestamp (UTC) |	Time and date at which the event took place  (UTC)|
 |Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed`, `webhook.delivery.failed`, `webhook.paused`, `automation.created`, `automation.updated`, `automation.deleted`, `automation.paused`, `automation.resumed`, `automation.execution.rerun`, `automation.execution.manual-run`, `automation.secret.rotated`, `automation.action.executed`, `automation.action.failed`, `automation.execution.failed`|
 |Principal ID|	ID of the principal responsible for the event|
-|Principal Type|	Type of the principal responsible for the event. e.g. `user`, `share-link`, `admin`, `system`, `iam` (a direct S3 request made with IAM credentials)|
+|Principal Type|	Type of the principal responsible for the event. e.g. `user`, `share-link`, `admin`, `automation` (an automation of yours, identified by its id), `system` (SFTP To Go itself), `iam` (a direct S3 request made with IAM credentials)|
 |Username|	Username of the principal responsible for the event|
 |Session ID|	ID of the event session|
 |IP Address|	IP address of the event actor|
@@ -61,17 +61,17 @@ Administrative events are attributed to the admin who made the change:
 |`automation.execution.manual-run`| An admin ran an automation on demand against a file they chose. The `Data` object's `AutomationId` is the automation and `NewExecutionId` is the execution the run created |
 |`automation.secret.rotated`| An admin rotated the automation's webhook signing secret. The `Data` object's `Id` is the automation |
 
-The remaining events are recorded by the system, so their principal type is `system` rather than the admin who created the automation:
+The remaining events aren't recorded by an admin. Those an automation causes carry the principal type `automation`, with the automation's id as the principal id — not the admin who created it. That is deliberately distinct from `system`, which is SFTP To Go's own work, so you can filter your automations apart from the platform. The exception is `automation.paused`, which is the platform's decision rather than the automation's, and stays `system`:
 
 | Type | Description |
 |--|--|
-|`automation.paused`| An automation was paused, either by an admin or automatically after consecutive failed executions. When paused automatically, the `Data` object includes a `Reason` of `consecutive-execution-failures` and the `ConsecutiveFailuresCount` |
+|`automation.paused`| An automation was paused, either by an admin or automatically after consecutive failed executions. When paused automatically, the `Data` object includes a `Reason` of `consecutive-execution-failures` and the `ConsecutiveFailuresCount`. Recorded with the `system` principal — pausing is our decision, not the automation's |
 |`automation.action.executed`| An automation action ran — any action, including the notification ones. The `Data` object's `Id` is the execution, plus the `AutomationId`, `ActionId` and `ActionType`, and for actions that act on a file the `SourcePath` and `DestinationPath` involved. A PGP action also records the key it used as `PgpKeyName` and `PgpKeyKeyId` (its OpenPGP key id), plus the internal `PgpKeyId` |
 |`automation.action.failed`| An automation action failed. Recorded even when the automation is set to continue past the failure, in which case the execution itself may still succeed. The `Data` object carries the execution `Id`, `AutomationId`, `ActionId`, `ActionType`, the `Error`, any `SourcePath` / `DestinationPath` involved, and for a PGP action the key it used (`PgpKeyName`, `PgpKeyKeyId`, `PgpKeyId`) |
-|`automation.execution.failed`| An automation execution failed. The `Data` object's `Id` is the execution, plus the `AutomationId`, the `Path` it ran on, the `TriggerType` that started it (`event`, `schedule`, `manual` or `rerun`), and the `Error` reported by the failing action |
+|`automation.execution.failed`| An automation execution failed. The `Data` object's `Id` is the execution, plus the `AutomationId`, the `TriggerType` that started it (`event`, `schedule`, `manual` or `rerun`), and the `Error` reported by the failing action. `Path` is present only when the execution was started by a file event, and names that file — a scheduled run has no triggering file, so the field is absent. Treat it as optional |
 
 :::note
-Automations act on your files using SFTP To Go's own credentials, so the resulting `file.created` and `file.deleted` events are attributed to the `system` principal. Every automation action also records an `automation.action.executed` event — use it to trace a file back to the automation and execution responsible for it, and to see that a notification step ran.
+Automations act on your files using SFTP To Go's own credentials, so the resulting `file.created` and `file.deleted` events are attributed to the `system` principal — **not** `automation`, even though the automation's own events are. The file event can't tell which automation wrote the file, or that an automation wrote it at all. Every automation action also records an `automation.action.executed` event, which can: use it to trace a file back to the automation and execution responsible for it, and to see that a notification step ran.
 :::
 
 ## Streaming audit logs {#stream}

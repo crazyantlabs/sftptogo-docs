@@ -251,7 +251,7 @@ Emails a notification describing the triggering event.
 * `Recipient email` — the address to send the notification to.
 
 :::note
-When the automation runs on a schedule there is no file event to describe, so the Slack, Microsoft Teams and email notifications say the automation ran on schedule and name the path it ran on.
+When the automation runs on a schedule there is no file event to describe, so the Slack, Microsoft Teams and email notifications say the automation ran on schedule, and give the time it ran. There is no file to name — a schedule doesn't act on one, and each action carries its own path. To have a notification name a file, set its source to **the file or folder created by the previous action**: it then describes that file, as it would for a file event.
 :::
 
 ## Allowing our IP addresses
