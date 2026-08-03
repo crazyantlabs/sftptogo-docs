@@ -91,6 +91,7 @@ As with every other schedule, the editor describes the expression in words and l
 | Move file or folder | Copies the file to a destination path and deletes the original | File created, File downloaded |
 | Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
 | Delete file or folder | Deletes the file | File created, File downloaded |
+| Create file or folder | Creates an empty file, or a folder | Any trigger |
 | PGP encrypt file | Encrypts the file to a PGP key's public key | File created, File downloaded |
 | PGP decrypt file | Decrypts a PGP-encrypted file with a private key | File created, File downloaded |
 | Send webhook request | Sends an HTTP POST request describing the trigger to an endpoint you choose | File created, File downloaded, File deleted |
@@ -98,6 +99,25 @@ As with every other schedule, the editor describes the expression in words and l
 | Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | File created, File downloaded, File deleted |
 | Send email | Emails a notification describing the trigger to an address you choose | File created, File downloaded, File deleted |
 | Delay | Pauses the automation at this step before continuing to the next action | Any trigger |
+
+### Create file or folder
+
+A **Create file or folder** action makes something new at a path you choose, rather than acting on the file that triggered the automation.
+
+What it creates depends on how the path ends:
+
+* A path ending in `/` — for example `/inbound/2026-07-31/` — creates a **folder**.
+* A path ending in a file name — for example `/inbound/readme.txt` — creates an **empty file**.
+
+Any folders in the path are created as well, so `/inbound/2026/07/` works even when `/inbound/2026/` doesn't exist yet.
+
+The usual reason to use it is to have a folder ready before anything needs to go in it. Many SFTP clients won't create a folder on the fly, and a user restricted to a specific path often can't create one at all — so a partner uploading to `/inbound/2026-07-31/` needs that folder to already exist.
+
+Variables make that practical on a schedule. An automation that runs each evening with the path `/inbound/{{date.year}}-{{date.month}}-{{date.day}}/` keeps tomorrow's folder waiting without anyone creating it by hand.
+
+Because it doesn't act on the triggering file, this action has no source to choose and works with every trigger, including [a schedule](#running-on-a-schedule). An action after it can still operate on **the file or folder created by the previous action**.
+
+Turning off **Overwrite existing files** makes the action fail rather than replace a file that's already there. It has no effect when creating a folder — writing a folder that already exists changes nothing.
 
 ### Delay
 
