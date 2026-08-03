@@ -32,7 +32,7 @@ CSV file structure:
 |--|--|
 |Id|	ID of the event|
 |Timestamp (UTC) |	Time and date at which the event took place  (UTC)|
-|Type|	Name of the specific event. e.g. `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `user.access-expired`, `user.login-failed`, `user.login`, `user.logout`, `user.password-updated`, `user.password-reset-email-sent`, `user.access-denied`, `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed`, `webhook.delivery.failed`, `webhook.paused`, `automation.created`, `automation.updated`, `automation.deleted`, `automation.paused`, `automation.resumed`, `automation.execution.rerun`, `automation.execution.manual-run`, `automation.secret.rotated`, `automation.action.executed`, `automation.action.failed`, `automation.execution.failed`|
+|Type|	Name of the specific event — see [Event types](#event-types) below|
 |Principal ID|	ID of the principal responsible for the event|
 |Principal Type|	Type of the principal responsible for the event. e.g. `user`, `share-link`, `admin`, `automation` (an automation of yours, identified by its id), `system` (SFTP To Go itself), `iam` (a direct S3 request made with IAM credentials)|
 |Username|	Username of the principal responsible for the event|
@@ -44,6 +44,41 @@ CSV file structure:
 
 
 If you need to inspect S3 access logs (for direct S3 access), please reach out to our support and we'll provide you with the logs you need. Note that webhooks trigger for activities performed by direct S3 requests as well.
+
+## Event types {#event-types}
+
+Every event carries a principal type identifying who or what caused it. Activity on your storage is recorded with the `user` or `share-link` principal of whoever performed it. Actions performed by organization admins in the dashboard are recorded with the `admin` principal — the Username column shows the admin's email, and the event's `Data` includes an `Actor` object with the admin's ID, name, and email, so the actor is identified even in exported or streamed events. Work an automation performs carries the `automation` principal, and events recorded by the platform itself (e.g., a delivery failure) use the `system` principal.
+
+| Area | Types |
+|--|--|
+| File activity | `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied` |
+| User access | `user.login`, `user.login-failed`, `user.logout`, `user.access-denied`, `user.access-expired`, `user.password-updated`, `user.password-reset-email-sent` |
+| Share link access | `share-link.access`, `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `share-link.reported` |
+| Organization | `organization.updated` |
+| Team members | `organization.member.invited`, `organization.member.joined` (invitation accepted), `organization.member.role.updated`, `organization.member.removed`, `organization.member.left`. Member events include the affected member's name and email |
+| Credential management | `user.created`, `user.updated`, `user.deleted`, `user.activated`, `user.deactivated`, `user.password.updated` (rotated by an admin — recorded alongside the credential's own `user.password-updated`), `user.aws-credentials.rotated`, `user.ssh-public-key.added`, `user.ssh-public-key.removed`, `user.mfa-factor.added`, `user.mfa-factor.updated`, `user.mfa-factor.removed` |
+| Share links and web portal | `share-link.created`, `share-link.updated`, `share-link.deleted`, `organization.portal-link.activated` and `organization.portal-link.deactivated` (web portal turned on or off) |
+| Webhooks | `webhook.created`, `webhook.updated`, `webhook.deleted`, `webhook.paused` (by an admin, or automatically after consecutive delivery failures), `webhook.resumed`, `webhook.tested`, `webhook.secret.rotated`, `webhook.delivery.resent`, `webhook.delivery.failed` |
+| Domains | `domain.created`, `domain.updated`, `domain.deleted` |
+| Audit logs | `audit-logs.export-requested` (the `Data` includes the requested `StartDate` and `EndDate`), `audit-logs.export-uploaded`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed` |
+| Automations | See [Automation events](#automations) below |
+
+### Change tracking on update events
+
+Events that modify an existing object — `organization.updated`, `user.updated`, `share-link.updated`, `webhook.updated`, `organization.member.role.updated`, and `audit-logs.streaming-destination.updated` — record a `Changes` object in their `Data`, listing each property that actually changed with its previous (`From`) and new (`To`) values:
+
+```json
+{
+  "Changes": {
+    "Alias": { "From": "old-alias", "To": "new-alias" },
+    "Settings.Network.InboundRules": { "From": [], "To": [{ "Cidr": "10.0.0.0/8" }] }
+  }
+}
+```
+
+:::note
+Secret values are never stored in audit logs. When a secret-bearing property changes — a share link password, a webhook signing secret, or an authorization header — the change is recorded with `[REDACTED]` in place of the value.
+:::
 
 ## Automation events {#automations}
 
@@ -71,7 +106,7 @@ The remaining events aren't recorded by an admin. Those an automation causes car
 |`automation.execution.failed`| An automation execution failed. The `Data` object's `Id` is the execution, plus the `AutomationId`, the `TriggerType` that started it (`event`, `schedule`, `manual` or `rerun`), and the `Error` reported by the failing action. `Path` is present only when the execution was started by a file event, and names that file — a scheduled run has no triggering file, so the field is absent. Treat it as optional |
 
 :::note
-Automations act on your files using SFTP To Go's own credentials, so the resulting `file.created` and `file.deleted` events are attributed to the `system` principal — **not** `automation`, even though the automation's own events are. The file event can't tell which automation wrote the file, or that an automation wrote it at all. Every automation action also records an `automation.action.executed` event, which can: use it to trace a file back to the automation and execution responsible for it, and to see that a notification step ran.
+Automations act on your files using SFTP To Go's own credentials, so the resulting `file.created` and `file.deleted` events are attributed to the `system` principal — **not** `automation`, even though the automation's own events are. The file event can't tell which automation wrote the file, or that an automation wrote it at all. Every automation action does record an `automation.action.executed` event, though — use it to trace a file back to the automation and execution responsible for it, and to see that a notification step ran.
 :::
 
 ## Streaming audit logs {#stream}
