@@ -40,10 +40,13 @@ Each item includes a menu button (...) for actions such as:
 
 * Download file
 * Open file in browser
+* Print file
 * Rename file
 * Duplicate file (create a copy within same folder)
 * Copy or move file to another folder
 * Copy file path to clipboard.
+
+**Print** is available for files the browser can display: PDFs, images, plain text and code, CSV and TSV spreadsheets, and Markdown. When previewing one of these files you can also press `Cmd`+`P` (or `Ctrl`+`P`) to print it. Some browsers cannot print PDFs directly — in that case the file opens in a new tab so you can print it from there.
 
 ### Searching, sorting and filtering
 
