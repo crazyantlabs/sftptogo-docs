@@ -312,8 +312,8 @@ Destination paths, source paths, new names and webhook endpoint URLs can include
 |`{{file.name}}`| Full file or folder name | `report.pdf` |
 |`{{file.basename}}`| Name without extension | `report` |
 |`{{file.extension}}`| File extension, without the dot | `pdf` |
-|`{{file.path}}`| Full path of the file | `/uploads/report.pdf` |
-|`{{file.parent_folder}}`| Parent folder path | `/uploads` |
+|`{{file.path}}`| Full path of the file, without a leading `/` | `uploads/2026/report.pdf` |
+|`{{file.parent_folder}}`| Every folder containing the file, without a leading or trailing `/` | `uploads/2026` |
 |`{{file.size}}`| File size in bytes | `1048576` |
 |`{{actor.id}}`| ID of the user, system or automation that triggered the run | |
 |`{{actor.type}}`| Type of the actor | `User` |
@@ -330,6 +330,8 @@ Destination paths, source paths, new names and webhook endpoint URLs can include
 |`{{uuid}}`| A newly generated unique identifier | |
 
 For example, a `Move file or folder` action with a destination of `/archive/{{date.year}}/{{date.month}}/` files every upload into a folder for the current month.
+
+The path variables carry no leading `/`, so that the leading `/` is yours to write. `/{{file.parent_folder}}/processed/` keeps a file in its own folder tree, while `/archive/{{file.parent_folder}}/` mirrors that tree under `/archive`. Writing `{{file.parent_folder}}/processed/` on its own is rejected, because the resulting path doesn't start with `/`.
 
 :::warning
 A variable that doesn't match any of the names above is not replaced, and the action fails rather than creating a file with a literal `{{...}}` in its name.
