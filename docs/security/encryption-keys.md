@@ -41,5 +41,7 @@ Use the menu next to a key to:
 
 ## Security
 
-* Private keys and passphrases are stored **encrypted** and are **never shown again** after import — only the derived public key and non-secret metadata are ever returned.
+* Private keys and passphrases are held in a dedicated secrets store, **encrypted at rest** and kept **separately from your automations** — an automation references a key, it never carries the key material.
+* Access is **restricted to your own organization**, and is limited to the specific operations that need it: importing or rotating a key, and decrypting a file an automation was told to decrypt.
+* Neither the private key nor its passphrase is **ever shown again** after import, or included in any API response — only the derived public key and non-secret metadata are ever returned.
 * Importing, rotating, and deleting a key are recorded in your [audit logs](./audit-logs) (the key material is never logged).
