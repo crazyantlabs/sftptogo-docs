@@ -312,6 +312,7 @@ Destination paths, source paths, new names and webhook endpoint URLs can include
 |`{{file.name}}`| Full file or folder name | `report.pdf` |
 |`{{file.basename}}`| Name without extension | `report` |
 |`{{file.extension}}`| File extension, without the dot | `pdf` |
+|`{{file.suffix}}`| File extension with the dot, or empty if the file has none | `.pdf` |
 |`{{file.path}}`| Full path of the file, without a leading `/` | `uploads/2026/report.pdf` |
 |`{{file.parent_folder}}`| Every folder containing the file, without a leading or trailing `/` | `uploads/2026` |
 |`{{file.size}}`| File size in bytes | `1048576` |
@@ -333,9 +334,40 @@ For example, a `Move file or folder` action with a destination of `/archive/{{da
 
 The path variables carry no leading `/`, so that the leading `/` is yours to write. `/{{file.parent_folder}}/processed/` keeps a file in its own folder tree, while `/archive/{{file.parent_folder}}/` mirrors that tree under `/archive`. Writing `{{file.parent_folder}}/processed/` on its own is rejected, because the resulting path doesn't start with `/`.
 
+`{{file.suffix}}` exists so that rebuilding a name needs no special case. `{{file.basename}}-processed{{file.suffix}}` gives `report-processed.pdf` for a file with an extension and `README-processed` for one without, because the dot belongs to the variable rather than to what you type around it.
+
 :::warning
-A variable that doesn't match any of the names above is not replaced, and the action fails rather than creating a file with a literal `{{...}}` in its name.
+A name that isn't in the table above is refused when you save the automation, and fails the action if it reaches a run — rather than quietly resolving to nothing and writing to a path you didn't intend.
 :::
+
+## Expressions
+
+Anywhere a variable can be used, you can write an expression instead: a small calculation that produces the value. The variables above are the data it reads — inside `{{ }}` you refer to them by name, without braces of their own, so `{{file.name}}` and `{{$uppercase(file.name)}}` are reading the same thing.
+
+Expressions are [JSONata](https://jsonata.org/), whose documentation covers the full set of functions. These are the ones that come up in practice, for a file named `report.pdf`:
+
+| What you want | Expression | Result |
+|--|--|--|
+| A name in capitals | `{{$uppercase(file.basename)}}` | `REPORT` |
+| Spaces replaced with dashes (shown for `my report.pdf`) | `{{$replace(file.basename, " ", "-")}}` | `my-report` |
+| A date in your own format | `{{$fromMillis($number(date.epoch) * 1000, "[Y0001][M01][D01]")}}` | `20260806` |
+| Tomorrow's date, for a folder prepared in advance | `{{$fromMillis(($number(date.epoch) + 86400) * 1000, "[Y0001]-[M01]-[D01]")}}` | `2026-08-07` |
+| A short unique ID, so a file name can't clash | `{{$substring(uuid, 0, 8)}}` | `f424179c` |
+| A basic authentication header | `Basic {{$base64encode("myuser:mypass")}}` | `Basic bXl1c2VyOm15cGFzcw==` |
+
+An expression can also choose between two values. A destination of `/inbound/{{$number(file.size) > 1048576 ? "large" : "small"}}/` sorts uploads into two folders by size.
+
+**Every variable is text**, including sizes and dates. To compare or calculate with one, convert it first with `$number(...)` — without it, `{{file.size > 1048576}}` fails, because a piece of text and a number can't be compared.
+
+That is also why the date examples multiply `date.epoch` by 1000: it is a number of seconds, and `$fromMillis` wants milliseconds. Adding `86400` to it moves a whole day and rolls over month and year ends correctly, which arithmetic on `{{date.day}}` would not — `31 + 1` is `32`, not the first of next month. The format is JSONata's: `[Y0001]` is a four digit year, `[M01]` and `[D01]` a zero padded month and day.
+
+Expressions are checked when you save, so a misspelled name or an expression that can't be read is reported against the field rather than discovered on the next run.
+
+:::note
+To write a literal `{{` or `}}` — for a template meant for some other system — put it in quotes: `{{"{{"}}` produces `{{`.
+:::
+
+Custom functions and ranges aren't available. Neither is needed for the cases above, and both can be written so that they never finish.
 
 ## Execution history
 
