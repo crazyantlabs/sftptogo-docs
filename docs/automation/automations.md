@@ -29,7 +29,9 @@ In the dialog that opens, fill out the following:
   * `File downloaded` — a file was downloaded.
   * `File deleted` — a file or folder was deleted.
   * `File infected` — malware scanning found a file to be infected. Available when malware scanning is enabled.
-* `Filter` (optional) — for an event trigger, only run the automation when the triggering event matches your rules. Filter on the file `Path`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
+* `Filter` (optional) — for an event trigger, only run the automation when the triggering event matches your rules. Filter on the file `Path`, its `Type`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
+
+  `Type` is either `File` or `Folder`, and is worth adding whenever the actions only make sense for files. Creating a folder raises a `File created` event of its own, so an automation that copies or encrypts what triggered it will otherwise run against the folder as well. A rule of `Type` `is` `File` excludes that.
 * `Schedule` — for a schedule trigger, when and how often to run. See [Running on a schedule](#running-on-a-schedule).
 * `Actions` — the actions to run, in order. An automation can have up to 10 actions.
 
