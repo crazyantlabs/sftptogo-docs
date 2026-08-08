@@ -6,7 +6,7 @@ sidebar_position: 20
 
 PGP keys let you encrypt and decrypt files as part of an [automation](../automation/automations). Store the keys you need once under **Settings → Security → Encryption keys**, then reference them from the **PGP encrypt** and **PGP decrypt** automation actions — the key material never has to be entered into an automation.
 
-You can store up to **5** encryption keys per organization.
+You can store up to **10** encryption keys per organization.
 
 ## How keys are used
 
