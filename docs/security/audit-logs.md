@@ -61,6 +61,7 @@ Every event is recorded under one of four principal types: `user`, `share-link`,
 | Webhooks | `webhook.created`, `webhook.updated`, `webhook.deleted`, `webhook.paused` (by an admin, or automatically after consecutive delivery failures), `webhook.resumed`, `webhook.tested`, `webhook.secret.rotated`, `webhook.delivery.resent`, `webhook.delivery.failed` |
 | Domains | `domain.created`, `domain.updated`, `domain.deleted` |
 | Audit logs | `audit-logs.export-requested` (the `Data` includes the requested `StartDate` and `EndDate`), `audit-logs.export-uploaded`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed` |
+| Malware scans | `malware-scan.started`, `malware-scan.completed`, `malware-scan.threat-detected` (a file was detected as infected), `malware-scan.failed`, `malware-scan.restored` (file access restored after a detection), `malware-scan.false-detection-reported` |
 
 ### Change tracking on update events
 
