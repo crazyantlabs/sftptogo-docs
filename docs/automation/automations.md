@@ -26,7 +26,7 @@ In the dialog that opens, fill out the following:
 * `Trigger` — what starts the automation, either **On a file or folder event** or **On a schedule**. An automation uses one or the other, not both.
 * `Events` — for an event trigger, one or more events that start the automation. It runs whenever any of the selected events occurs:
   * `File created` — a file or folder was created by any means (SFTP/FTPS, the web portal, or the S3 API).
-  * `File downloaded` — a file was downloaded.
+  * `File downloaded` — someone asked to download a file. This is raised when the download starts, so it also covers previewing or printing a file in the web portal, and a download that is cancelled part-way. Opening the same file twice raises it twice.
   * `File deleted` — a file or folder was deleted.
   * `File infected` — malware scanning found a file to be infected. Available when malware scanning is enabled.
 * `Filter` (optional) — for an event trigger, only run the automation when the triggering event matches your rules. Filter on the file `Path`, its `Type`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
@@ -102,6 +102,8 @@ As with every other schedule, the editor describes the expression in words and l
 | Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | File created, File downloaded, File deleted |
 | Send email | Emails a notification describing the trigger to an address you choose | File created, File downloaded, File deleted |
 | Delay | Pauses the automation at this step before continuing to the next action | Any trigger |
+
+**Copy**, **Move**, **Rename** and the **PGP** actions fail if the file they are told to work on doesn't exist — nothing is copied and the run stops, rather than reporting success for work it didn't do. **Delete** is the exception: it succeeds when the path is already gone, since that is the state it was asked to produce. Turn on **Allow failure** on any of the others if a missing file should be tolerated.
 
 ### Create file or folder
 
