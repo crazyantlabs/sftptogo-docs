@@ -311,6 +311,8 @@ The [Send email](#send-email) action is delivered by our email provider, so its 
 
 Destination paths, source paths, new names and webhook endpoint URLs can include variables, which are replaced with real values when the automation runs.
 
+The `file` variables describe **the file the action is working on** — whatever its source resolves to. That is the file that triggered the automation for an action left on the default, the file the previous step produced for one set to **the file or folder created by the previous action**, and the path you gave for one set to **A specific file or folder**. So in a chain each step's `{{file.*}}` follows the file along the chain rather than pointing back at the original upload. Inside the **Source path** field itself they describe the triggering file, since that field is what the source is being built from.
+
 | Variable | Description | Example |
 |--|--|--|
 |`{{file.name}}`| Full file or folder name | `report.pdf` |
@@ -319,11 +321,11 @@ Destination paths, source paths, new names and webhook endpoint URLs can include
 |`{{file.suffix}}`| File extension with the dot, or empty if the file has none | `.pdf` |
 |`{{file.path}}`| Full path of the file, without a leading `/` | `uploads/2026/report.pdf` |
 |`{{file.parent_folder}}`| Every folder containing the file, without a leading or trailing `/` | `uploads/2026` |
-|`{{file.size}}`| File size in bytes | `1048576` |
+|`{{file.size}}`| File size in bytes. Known for the triggering file; empty when the action works on a file produced by an earlier step or on a path you gave | `1048576` |
 |`{{actor.id}}`| ID of the user, system or automation that triggered the run | |
 |`{{actor.type}}`| Type of the actor | `User` |
 |`{{automation.id}}`| ID of this automation | |
-|`{{execution.id}}`| ID of this run | |
+|`{{execution.id}}`| ID of the execution | |
 |`{{date.year}}`| Year the automation ran (UTC) | `2026` |
 |`{{date.month}}`| Month, zero padded (UTC) | `07` |
 |`{{date.day}}`| Day of month, zero padded (UTC) | `10` |
