@@ -304,7 +304,7 @@ Add all of them, not just one. Any given request may arrive from any address in 
 These addresses are stable, and we will give notice before they change.
 
 :::note
-The [Send email](#send-email) action is delivered by our email provider, so its messages do not come from these addresses. Nothing needs allowlisting for email — but if your mail system filters by sender, allow `support@sftptogo.com`.
+The [Send email](#send-email) action uses our email provider. We recommend allowlisting `support@sftptogo.com` to ensure reliable delivery.
 :::
 
 ## Variables
