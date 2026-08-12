@@ -74,7 +74,7 @@ A cron-based schedule takes a standard cron expression with five fields — minu
 0 9 1,15 * *
 ```
 
-That runs at 09:00 on the 1st and 15th of every month. This is the same syntax used by `crontab` and by tools like [crontab.guru](https://crontab.guru), so an expression you already have will work as written.
+That runs at 09:00 on the 1st and 15th of every month. This is the same syntax used by `crontab` and by tools like [Cron Expression To Go ](https://cronexpressiontogo.com), so an expression you already have will work as written.
 
 Day of week is `0`–`6` starting from Sunday, and `7` is Sunday as well. You can use names instead — `MON-FRI`. Two extras are supported in the day fields: `L` for the last day of the month, and `#` for a particular weekday of the month, so `0 9 * * 2#2` runs at 09:00 on the second Tuesday.
 
