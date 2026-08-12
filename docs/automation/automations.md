@@ -352,7 +352,7 @@ An expression can also choose between two values. A destination of `/inbound/{{$
 
 **Every variable is text**, including sizes and dates. To compare or calculate with one, convert it first with `$number(...)` — without it, `{{file.size > 1048576}}` fails, because a piece of text and a number can't be compared.
 
-That is also why the date examples multiply `date.epoch` by 1000: it is a number of seconds, and `$fromMillis` wants milliseconds. Adding `86400` to it moves a whole day and rolls over month and year ends correctly, which arithmetic on `{{date.day}}` would not — `31 + 1` is `32`, not the first of next month. The format is JSONata's: `[Y0001]` is a four digit year, `[M01]` and `[D01]` a zero padded month and day.
+It is also why the date examples above multiply `date.epoch` by 1000: it counts seconds, and `$fromMillis` expects milliseconds. Adding `86400` — one day in seconds — gives tomorrow, and rolls over the ends of months and years correctly, which adding `1` to `{{date.day}}` would not. In the format string, `[Y0001]` is a four digit year, and `[M01]` and `[D01]` a zero padded month and day.
 
 Expressions are checked when you save, so a misspelled name or an expression that can't be read is reported against the field rather than discovered on the next run.
 
