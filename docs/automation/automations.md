@@ -118,7 +118,7 @@ Any folders in the path are created as well, so `/inbound/2026/07/` works even w
 
 The usual reason to use it is to have a folder ready before anything needs to go in it. Many SFTP clients won't create a folder on the fly, and a user restricted to a specific path often can't create one at all — so a partner uploading to `/inbound/2026-07-31/` needs that folder to already exist.
 
-Variables make that practical on a schedule. An automation that runs each evening with the path `/inbound/{{date.year}}-{{date.month}}-{{date.day}}/` keeps tomorrow's folder waiting without anyone creating it by hand.
+Variables make schedules more useful. For example, an automation can create tomorrow’s folder each evening using `/inbound/{{date.year}}-{{date.month}}-{{date.day}}/`.
 
 Because it doesn't act on the triggering file, this action has no source to choose and works with every trigger, including [a schedule](#running-on-a-schedule). An action after it can still operate on **the file or folder created by the previous action**.
 
