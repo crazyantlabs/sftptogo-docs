@@ -373,7 +373,6 @@ Expressions are checked when you save, so a misspelled name or an expression tha
 To write a literal `{{` or `}}` — for a template meant for some other system — put it in quotes: `{{"{{"}}` produces `{{`.
 :::
 
-Custom functions and ranges aren't available. Neither is needed for the cases above, and both can be written so that they never finish.
 
 ## Execution history
 
