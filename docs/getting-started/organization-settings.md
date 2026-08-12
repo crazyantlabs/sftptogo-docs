@@ -161,7 +161,7 @@ If you'd like to change your plan during a trial, we ask that you please reach o
 
 ## Access - team management
 
-The access section lists the accounts that have access to an organization's management dashboard and allows owners to invite more team members, track their usage and their Multi-factor authentication status.
+The access section lists the accounts that have access to an organization's management dashboard and allows owners to invite more team members, track their usage, and view and reset their Multi-factor authentication status.
 
 To invite a new member to your organization, scroll down to the **Access** section and click **Invite team member**. Fill out the team member's name and email address and an invitation will be sent out for the new member to join your organization. After clicking the invitation link, the new member will be requested to create a password. Once logged in, the new member will be able to access the organization according to the assigned role.
 
@@ -172,6 +172,24 @@ If access to SFTP To go is managed by a partner (e.g. Heroku), use the partner's
 To remove a member from the organization, click the menu button (...) and then **Remove from team**.
 
 To change an existing member role, click the menu button (...) and then **Change role**.
+
+### Resetting a team member's multi-factor authentication
+
+If a team member loses access to the method they use for multi-factor authentication, an owner can reset it so they can set it up again. Click the menu button (...) next to the member and then **Reset multi-factor authentication**.
+
+Only organization owners can reset a team member's multi-factor authentication.
+
+All of the member's multi-factor authentication methods stop working immediately, whichever ones they had set up, and they are asked to set one up again the next time they sign in. Passkeys are managed separately and are not affected, so a member who has one can still sign in with it.
+
+The member and every other owner of the organization are notified by email whenever this happens.
+
+:::warning
+Only reset a team member's multi-factor authentication after you have confirmed, outside of SFTP To Go, that the request really came from them. Resetting it on someone else's request is a common way for attackers to take over an account.
+:::
+
+:::note
+You can't reset your own multi-factor authentication from this page. To change your own, go to [account settings](./account-settings#multi-factor-authentication).
+:::
 
 :::note
 An account must have at least one owner account.
