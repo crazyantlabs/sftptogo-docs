@@ -18,9 +18,17 @@ SFTP To Go allows several authentication methods, which are ways to identify the
 * Public key authentication - identification based on username and a cryptographic system that uses pairs of keys. To use it, add a public SSH key to each one of the credentials. This form of authentication is only supported by the SFTP protocol.
 
 
-### Multi-factor authentication
+### Multi-factor Authentication
 
-Select the factors to allow your users to use with Multi-factor authentication when connecting to the web portal.
+Choose which factors users can use to verify their identity when connecting to the web portal.
+
+* **Require MFA for all users**: Toggle this to enforce mandatory MFA enrollment. You must enable at least one factor below for this to take effect.
+
+* **Authenticator App**: Allows the use of apps like Google Authenticator, 1Password, or Authy. This is the most secure method for generating verification codes.
+
+* **Email**: Allows users to receive a one-time password (OTP) via email. 
+  * **Requirement**: Users must have an [associated email address](../getting-started/creating-and-modifying-users#associating-credentials-with-email-addresses). 
+  * **Warning**: If MFA is enforced, users without an associated email address may be prompted for an OTP they cannot receive.
 
 ### Password policy
 
@@ -56,6 +64,16 @@ To add a new custom domain:
 SFTP domains can be added with any plan. Additionally, you can point subdomains to your SFTP endpoint without adding them to the domains list. Adding custom domains for use with the web portal is only available with certain plans. Read more about our various plans [here](https://sftptogo.com/pricing).
 :::
 
+:::warning
+If your domain has a [CAA (Certificate Authority Authorization) record](https://docs.aws.amazon.com/acm/latest/userguide/troubleshooting-caa.html) configured on the root domain or on the subdomain you are adding as a web portal domain, you must ensure that the CAA record authorizes certificate issuance by including at least one of the following values:
+
+* `amazon.com`
+* `amazontrust.com`
+* `awstrust.com`
+* `amazonaws.com`
+
+Without this, TLS certificate provisioning for your custom portal domain will fail. This requirement applies only to **Web portal** custom domains, as SFTP To Go manages TLS certificates on your behalf.
+:::
 
 Here are some links to documentation on editing DNS records with popular domain providers. If your DNS provider isn't listed, log in to your provider's website and search their documentation for adding DNS records.
 
@@ -143,7 +161,7 @@ If you'd like to change your plan during a trial, we ask that you please reach o
 
 ## Access - team management
 
-The access section lists the accounts that have access to an organization's management dashboard and allows owners to invite more team members, track their usage and their Multi-factor authentication status.
+The access section lists the accounts that have access to an organization's management dashboard and allows owners to invite more team members, track their usage, and view and reset their Multi-factor authentication status.
 
 To invite a new member to your organization, scroll down to the **Access** section and click **Invite team member**. Fill out the team member's name and email address and an invitation will be sent out for the new member to join your organization. After clicking the invitation link, the new member will be requested to create a password. Once logged in, the new member will be able to access the organization according to the assigned role.
 
@@ -154,6 +172,24 @@ If access to SFTP To go is managed by a partner (e.g. Heroku), use the partner's
 To remove a member from the organization, click the menu button (...) and then **Remove from team**.
 
 To change an existing member role, click the menu button (...) and then **Change role**.
+
+### Resetting a team member's multi-factor authentication
+
+If a team member loses access to the method they use for multi-factor authentication, an owner can reset it so they can set it up again. Click the menu button (...) next to the member and then **Reset multi-factor authentication**.
+
+Only organization owners can reset a team member's multi-factor authentication.
+
+All of the member's multi-factor authentication methods stop working immediately, whichever ones they had set up, and they are asked to set one up again the next time they sign in. Passkeys are managed separately and are not affected, so a member who has one can still sign in with it.
+
+The member and every other owner of the organization are notified by email whenever this happens.
+
+:::warning
+Only reset a team member's multi-factor authentication after you have confirmed, outside of SFTP To Go, that the request really came from them. Resetting it on someone else's request is a common way for attackers to take over an account.
+:::
+
+:::note
+You can't reset your own multi-factor authentication from this page. To change your own, go to [account settings](./account-settings#multi-factor-authentication).
+:::
 
 :::note
 An account must have at least one owner account.
