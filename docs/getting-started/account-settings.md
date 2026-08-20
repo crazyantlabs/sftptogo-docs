@@ -25,7 +25,7 @@ To enable multi-factor authentication, click **Setup Multi-factor Authentication
 You may always disable MFA by clicking **Disable Multi-factor Authentication**.
 
 :::info
-Administrators in your organizations can monitor whether you have enabled or disabled MFA.
+Owners of your organizations can see whether you have enabled or disabled MFA, and can reset it if you lose access to the method you use. You are notified by email whenever this happens. Read more about [resetting a team member's multi-factor authentication](./organization-settings#resetting-a-team-members-multi-factor-authentication).
 :::
 
 ## History

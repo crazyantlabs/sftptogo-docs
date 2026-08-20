@@ -34,7 +34,7 @@ CSV file structure:
 |Timestamp (UTC) |	Time and date at which the event took place  (UTC)|
 |Type|	Name of the specific event — see [Event types](#event-types) below|
 |Principal ID|	ID of the principal responsible for the event|
-|Principal Type|	Type of the principal responsible for the event. e.g. `user`, `share-link`, `admin`, `system`|
+|Principal Type|	Type of the principal responsible for the event. e.g. `user`, `share-link`, `admin`, `automation` (an automation of yours, identified by its id), `system` (SFTP To Go itself), `iam` (a direct S3 request made with IAM credentials)|
 |Username|	Username of the principal responsible for the event|
 |Session ID|	ID of the event session|
 |IP Address|	IP address of the event actor|
@@ -47,7 +47,7 @@ If you need to inspect S3 access logs (for direct S3 access), please reach out t
 
 ## Event types {#event-types}
 
-Every event is recorded under one of four principal types: `user`, `share-link`, `admin`, or `system`. Activity on your storage is recorded with the `user` or `share-link` principal of whoever performed it. Actions performed by organization admins in the dashboard are recorded with the `admin` principal — the Username column shows the admin's email, and the event's `Data` includes an `Actor` object with the admin's ID, name, and email, so the actor is identified even in exported or streamed events. Events recorded by the platform itself (e.g., a delivery failure) use the `system` principal.
+Every event carries a principal type identifying who or what caused it. Activity on your storage is recorded with the `user` or `share-link` principal of whoever performed it. Actions performed by organization admins in the dashboard are recorded with the `admin` principal — the Username column shows the admin's email, and the event's `Data` includes an `Actor` object with the admin's ID, name, and email, so the actor is identified even in exported or streamed events. Work an automation performs carries the `automation` principal, and events recorded by the platform itself (e.g., a delivery failure) use the `system` principal.
 
 | Area | Types |
 |--|--|
@@ -61,6 +61,7 @@ Every event is recorded under one of four principal types: `user`, `share-link`,
 | Webhooks | `webhook.created`, `webhook.updated`, `webhook.deleted`, `webhook.paused` (by an admin, or automatically after consecutive delivery failures), `webhook.resumed`, `webhook.tested`, `webhook.secret.rotated`, `webhook.delivery.resent`, `webhook.delivery.failed` |
 | Domains | `domain.created`, `domain.updated`, `domain.deleted` |
 | Audit logs | `audit-logs.export-requested` (the `Data` includes the requested `StartDate` and `EndDate`), `audit-logs.export-uploaded`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed` |
+| Automations | See [Automation events](#automations) below |
 
 ### Change tracking on update events
 
@@ -78,6 +79,46 @@ Events that modify an existing object — `organization.updated`, `user.updated`
 :::note
 Secret values are never stored in audit logs. When a secret-bearing property changes — a share link password, a webhook signing secret, or an authorization header — the change is recorded with `[REDACTED]` in place of the value.
 :::
+
+## Automation events {#automations}
+
+[Automations](../automation/automations) record both the changes admins make to them and the work they perform on your files.
+
+Administrative events are attributed to the admin who made the change:
+
+| Type | Description |
+|--|--|
+|`automation.created`| An automation was created |
+|`automation.updated`| An automation was updated |
+|`automation.deleted`| An automation was deleted |
+|`automation.resumed`| An automation was resumed |
+|`automation.paused`| An automation was paused by an admin. The same type is also recorded when SFTP To Go pauses one automatically — see [Automatic pauses](#automatic-pause) below, which carry the `system` principal instead |
+|`automation.execution.rerun`| An admin re-ran a past execution. The `Data` object's `Id` is the source execution and `NewExecutionId` is the execution the rerun created |
+|`automation.execution.manual-run`| An admin ran an automation on demand against a file they chose. The `Data` object's `AutomationId` is the automation and `NewExecutionId` is the execution the run created |
+|`automation.secret.rotated`| An admin rotated the automation's webhook signing secret. The `Data` object's `Id` is the automation |
+
+The remaining events aren't recorded by an admin. Those an automation causes carry the principal type `automation`, with the automation's id as the principal id — not the admin who created it. That is deliberately distinct from `system`, which is SFTP To Go's own work, so you can filter your automations apart from the platform:
+
+| Type | Description |
+|--|--|
+|`automation.action.executed`| An automation action ran — any action, including the notification ones. The `Data` object's `Id` is the execution, plus the `AutomationId`, `ActionId` and `ActionType`, and for actions that act on a file the `SourcePath` and `DestinationPath` involved. A PGP action also records the key it used as `PgpKeyName` and `PgpKeyKeyId` (its OpenPGP key id), plus the internal `PgpKeyId` |
+|`automation.action.failed`| An automation action failed. Recorded even when the automation is set to continue past the failure, in which case the execution itself may still succeed. The `Data` object carries the execution `Id`, `AutomationId`, `ActionId`, `ActionType`, the `Error`, any `SourcePath` / `DestinationPath` involved, and for a PGP action the key it used (`PgpKeyName`, `PgpKeyKeyId`, `PgpKeyId`) |
+|`automation.execution.failed`| An automation execution failed. The `Data` object's `Id` is the execution, plus the `AutomationId`, the `TriggerType` that started it (`event`, `schedule`, `manual` or `rerun`), and the `Error` reported by the failing action. `Path` is present only when the execution was started by a file event, and names that file — a scheduled run has no triggering file, so the field is absent. Treat it as optional |
+
+:::note
+Automations act on your files using SFTP To Go's own credentials, so the resulting `file.created` and `file.deleted` events are attributed to the `system` principal — **not** `automation`, even though the automation's own events are. The file event can't tell which automation wrote the file, or that an automation wrote it at all. Every automation action does record an `automation.action.executed` event, though — use it to trace a file back to the automation and execution responsible for it, and to see that a notification step ran.
+:::
+
+### Automatic pauses {#automatic-pause}
+
+SFTP To Go pauses an automation that fails repeatedly, so a misconfigured one doesn't keep failing on every file. That records the same `automation.paused` type as an admin pausing it by hand, but with the `system` principal rather than `admin` — nobody performed it.
+
+The two are told apart by the principal, and by the `Data` object: an automatic pause carries a `Reason` of `consecutive-execution-failures` and a `ConsecutiveFailuresCount`, neither of which is present when an admin pauses one.
+
+| Paused by | Principal Type | Principal ID | `Data.Reason` |
+|--|--|--|--|
+| An admin | `admin` | The admin's account | absent |
+| SFTP To Go | `system` | The service | `consecutive-execution-failures` |
 
 ## Streaming audit logs {#stream}
 

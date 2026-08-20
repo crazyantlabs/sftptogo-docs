@@ -1,7 +1,7 @@
 ---
 sidebar_label: 'Email notifications'
 title: 'Setting up email notification'
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 SFTP To Go's email notifications alert you when files are uploaded, downloaded or deleted. You can choose to receive notifications for all activities across your entire storage, or customize them to focus on specific files, paths, types, or even based on who performed the action.
