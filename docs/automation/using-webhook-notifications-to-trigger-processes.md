@@ -1,7 +1,7 @@
 ---
 sidebar_label: 'Webhook notifications'
 title: 'Using webhooks notification to trigger processes'
-sidebar_position: 1
+sidebar_position: 2
 ---
 Webhooks enable you to receive notifications whenever particular events occur within your SFTP To Go organization's storage. You can subscribe to notifications for the following events:
 
