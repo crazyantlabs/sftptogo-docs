@@ -134,8 +134,12 @@ Input the information you want to be accessible to web portal users. The busines
 
 Customize your web portal's appearance by selecting your icon, logo, and colors for both light and dark modes.
 
+For both the icon and the logo you can either upload an image or point to one you already host at an `https://` address. Uploading is usually simpler, since you don't need somewhere to publish the file first. To swap an image later, select it and choose a new file or address; to go back to the default, remove it.
+
+Uploads accept PNG, JPEG, GIF, WebP and SVG images of up to 1 MB.
+
 :::info
-The icon serves as your site's favicon and the primary logo, unless you choose to use a logo URL instead. We recommend using a rectangular image with dimensions of 128x128 pixels.
+The icon serves as your site's favicon and the primary logo, unless you choose to use a logo instead. We recommend using a rectangular image with dimensions of 128x128 pixels.
 :::
 
 
