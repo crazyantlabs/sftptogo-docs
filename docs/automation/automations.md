@@ -1,0 +1,404 @@
+---
+sidebar_label: 'Automations'
+title: 'Automating file workflows'
+sidebar_position: 1
+---
+
+Automations run a sequence of actions on your files — either whenever something happens in your storage, or on a schedule you set. Use them to sort uploads into dated folders, archive downloads, clean up temporary files, deliver a report every morning, or notify another system — without running any infrastructure of your own.
+
+:::info
+Automations are only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
+:::
+
+An automation has three parts:
+
+* A **trigger** — the event that starts it.
+* An optional **filter** — narrows the trigger to the files you care about.
+* One or more **actions** — the work to perform, run in order.
+
+## Creating an automation
+
+To create an automation, click **Automations** from the menu, and then click **Add automation**.
+
+In the dialog that opens, fill out the following:
+
+* `Name` (optional) — a descriptive name for your automation. Limited to 80 characters.
+* `Trigger` — what starts the automation, either **On a file or folder event** or **On a schedule**. An automation uses one or the other, not both.
+* `Events` — for an event trigger, one or more events that start the automation. It runs whenever any of the selected events occurs:
+  * `File created` — a file or folder was created by any means (SFTP/FTPS, the web portal, or the S3 API).
+  * `File downloaded` — someone asked to download a file. This is raised when the download starts, so it also covers previewing or printing a file in the web portal, and a download that is cancelled part-way. Opening the same file twice raises it twice.
+  * `File deleted` — a file or folder was deleted.
+  * `File infected` — malware scanning found a file to be infected. Available when malware scanning is enabled.
+* `Filter` (optional) — for an event trigger, only run the automation when the triggering event matches your rules. Filter on the file `Path`, its `Type`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
+
+  `Type` is either `File` or `Folder`, and is worth adding whenever the actions only make sense for files. Creating a folder raises a `File created` event of its own, so an automation that copies or encrypts what triggered it will otherwise run against the folder as well. A rule of `Type` `is` `File` excludes that.
+* `Schedule` — for a schedule trigger, when and how often to run. See [Running on a schedule](#running-on-a-schedule).
+* `Actions` — the actions to run, in order. An automation can have up to 10 actions.
+
+Click **Save** to create the automation. It starts running on matching events immediately, unless you create it paused.
+
+:::note
+Automations don't trigger on **system-generated actions**. In particular, a file created, moved, renamed, or deleted by another automation won't start a new automation — this prevents automations from triggering each other in a loop. To run several steps on the same file, add them as multiple actions in a single automation (later file actions can operate on the file produced by the previous one).
+:::
+
+## Running on a schedule
+
+A scheduled automation runs at times you choose rather than in response to a file event. Use it to deliver a report every weekday morning, archive a folder at the end of each month, or collect a partner's overnight drop before the working day starts.
+
+Choose **On a schedule** as the trigger, then set:
+
+* `Starts on` — the date, time and time zone the schedule begins. Everything else is read from this instant: an hourly schedule runs at its minutes past the hour, a daily one at its time of day, and an annual one on its date.
+* `Repeats` — how often it runs from that point:
+  * `Never` — runs a single time, at the start date and time, then stops.
+  * `Hourly`, `Daily`, `Weekly`, `Monthly`, `Annually` — the common cadences. Weekly lets you pick the days; monthly offers the day of the month, or that weekday's position in the month — for example the fourth Sunday, or the last Sunday.
+  * `On rate-based schedule` — repeats every set number of minutes, hours, days or weeks, spaced evenly from the start.
+  * `On cron-based schedule` — for patterns the options above can't describe, using standard cron syntax. See [Cron expressions](#cron-expressions).
+* `Ends` (optional) — `Never`, on a date, or after a set number of executions.
+* `If an execution is already in progress` — `Skip the execution` (the default) drops the new execution so only one is ever in flight; `Run anyway` starts it regardless, allowing executions to overlap.
+
+Because a schedule has no triggering file, actions like copy, move, rename, delete, or PGP must specify which file to use. Set its source to **A specific file or folder**; variables are supported, so `/incoming/{{date.year}}-{{date.month}}-{{date.day}}/` follows the calendar. An action that reads nothing (creating a file or folder, or a delay), or that only describes the execution (the notifications), needs no path at all. An action can also work on **the file or folder created by the previous action**, so only the first step in a chain needs a path.
+
+While you're editing, the editor describes the schedule in words — "Every day at 9:00 AM", "At 09:00 AM, Monday through Friday" — and lists the executions it produces next, so you can check the cadence before saving. Those executions are shown in your own time zone rather than the schedule's, so a schedule set in another region still tells you when it lands for you; hover a date to see it spelled out.
+
+Times follow the time zone you pick, and adjust for daylight saving — a daily 09:00 schedule stays at 09:00 through the change. Rate-based schedules are the exception: they keep a fixed spacing, so they don't shift.
+
+:::note
+Changing the schedule of an automation that ends after a set number of executions starts that count again. Renaming an automation, or editing its actions, does not.
+:::
+
+### Cron expressions
+
+A cron-based schedule takes a standard cron expression with five fields — minute, hour, day of month, month, and day of week:
+
+```
+0 9 1,15 * *
+```
+
+That runs at 09:00 on the 1st and 15th of every month. This is the same syntax used by `crontab` and by tools like [Cron Expression To Go ](https://cronexpressiontogo.com), so an expression you already have will work as written.
+
+Day of week is `0`–`6` starting from Sunday, and `7` is Sunday as well. You can use names instead — `MON-FRI`. Two extras are supported in the day fields: `L` for the last day of the month, and `#` for a particular weekday of the month, so `0 9 * * 2#2` runs at 09:00 on the second Tuesday.
+
+Set either the day of month or the day of week and leave the other as `*` — a schedule can't be driven by both.
+
+The shorthand macros are supported too: `@hourly`, `@daily` (or `@midnight`), `@weekly`, `@monthly`, and `@yearly` (or `@annually`).
+
+The **Presets** menu next to the field fills in the common patterns, including several the other options can't express: every hour on weekdays between 08:00 and 18:00, twice a month, and the last day of the month.
+
+As with every other schedule, the editor describes the expression in words and lists its upcoming executions, so you can check it before saving.
+
+## Actions
+
+| Action | Description | Available for |
+|--|--|--|
+| Copy file or folder | Copies the file to a destination path, leaving the original in place | File created, File downloaded |
+| Move file or folder | Copies the file to a destination path and deletes the original | File created, File downloaded |
+| Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
+| Delete file or folder | Deletes the file | File created, File downloaded |
+| Create file or folder | Creates an empty file, or a folder | Any trigger |
+| PGP encrypt file | Encrypts the file to a PGP key's public key | File created, File downloaded |
+| PGP decrypt file | Decrypts a PGP-encrypted file with a private key | File created, File downloaded |
+| Send webhook request | Sends an HTTP POST request describing the trigger to an endpoint you choose | File created, File downloaded, File deleted |
+| Send Slack message | Posts a message describing the trigger to a Slack incoming webhook | File created, File downloaded, File deleted |
+| Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | File created, File downloaded, File deleted |
+| Send email | Emails a notification describing the trigger to an address you choose | File created, File downloaded, File deleted |
+| Delay | Pauses the automation at this step before continuing to the next action | Any trigger |
+
+**Copy**, **Move**, **Rename** and the **PGP** actions fail if the file they are told to work on doesn't exist — nothing is copied and the execution stops, rather than reporting success for work it didn't do. **Delete** is the exception: it succeeds when the path is already gone, since that is the state it was asked to produce. Turn on **Allow failure** on any of the others if a missing file should be tolerated.
+
+### Create file or folder
+
+A **Create file or folder** action makes something new at a path you choose, rather than acting on the file that triggered the automation.
+
+What it creates depends on how the path ends:
+
+* A path ending in `/` — for example `/inbound/2026-07-31/` — creates a **folder**.
+* A path ending in a file name — for example `/inbound/readme.txt` — creates an **empty file**.
+
+Any folders in the path are created as well, so `/inbound/2026/07/` works even when `/inbound/2026/` doesn't exist yet.
+
+The usual reason to use it is to have a folder ready before anything needs to go in it. Many SFTP clients won't create a folder on the fly, and a user restricted to a specific path often can't create one at all — so a partner uploading to `/inbound/2026-07-31/` needs that folder to already exist.
+
+Variables make schedules more useful. For example, an automation can create tomorrow’s folder each evening using `/inbound/{{date.year}}-{{date.month}}-{{date.day}}/`.
+
+Because it doesn't act on the triggering file, this action has no source to choose and works with every trigger, including [a schedule](#running-on-a-schedule). An action after it can still operate on **the file or folder created by the previous action**.
+
+Turning off **Overwrite existing files** makes the action fail rather than replace a file that's already there. It has no effect when creating a folder — writing a folder that already exists changes nothing.
+
+### Delay
+
+A **Delay** action pauses the automation at that step, then continues with the next action. Set an amount and a unit — seconds, minutes, hours or days — up to a maximum of 7 days.
+
+Use it to leave time for something outside the automation to happen: a partner to collect a file before it's archived, an upload to settle before it's encrypted, or a gap between two notifications.
+
+While an automation is waiting, its execution stays open and the delay step shows when it resumes. The steps after it haven't run yet.
+
+A delay doesn't interrupt the chain between actions. An action set to operate on **the file or folder created by the previous action** still means the last action that created one, so you can insert a delay between two file actions without changing what the second one works on.
+
+Actions run one after another. By default, if an action fails the automation stops and the remaining actions don't run. Enable **Allow failure** on an action to let the automation continue to the next action instead of stopping if that action fails.
+
+The file actions (copy, move, rename, delete) after the first **default to operating on the file produced by the previous action** — the intuitive chaining flow, for example copying a file and then renaming the copy — but you can switch a step back to the file that triggered the automation.
+
+The notification actions (webhook, Slack, Microsoft Teams and email) after the first **default to describing the previous action's result**, but can be switched to the **triggering event**. This lets you announce what a step did — for example, encrypt a file and then notify about the encrypted file, or delete a file and notify that it was removed. When set to the previous action, the notification is sent in the same format as any other file event: a **`file.created`** event for the file the step produced (copy, move, rename, PGP encrypt/decrypt), or a **`file.deleted`** event for the file a delete removed.
+
+By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files only — folder operations always overwrite.
+
+### PGP encrypt and decrypt
+
+The PGP actions encrypt or decrypt a single file using a key from your [encryption keys](../security/encryption-keys) (**Settings → Security → Encryption keys**). The key is referenced by selection — no key material is stored on the automation.
+
+* `PGP key` — the key to use. For **PGP encrypt**, pick a key that can encrypt (any public or private key). For **PGP decrypt**, pick the private key the file was encrypted to — a file can only be decrypted with a private key it was encrypted to (you must be one of its recipients). The **+ New key** option lets you import a key without leaving the builder.
+* `Destination path` (optional) — where to write the result. By default, **encrypt** appends a `.pgp` extension to the source path, and **decrypt** removes a trailing `.pgp`, `.gpg` or `.asc` extension. To keep that default name but write it somewhere else, give a **folder** (e.g. `/decrypted/`) — the file keeps the extension-stripped name. For a custom name, give a full path; `{{file.basename}}` is the source name without its last extension, so `/decrypted/{{file.basename}}` also drops the `.pgp`.
+* `ASCII-armored output` (**encrypt** only) — on by default, producing text output that is safe to paste or email. Turn it off for binary output, which is about a third smaller and is what some partners require. **Decrypt** detects either format automatically, so you never have to tell it which one a file uses.
+
+The original file is left in place — chain a **Move** or **Delete** action after the PGP action if you want to replace it. Like the other file actions, a PGP action after the first can operate on the file produced by the previous action, so you can, for example, encrypt a file and then move the encrypted copy.
+
+:::note
+PGP actions operate on a single file (not a folder) and support files up to 100 MB. Decryption of a file that is both signed and encrypted is supported — the file is decrypted normally; the signature is not verified.
+:::
+
+### Send webhook request
+
+The webhook action sends an HTTP POST request with a JSON body describing the trigger.
+
+* `Endpoint URL` — must be a public HTTPS URL. Private, loopback and link-local addresses are rejected, as are URLs containing credentials. Variables are supported in the path and query string, but not in the host name.
+* `Authorization header` (optional) — sent as the `Authorization` header value with the request.
+* `API version` — determines the format of the request payload sent to your endpoint. New automations use the latest version. See [API versions](#api-versions) below.
+
+:::note
+For security, the authorization header is never shown again after you save it. Leave the field blank when editing to keep the stored value, type a new value to replace it, or clear the field to remove it. Duplicating an automation does not copy its authorization header.
+:::
+
+#### Request body
+
+The request body is a JSON object describing the triggering event, with a `Metadata` object identifying the automation, execution, action and attempt:
+
+```json
+{
+  "Id": "b2c3…",
+  "Topic": "file.created",
+  "Resource": "File",
+  "PreviousData": null,
+  "Data": { "Path": "/uploads/report.pdf", "Size": 1048576 },
+  "Actor": { "Id": "…", "Type": "User" },
+  "CreatedAt": 1783695150000,
+  "UpdatedAt": 1783695150000,
+  "Metadata": {
+    "ApiVersion": "2026-07-01.atlas",
+    "Organization": { "Id": "…" },
+    "Automation": { "Id": "…" },
+    "Execution": { "Id": "…" },
+    "Action": { "Id": "…" },
+    "Attempt": { "Id": "…", "Count": 0 },
+    "Event": { "Id": "b2c3…", "Topic": "file.created" },
+    "IdempotencyKey": "…"
+  }
+}
+```
+
+`Metadata.ApiVersion` identifies the payload format, so you can branch on it if the format ever changes. It matches the **API version** selected on the action.
+
+For a scheduled execution the same shape is sent, with the differences a schedule implies: the `Topic` is `schedule.triggered`, the `Resource` is `Schedule` rather than `File`, `Data` is empty because no file was transferred, and the `Actor` is the automation itself:
+
+```json
+{
+  "Topic": "schedule.triggered",
+  "Resource": "Schedule",
+  "Data": {},
+  "Actor": { "Id": "<automation id>", "Type": "Automation" }
+}
+```
+
+#### API versions
+
+The API version pins the payload contract, so an existing automation keeps working even after a newer format ships. The versions differ only in how the file path in `Data.Path` is encoded:
+
+* `2026-07-01.atlas` — **latest**, and the default for new automations. `Data.Path` is the **decoded** path — spaces and other special characters appear as-is (e.g. `/uploads/my report.pdf`).
+* `2020-01-01` — `Data.Path` is the raw, **URL-encoded** S3 object key, matching [webhook notifications](./using-webhook-notifications-to-trigger-processes) (e.g. `/uploads/my+report.pdf`, where a space is `+`). Use this if your endpoint already handles that format.
+
+A newer version becomes the default for automations created after it ships; existing automations stay on the version they were created with until you change it.
+
+#### Verifying the signature
+
+Each automation has a signing secret, shown once when the automation is created and whenever you rotate it. Every webhook request is signed with it, so you can confirm a request genuinely came from SFTP To Go and was not tampered with.
+
+The signature is sent in the `X-Hub-Signature` header as `sha256=<hmac>`, the HMAC-SHA256 of the exact request body computed with your signing secret. To verify a request:
+
+1. Store the signing secret securely on your server. **Never** hardcode it or log it.
+2. Compute the HMAC-SHA256 of the raw request body using the secret.
+3. Compare it to the `X-Hub-Signature` header using a constant-time comparison to avoid timing attacks.
+
+To check your implementation, this secret and body should produce this exact signature:
+
+```
+secret: your-signing-secret
+body:   {"hello":"world"}
+X-Hub-Signature: sha256=3cbbff88ab4a82398a21ab3e2934ee47e53c3a5ba0609866587a80feddb7f755
+```
+
+Rotating the secret invalidates the old one: requests are immediately signed with the new secret. To rotate, open the automation's actions menu and click **Rotate signing secret**.
+
+#### Request headers and retries
+
+Requests are retried when the endpoint times out, refuses the connection, or answers `429` or a `5xx` status. Delivery is therefore **at least once**: your endpoint may receive the same request more than once, and it must be safe to process a repeat.
+
+Every request carries these headers:
+
+| Header | Description |
+|--|--|
+|`X-Idempotency-Key`| Identifies the unit of work. Stable across every retry of the same action, and different for every automation execution. Deduplicate on this |
+|`X-Automation-Id`| The automation that sent the request |
+|`X-Automation-Execution-Id`| The execution that sent the request |
+|`X-Automation-Action-Id`| The action within that execution |
+|`X-Automation-Attempt`| `0` on the first attempt, then `1`, `2`, … on each retry |
+|`X-Hub-Signature`| `sha256=<hmac>` signature of the request body — see [Verifying the signature](#verifying-the-signature) |
+
+The same values are also available in the `Metadata` object of the request body.
+
+To handle retries safely, record the `X-Idempotency-Key` of each request you process and ignore a request whose key you have already seen. An `X-Automation-Attempt` greater than `0` tells you the request is a redelivery.
+
+### Send Slack message
+
+Posts a formatted message describing the triggering event to Slack.
+
+* `Incoming webhook URL` — the Slack [incoming webhook](https://api.slack.com/messaging/webhooks) URL to post to. Must be a public HTTPS URL. The message is delivered to whichever channel the incoming webhook is configured for.
+
+### Send Microsoft Teams message
+
+Posts a formatted message describing the triggering event to Microsoft Teams.
+
+* `Incoming webhook URL` — the Microsoft Teams [incoming webhook](https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook) URL to post to. Must be a public HTTPS URL. The message is delivered to whichever channel the incoming webhook is configured for.
+
+### Send email
+
+Emails a notification describing the triggering event.
+
+* `Recipient email` — the address to send the notification to.
+
+:::note
+When the automation runs on a schedule there is no file event to describe, so the Slack, Microsoft Teams and email notifications say the automation ran on schedule, and give the time it ran. There is no file to name — a schedule doesn't act on one, and each action carries its own path. To have a notification name a file, set its source to **the file or folder created by the previous action**: it then describes that file, as it would for a file event.
+:::
+
+## Allowing our IP addresses
+
+If the endpoint an automation sends to only accepts traffic from known addresses, add ours to its allowlist. Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions always arrive from one of these addresses:
+
+* `3.215.222.67`
+* `44.218.45.54`
+* `52.22.213.13`
+
+Add all of them, not just one. Any given request may arrive from any address in the list, and which one it is varies from one execution to the next — allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
+
+These addresses are stable, and we will give notice before they change.
+
+:::note
+The [Send email](#send-email) action uses our email provider. We recommend allowlisting `support@sftptogo.com` to ensure reliable delivery.
+:::
+
+## Variables
+
+Destination paths, source paths, new names and webhook endpoint URLs can include variables, which are replaced with real values when the automation runs.
+
+The `file` variables describe **the file the action is working on** — whatever its source resolves to. That is the file that triggered the automation for an action left on the default, the file the previous step produced for one set to **the file or folder created by the previous action**, and the path you gave for one set to **A specific file or folder**. So in a chain each step's `{{file.*}}` follows the file along the chain rather than pointing back at the original upload. Inside the **Source path** field itself they describe the triggering file, since that field is what the source is being built from.
+
+| Variable | Description | Example |
+|--|--|--|
+|`{{file.name}}`| Full file or folder name | `report.pdf` |
+|`{{file.basename}}`| Name without extension | `report` |
+|`{{file.extension}}`| File extension, without the dot | `pdf` |
+|`{{file.suffix}}`| File extension with the dot, or empty if the file has none | `.pdf` |
+|`{{file.path}}`| Full path of the file, without a leading `/` | `uploads/2026/report.pdf` |
+|`{{file.parent_folder}}`| Every folder containing the file, without a leading or trailing `/` | `uploads/2026` |
+|`{{file.size}}`| File size in bytes. Known for the triggering file; empty when the action works on a file produced by an earlier step or on a path you gave | `1048576` |
+|`{{actor.id}}`| ID of the user, system or automation that triggered the execution | |
+|`{{actor.type}}`| Type of the actor | `User` |
+|`{{automation.id}}`| ID of this automation | |
+|`{{execution.id}}`| ID of the execution | |
+|`{{date.year}}`| Year the automation ran (UTC) | `2026` |
+|`{{date.month}}`| Month, zero padded (UTC) | `07` |
+|`{{date.day}}`| Day of month, zero padded (UTC) | `10` |
+|`{{date.hour}}`| Hour, zero padded (UTC) | `14` |
+|`{{date.minute}}`| Minute, zero padded (UTC) | `52` |
+|`{{date.second}}`| Second, zero padded (UTC) | `30` |
+|`{{date.iso}}`| Full ISO 8601 timestamp (UTC) | `2026-07-10T14:52:30.000Z` |
+|`{{date.epoch}}`| Unix timestamp in seconds | `1783695150` |
+|`{{uuid}}`| A newly generated unique identifier | |
+
+For example, a `Move file or folder` action with a destination of `/archive/{{date.year}}/{{date.month}}/` files every upload into a folder for the current month.
+
+The path variables carry no leading `/`, so that the leading `/` is yours to write. `/{{file.parent_folder}}/processed/` keeps a file in its own folder tree, while `/archive/{{file.parent_folder}}/` mirrors that tree under `/archive`. Writing `{{file.parent_folder}}/processed/` on its own is rejected, because the resulting path doesn't start with `/`.
+
+`{{file.suffix}}` exists so that rebuilding a name needs no special case. `{{file.basename}}-processed{{file.suffix}}` gives `report-processed.pdf` for a file with an extension and `README-processed` for one without, because the dot belongs to the variable rather than to what you type around it.
+
+:::warning
+A name that isn't in the table above is refused when you save the automation, and fails the action if it reaches an execution — rather than quietly resolving to nothing and writing to a path you didn't intend.
+:::
+
+## Expressions
+
+Anywhere a variable can be used, you can write an expression instead: a small calculation that produces the value. The variables above are the data it reads — inside `{{ }}` you refer to them by name, without braces of their own, so `{{file.name}}` and `{{$uppercase(file.name)}}` are reading the same thing.
+
+Expressions are [JSONata](https://jsonata.org/), whose documentation covers the full set of functions. These are the ones that come up in practice, for a file named `report.pdf`:
+
+| What you want | Expression | Result |
+|--|--|--|
+| A name in capitals | `{{$uppercase(file.basename)}}` | `REPORT` |
+| Spaces replaced with dashes (shown for `my report.pdf`) | `{{$replace(file.basename, " ", "-")}}` | `my-report` |
+| A date in your own format | `{{$fromMillis($number(date.epoch) * 1000, "[Y0001][M01][D01]")}}` | `20260806` |
+| Tomorrow's date, for a folder prepared in advance | `{{$fromMillis(($number(date.epoch) + 86400) * 1000, "[Y0001]-[M01]-[D01]")}}` | `2026-08-07` |
+| A short unique ID, so a file name can't clash | `{{$substring(uuid, 0, 8)}}` | `f424179c` |
+| A basic authentication header | `Basic {{$base64encode("myuser:mypass")}}` | `Basic bXl1c2VyOm15cGFzcw==` |
+
+An expression can also choose between two values. A destination of `/inbound/{{$number(file.size) > 1048576 ? "large" : "small"}}/` sorts uploads into two folders by size.
+
+**Every variable is text**, including sizes and dates. To compare or calculate with one, convert it first with `$number(...)` — without it, `{{file.size > 1048576}}` fails, because a piece of text and a number can't be compared.
+
+It is also why the date examples above multiply `date.epoch` by 1000: it counts seconds, and `$fromMillis` expects milliseconds. Adding `86400` — one day in seconds — gives tomorrow, and rolls over the ends of months and years correctly, which adding `1` to `{{date.day}}` would not. In the format string, `[Y0001]` is a four digit year, and `[M01]` and `[D01]` a zero padded month and day.
+
+Expressions are checked when you save, so a misspelled name or an expression that can't be read is reported against the field rather than discovered on the next execution.
+
+:::note
+To write a literal `{{` or `}}` — for a template meant for some other system — put it in quotes: `{{"{{"}}` produces `{{`.
+:::
+
+
+## Execution history
+
+Each time an automation runs it is recorded as an execution, showing whether it succeeded and the state and result of each individual action, including the error reported by any action that failed. Executions are retained for 30 days.
+
+Expanding an execution shows what it worked on. For a file event that's the file that triggered it — its path and size. For a scheduled execution there is no triggering file, so it shows the schedule it belongs to; each action shows the path it worked on, with any variables already substituted, so you see the path the action actually received rather than the template. An execution started with **Run now** shows the same details.
+
+To view an automation's executions, open its actions menu and click **View executions**.
+
+### Running an automation manually
+
+Open an automation's actions menu and click **Run now** to run it on demand, without waiting for a matching event or for its next scheduled time — useful for testing an automation or reprocessing a specific file. For an event-triggered automation, enter the file path and pick the trigger event to record on the execution. A scheduled automation's actions carry their own paths, so there's nothing to enter.
+
+A manual execution ignores the automation's filter and runs its real actions, so it may change files in your storage. It runs even when the automation is paused or disabled, which lets you test a fix before resuming. Manual executions are shown with a **Run now** marker in the execution history and recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution.manual-run`.
+
+### Rerunning an execution
+
+Expand an execution and click **Rerun** to run the automation again against the same trigger that started it.
+
+:::warning
+A rerun runs the automation's real actions again. It may fail if the file the original execution acted on no longer exists, or if its current state differs from the original trigger — for example, if a previous execution already moved or deleted it. Reruns are recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution.rerun`.
+:::
+
+## Loop prevention
+
+Actions that write to your storage — copy, move and rename — generate `file.created` events of their own. These events do **not** trigger automations, so an automation that copies a file into a folder it also watches will not run forever. The same applies to anything an automation caused, however it was started.
+
+## When an automation fails
+
+If an automation fails 10 times in a row, SFTP To Go pauses it automatically and emails your organization's owners. This prevents a misconfigured automation — a destination that no longer resolves, or an endpoint that rejects every request — from failing on every file indefinitely.
+
+Review the execution history to find the failing action, correct the automation, and click **Resume** to start it again.
+
+A webhook action whose endpoint is temporarily unavailable — timing out, or answering `429` or `5xx` — is retried a few times with an increasing delay before the execution is marked as failed, so a brief outage on the receiving side won't pause your automation.
+
+## Auditing
+
+Automations record what they do. Because automations act using SFTP To Go's own credentials, the `file.created` and `file.deleted` events they generate are attributed to the `system` principal. Every action an automation runs — file operations and notifications alike — also records an `automation.action.executed` event, which traces the change back to the automation and execution responsible for it.
+
+An execution started by a schedule is attributed to the automation itself rather than to a person, and a failed execution records which kind of trigger started it, so a scheduled failure can be told apart from one caused by a file event.
+
+See [Automation events](../security/audit-logs#automations) for the full list.
