@@ -53,17 +53,17 @@ Choose **On a schedule** as the trigger, then set:
   * `Hourly`, `Daily`, `Weekly`, `Monthly`, `Annually` — the common cadences. Weekly lets you pick the days; monthly offers the day of the month, or that weekday's position in the month — for example the fourth Sunday, or the last Sunday.
   * `On rate-based schedule` — repeats every set number of minutes, hours, days or weeks, spaced evenly from the start.
   * `On cron-based schedule` — for patterns the options above can't describe, using standard cron syntax. See [Cron expressions](#cron-expressions).
-* `Ends` (optional) — `Never`, on a date, or after a set number of runs.
-* `If a run is already in progress` — `Skip the run` (the default) drops the new run so only one is ever in flight; `Run anyway` starts it regardless, allowing runs to overlap.
+* `Ends` (optional) — `Never`, on a date, or after a set number of executions.
+* `If an execution is already in progress` — `Skip the execution` (the default) drops the new execution so only one is ever in flight; `Run anyway` starts it regardless, allowing executions to overlap.
 
 Because a schedule has no triggering file, actions like copy, move, rename, delete, or PGP must specify which file to use. Set its source to **A specific file or folder**; variables are supported, so `/incoming/{{date.year}}-{{date.month}}-{{date.day}}/` follows the calendar. An action that reads nothing (creating a file or folder, or a delay), or that only describes the execution (the notifications), needs no path at all. An action can also work on **the file or folder created by the previous action**, so only the first step in a chain needs a path.
 
-While you're editing, the editor describes the schedule in words — "Every day at 9:00 AM", "At 09:00 AM, Monday through Friday" — and lists the runs it produces next, so you can check the cadence before saving. Those runs are shown in your own time zone rather than the schedule's, so a schedule set in another region still tells you when it lands for you; hover a date to see it spelled out.
+While you're editing, the editor describes the schedule in words — "Every day at 9:00 AM", "At 09:00 AM, Monday through Friday" — and lists the executions it produces next, so you can check the cadence before saving. Those executions are shown in your own time zone rather than the schedule's, so a schedule set in another region still tells you when it lands for you; hover a date to see it spelled out.
 
 Times follow the time zone you pick, and adjust for daylight saving — a daily 09:00 schedule stays at 09:00 through the change. Rate-based schedules are the exception: they keep a fixed spacing, so they don't shift.
 
 :::note
-Changing the schedule of an automation that ends after a set number of runs starts that count again. Renaming an automation, or editing its actions, does not.
+Changing the schedule of an automation that ends after a set number of executions starts that count again. Renaming an automation, or editing its actions, does not.
 :::
 
 ### Cron expressions
@@ -84,7 +84,7 @@ The shorthand macros are supported too: `@hourly`, `@daily` (or `@midnight`), `@
 
 The **Presets** menu next to the field fills in the common patterns, including several the other options can't express: every hour on weekdays between 08:00 and 18:00, twice a month, and the last day of the month.
 
-As with every other schedule, the editor describes the expression in words and lists its upcoming runs, so you can check it before saving.
+As with every other schedule, the editor describes the expression in words and lists its upcoming executions, so you can check it before saving.
 
 ## Actions
 
@@ -103,7 +103,7 @@ As with every other schedule, the editor describes the expression in words and l
 | Send email | Emails a notification describing the trigger to an address you choose | File created, File downloaded, File deleted |
 | Delay | Pauses the automation at this step before continuing to the next action | Any trigger |
 
-**Copy**, **Move**, **Rename** and the **PGP** actions fail if the file they are told to work on doesn't exist — nothing is copied and the run stops, rather than reporting success for work it didn't do. **Delete** is the exception: it succeeds when the path is already gone, since that is the state it was asked to produce. Turn on **Allow failure** on any of the others if a missing file should be tolerated.
+**Copy**, **Move**, **Rename** and the **PGP** actions fail if the file they are told to work on doesn't exist — nothing is copied and the execution stops, rather than reporting success for work it didn't do. **Delete** is the exception: it succeeds when the path is already gone, since that is the state it was asked to produce. Turn on **Allow failure** on any of the others if a missing file should be tolerated.
 
 ### Create file or folder
 
@@ -197,7 +197,7 @@ The request body is a JSON object describing the triggering event, with a `Metad
 
 `Metadata.ApiVersion` identifies the payload format, so you can branch on it if the format ever changes. It matches the **API version** selected on the action.
 
-For a scheduled run the same shape is sent, with the differences a schedule implies: the `Topic` is `schedule.triggered`, the `Resource` is `Schedule` rather than `File`, `Data` is empty because no file was transferred, and the `Actor` is the automation itself:
+For a scheduled execution the same shape is sent, with the differences a schedule implies: the `Topic` is `schedule.triggered`, the `Resource` is `Schedule` rather than `File`, `Data` is empty because no file was transferred, and the `Actor` is the automation itself:
 
 ```json
 {
@@ -245,7 +245,7 @@ Every request carries these headers:
 
 | Header | Description |
 |--|--|
-|`X-Idempotency-Key`| Identifies the unit of work. Stable across every retry of the same action, and different for every automation run. Deduplicate on this |
+|`X-Idempotency-Key`| Identifies the unit of work. Stable across every retry of the same action, and different for every automation execution. Deduplicate on this |
 |`X-Automation-Id`| The automation that sent the request |
 |`X-Automation-Execution-Id`| The execution that sent the request |
 |`X-Automation-Action-Id`| The action within that execution |
@@ -286,7 +286,7 @@ If the endpoint an automation sends to only accepts traffic from known addresses
 * `44.218.45.54`
 * `52.22.213.13`
 
-Add all of them, not just one. Any given request may arrive from any address in the list, and which one it is varies from run to run — allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
+Add all of them, not just one. Any given request may arrive from any address in the list, and which one it is varies from one execution to the next — allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
 
 These addresses are stable, and we will give notice before they change.
 
@@ -309,7 +309,7 @@ The `file` variables describe **the file the action is working on** — whatever
 |`{{file.path}}`| Full path of the file, without a leading `/` | `uploads/2026/report.pdf` |
 |`{{file.parent_folder}}`| Every folder containing the file, without a leading or trailing `/` | `uploads/2026` |
 |`{{file.size}}`| File size in bytes. Known for the triggering file; empty when the action works on a file produced by an earlier step or on a path you gave | `1048576` |
-|`{{actor.id}}`| ID of the user, system or automation that triggered the run | |
+|`{{actor.id}}`| ID of the user, system or automation that triggered the execution | |
 |`{{actor.type}}`| Type of the actor | `User` |
 |`{{automation.id}}`| ID of this automation | |
 |`{{execution.id}}`| ID of the execution | |
@@ -330,7 +330,7 @@ The path variables carry no leading `/`, so that the leading `/` is yours to wri
 `{{file.suffix}}` exists so that rebuilding a name needs no special case. `{{file.basename}}-processed{{file.suffix}}` gives `report-processed.pdf` for a file with an extension and `README-processed` for one without, because the dot belongs to the variable rather than to what you type around it.
 
 :::warning
-A name that isn't in the table above is refused when you save the automation, and fails the action if it reaches a run — rather than quietly resolving to nothing and writing to a path you didn't intend.
+A name that isn't in the table above is refused when you save the automation, and fails the action if it reaches an execution — rather than quietly resolving to nothing and writing to a path you didn't intend.
 :::
 
 ## Expressions
@@ -354,7 +354,7 @@ An expression can also choose between two values. A destination of `/inbound/{{$
 
 It is also why the date examples above multiply `date.epoch` by 1000: it counts seconds, and `$fromMillis` expects milliseconds. Adding `86400` — one day in seconds — gives tomorrow, and rolls over the ends of months and years correctly, which adding `1` to `{{date.day}}` would not. In the format string, `[Y0001]` is a four digit year, and `[M01]` and `[D01]` a zero padded month and day.
 
-Expressions are checked when you save, so a misspelled name or an expression that can't be read is reported against the field rather than discovered on the next run.
+Expressions are checked when you save, so a misspelled name or an expression that can't be read is reported against the field rather than discovered on the next execution.
 
 :::note
 To write a literal `{{` or `}}` — for a template meant for some other system — put it in quotes: `{{"{{"}}` produces `{{`.
@@ -363,24 +363,24 @@ To write a literal `{{` or `}}` — for a template meant for some other system �
 
 ## Execution history
 
-Every run of an automation is recorded as an execution, showing whether it succeeded and the state and result of each individual action, including the error reported by any action that failed. Executions are retained for 30 days.
+Each time an automation runs it is recorded as an execution, showing whether it succeeded and the state and result of each individual action, including the error reported by any action that failed. Executions are retained for 30 days.
 
-Expanding a run shows what it worked on. For a file event that's the file that triggered it — its path and size. For a scheduled run there is no triggering file, so it shows the schedule it belongs to; each action shows the path it worked on, with any variables already substituted, so you see the path the action actually received rather than the template. A run started with **Run now** shows the same details.
+Expanding an execution shows what it worked on. For a file event that's the file that triggered it — its path and size. For a scheduled execution there is no triggering file, so it shows the schedule it belongs to; each action shows the path it worked on, with any variables already substituted, so you see the path the action actually received rather than the template. An execution started with **Run now** shows the same details.
 
 To view an automation's executions, open its actions menu and click **View executions**.
 
 ### Running an automation manually
 
-Open an automation's actions menu and click **Run now** to run it on demand, without waiting for a matching event or for its next scheduled time — useful for testing an automation or reprocessing a specific file. For an event-triggered automation, enter the file path and pick the trigger event to record on the run. A scheduled automation's actions carry their own paths, so there's nothing to enter.
+Open an automation's actions menu and click **Run now** to run it on demand, without waiting for a matching event or for its next scheduled time — useful for testing an automation or reprocessing a specific file. For an event-triggered automation, enter the file path and pick the trigger event to record on the execution. A scheduled automation's actions carry their own paths, so there's nothing to enter.
 
-A manual run ignores the automation's filter and runs its real actions, so it may change files in your storage. It runs even when the automation is paused or disabled, which lets you test a fix before resuming. Manual runs are shown with a **Run now** marker in the execution history and recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution.manual-run`.
+A manual execution ignores the automation's filter and runs its real actions, so it may change files in your storage. It runs even when the automation is paused or disabled, which lets you test a fix before resuming. Manual executions are shown with a **Run now** marker in the execution history and recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution.manual-run`.
 
 ### Rerunning an execution
 
 Expand an execution and click **Rerun** to run the automation again against the same trigger that started it.
 
 :::warning
-A rerun runs the automation's real actions again. It may fail if the file the original run acted on no longer exists, or if its current state differs from the original trigger — for example, if a previous run already moved or deleted it. Reruns are recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution.rerun`.
+A rerun runs the automation's real actions again. It may fail if the file the original execution acted on no longer exists, or if its current state differs from the original trigger — for example, if a previous execution already moved or deleted it. Reruns are recorded in your [audit logs](../security/audit-logs#automations) as `automation.execution.rerun`.
 :::
 
 ## Loop prevention
@@ -399,6 +399,6 @@ A webhook action whose endpoint is temporarily unavailable — timing out, or an
 
 Automations record what they do. Because automations act using SFTP To Go's own credentials, the `file.created` and `file.deleted` events they generate are attributed to the `system` principal. Every action an automation runs — file operations and notifications alike — also records an `automation.action.executed` event, which traces the change back to the automation and execution responsible for it.
 
-A run started by a schedule is attributed to the automation itself rather than to a person, and a failed run records which kind of trigger started it, so a scheduled failure can be told apart from one caused by a file event.
+An execution started by a schedule is attributed to the automation itself rather than to a person, and a failed execution records which kind of trigger started it, so a scheduled failure can be told apart from one caused by a file event.
 
 See [Automation events](../security/audit-logs#automations) for the full list.
