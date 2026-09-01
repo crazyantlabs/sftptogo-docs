@@ -6,8 +6,9 @@ sidebar_position: 16
 TL;DR - what are virtual folders?
 ------
 
-- Virtual folders let you map the folders a credential sees to real locations in your storage, under names you choose.
+- Virtual folders give users and client applications a uniform view of your storage, no matter how it is actually organized: you choose the folder names a credential sees and map each one to a real location.
 - One credential can reach several unrelated locations under friendly names, without granting access to a shared parent folder.
+- The view stays stable: you can reorganize your storage and repoint a virtual folder without the connecting user or integration noticing.
 - They are an alternative to a single [home directory](./setting-up-user-home-dirs.md), configured per credential. The default is still a single home directory, and existing credentials are unaffected.
 
 Introduction
@@ -21,6 +22,8 @@ Virtual folders solve this. Instead of one home directory, you define a set of f
 - A **location** — the real folder in your storage that the path points to, for example `/finance/2026/invoices`.
 
 The credential sees only the virtual folders you define and cannot navigate above them. Virtual folders work over SFTP, FTPS, and the web portal.
+
+Because the credential only ever sees the paths you choose, its view of your storage is uniform and stable: a client application that writes to `/upload` keeps working even if you later move the real folder — repoint the virtual folder and nothing changes on the client's side.
 
 Configuring virtual folders
 -----
