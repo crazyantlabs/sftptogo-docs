@@ -30,7 +30,7 @@ Configuring virtual folders
 
 When [creating or editing credentials](../getting-started/creating-and-modifying-users.md), choose virtual folders instead of a single home directory. For each virtual folder, set its **path** (the name the credentials will see) and its **location** (the real folder in your storage). Add as many as you need.
 
-The credentials' permission (full access, read-only, write-only, and so on) applies to every virtual folder — there are no per-folder permissions.
+Each virtual folder carries its own permissions (read-only, read and write, write-only, and so on), chosen when you map it. When credentials use virtual folders there is no credentials-level permission — access is defined entirely by the folders.
 
 Case 1 - Reaching unrelated locations
 ---------------------
@@ -65,14 +65,13 @@ Reporting credentials need read-only access to reports from two regions that are
 | `/eu` | `/regions/eu-west-1/reports` |
 | `/us` | `/regions/us-east-1/reports` |
 
-Both virtual folders inherit the credentials' read-only permission, so the credentials can list and download reports from either region but cannot modify them.
+Both virtual folders are mapped with read-only permissions, so the credentials can list and download reports from either region but cannot modify them.
 
 Limitations
 -----
 
 - **Virtual folders cannot overlap.** One virtual folder's path cannot sit inside another's — you cannot have both `/reports` and `/reports/2026`. Paths that merely share a prefix are fine, such as `/reports` and `/reports-archive`.
 - **Mapping the root.** If you map the root path `/`, it must be the only virtual folder.
-- **One permission for all.** The credentials' permission applies to every virtual folder. There are no per-folder permissions.
 - **Maximum of 50.** Credentials can have at most 50 virtual folders.
 - **Not for the default credentials.** An organization's default credentials cannot use virtual folders.
 - **Absolute paths.** Both paths and locations must begin with `/`, and must not end with one — apart from the root `/` itself.
