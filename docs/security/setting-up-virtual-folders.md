@@ -75,6 +75,7 @@ Limitations
 - **Mapping the root.** If you map the root folder `/`, it must be the only virtual folder.
 - **Maximum of 50.** Credentials can have at most 50 virtual folders.
 - **Not for the default credentials.** An organization's default credentials cannot use virtual folders.
+- **Different permissions need different paths.** Two virtual folders may point at the same path, or at nested paths, only when their permissions match — a path can't be both read-only and writable at once.
 - **Absolute paths.** Both folders and paths must begin with `/`, and must not end with one — apart from the root `/` itself.
 
 :::note
