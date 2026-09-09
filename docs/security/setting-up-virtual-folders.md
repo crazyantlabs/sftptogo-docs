@@ -31,7 +31,7 @@ Configuring virtual folders
 
 When [creating or editing credentials](../getting-started/creating-and-modifying-users.md), choose **Use virtual folders** instead of the single home directory. For each virtual folder, set its **folder** (the name the credentials will see), its **path** (the real location in your storage) and its **permissions**. Click **Add folder** to add as many as you need.
 
-Each virtual folder carries its own permissions, chosen when you map it. When credentials use virtual folders there is no credentials-level permission — access is defined entirely by the folders. Choosing **None** for a folder suspends access to it without removing it from the mapping.
+Each virtual folder carries its own permissions, chosen when you map it — from read-only through full access. When credentials use virtual folders there is no credentials-level permission; access is defined entirely by the folders. Choosing **None** for a folder suspends access to it without removing it from the mapping, and **Full access** additionally lets the user create share links for files inside that folder.
 
 Case 1 - Reaching unrelated locations
 ---------------------
@@ -72,6 +72,7 @@ Limitations
 -----
 
 - **Virtual folders cannot overlap.** One folder cannot sit inside another — you cannot have both `/reports` and `/reports/2026`. Folders that merely share a prefix are fine, such as `/reports` and `/reports-archive`.
+- **The virtual folder itself can't be changed.** A virtual folder is part of the credentials' configuration, not stored content, so it can't be renamed, deleted, copied, moved, or shared from the file browser — only the files and folders inside it can. To change a virtual folder, edit the credentials.
 - **Mapping the root.** If you map the root folder `/`, it must be the only virtual folder.
 - **Maximum of 50.** Credentials can have at most 50 virtual folders.
 - **Not for the default credentials.** An organization's default credentials cannot use virtual folders.
