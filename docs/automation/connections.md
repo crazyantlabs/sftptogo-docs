@@ -58,7 +58,7 @@ The server's certificate is always verified. A server with a self-signed or expi
 With a role, nothing secret is stored: you create a role in your own AWS account that trusts SFTP To Go, and you can revoke that trust at any time from your account. Access appears in your own CloudTrail under the role. This is the option to prefer for Amazon S3.
 
 1. Choose **Role in your AWS account**. Two policies appear below, filled in for your organization.
-2. In the AWS console, create an IAM role. Choose **AWS account** as the trusted entity, then **Another AWS account**, and enter the account ID shown in the trust policy. Tick **Require external ID** and enter the external ID from the trust policy exactly — it is specific to your organization and never changes.
+2. In the AWS console, create an IAM role. Choose **AWS account** as the trusted entity, then **Another AWS account**, and enter the account ID shown in the trust policy. Tick **Require external ID** and enter the external ID from the trust policy exactly — it is specific to your organization and never changes. Name the role starting with `SftpToGoConnection`, for example `SftpToGoConnectionAcme`; SFTP To Go can only use roles named this way.
 3. Attach the **permissions policy** shown to the role. It is scoped to the bucket you entered above; enter the bucket first so the policy is filled in.
 4. If the bucket is encrypted with a KMS key of your own, allow the role in the key's policy as well — a bucket policy alone isn't enough, and this is the most common cause of an "access denied" result from a role that is otherwise set up correctly.
 5. Paste the role's ARN into `Role ARN`, and click **Test connection**.
