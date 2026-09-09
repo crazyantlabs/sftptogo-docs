@@ -36,21 +36,21 @@ Click **Test connection** to check the details before saving — see [Testing a 
 * `Username` — the account to sign in as.
 * `Authentication` — **Password**, or **Private key**. For a key, paste the private key (OpenSSH or PEM format) and, if it has one, its `Passphrase`.
 
-The first time a test succeeds, the server's host key is shown and is pinned when you save. See [Host keys](#host-keys) for what happens if it changes.
+When a test succeeds, the server's host key is shown and is pinned when you save. A connection saved without a successful test has no pinned key until you test and save it. See [Host keys](#host-keys) for what happens if it changes.
 
 ### FTPS
 
 * `Host` and `Port` — the server's address, and its port if it isn't the standard `21`.
 * `Username` and `Password`.
-* `TLS` — **Explicit** (the common one, where the connection is upgraded with `AUTH TLS`) or **Implicit** (TLS from the first byte, usually on port `990`).
+* `TLS` — **Explicit (AUTH TLS)**, the default and the common one, where the connection is upgraded after connecting, or **Implicit**, where it is TLS from the first byte, usually on port `990`.
 
 The server's certificate is always verified. A server with a self-signed or expired certificate can't be connected to.
 
 ### S3-compatible storage
 
 * `Bucket` — the bucket name.
-* `Region` (optional) — for Amazon S3, leave it blank and it is found for you when you test. Other providers name their regions their own way — Cloudflare R2 uses `auto`, Backblaze B2 uses names like `us-west-004` — so enter whatever your provider specifies.
-* `Endpoint` (optional) — leave it blank for Amazon S3. For any other provider, its service URL, such as `https://s3.wasabisys.com` or `https://s3.us-west-004.backblazeb2.com`.
+* `Region` (optional) — for Amazon S3, leave it blank: a successful **Test connection** fills it in before you save. Other providers name their regions their own way — Cloudflare R2 uses `auto`, Backblaze B2 uses names like `us-west-004` — so enter whatever your provider specifies.
+* `Endpoint` (optional) — leave it blank for Amazon S3. For any other provider, its service URL, such as `https://s3.wasabisys.com` or `https://s3.us-west-004.backblazeb2.com`. It must be an `https://` address.
 * `Authentication` — **Access key** (an access key ID and secret access key for the bucket), or, for Amazon S3 only, **Role in your AWS account**.
 
 #### Using a role instead of an access key
@@ -67,7 +67,7 @@ Role-based access is available for Amazon S3 only; other S3-compatible providers
 
 ### WebDAV
 
-* `URL` — the WebDAV address, for example `https://cloud.example.com/remote.php/dav/files/you` for Nextcloud.
+* `URL` — the WebDAV address, for example `https://cloud.example.com/remote.php/dav/files/you` for Nextcloud. It must be an `https://` address.
 * `Server` — **Nextcloud**, **ownCloud**, or **Other** for any other WebDAV server.
 * `Username` and `Password`.
 
@@ -83,11 +83,15 @@ SharePoint is not supported through WebDAV.
 
 Nothing is saved by a test. When editing a saved connection, a test uses the stored credentials for anything you haven't retyped, so you can check a connection without re-entering its password.
 
+A test gives up after about 20 seconds, and each step of it — looking up the host, connecting, listing — after 10. A server that takes longer than that to answer is reported as unreachable.
+
+For S3, "not allowed to list the bucket" after signing in successfully means the permissions policy — or, for an encrypted bucket, the key policy — is missing something; the message says which to check.
+
 ## Host keys
 
 An SFTP server identifies itself with a host key. When a test of a new connection succeeds, the server's host key fingerprint is shown, and it is pinned when you save: from then on the connection only talks to a server presenting that key.
 
-If the key ever changes, a test fails and shows both fingerprints — the one pinned, and the one the server now presents. A changed host key is what a server that has been rebuilt looks like, but it is also what someone intercepting the connection looks like, so check with whoever runs the server that the key really changed before trusting it. When you're sure, click **Trust the new host key** and save. The new fingerprint is pinned, and nothing else.
+If the key ever changes, a test fails and shows both fingerprints — the one pinned, and the one the server now presents. A changed host key is what a server that has been rebuilt looks like, but it is also what someone intercepting the connection looks like, so check with whoever runs the server that the key really changed before trusting it. When you're sure, click **Trust the new host key** and save. That exact fingerprint is pinned — not whatever the server presents next — and the connection is enabled again if it had been disabled.
 
 ## Enabling, disabling and deleting
 
@@ -97,7 +101,7 @@ Use the menu next to a connection to:
 * **Disable** — stop every automation that uses the connection, without deleting it. Actions using a disabled connection fail until it is enabled again.
 * **Delete** — remove the connection. Any automation action that references it will fail when it next runs, so update those actions first.
 
-A connection is also disabled automatically after ten consecutive failures that are down to the connection itself — rejected credentials, an unreachable host, a changed host key — rather than to a particular file. The list shows it as **Failing** with the reason, and as **Disabled**. Fix the cause, test, and enable it again.
+When automations use a connection, the list also shows what the last use found: **Failing**, with the reason, when the credentials were rejected, the host couldn't be reached, or the host key changed. Fix the cause, test, and enable the connection again if it was disabled.
 
 ## Security
 
@@ -106,4 +110,4 @@ A connection is also disabled automatically after ten consecutive failures that 
 * A connection that uses a role in your AWS account stores nothing secret at all.
 * Connections can only reach public addresses. A server or endpoint on a private network can't be connected to.
 * If the server only accepts connections from known addresses, allow ours: connections are made from [the same addresses](./automations#allowing-our-ip-addresses) the notification actions send from.
-* Adding, editing, deleting and testing a connection are recorded in your [audit logs](../security/audit-logs), as is a connection being disabled automatically. Credentials are never logged.
+* Adding, editing, deleting and testing a connection are recorded in your [audit logs](../security/audit-logs). Passwords, keys and secrets are never logged.
