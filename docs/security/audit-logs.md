@@ -61,11 +61,12 @@ Every event carries a principal type identifying who or what caused it. Activity
 | Webhooks | `webhook.created`, `webhook.updated`, `webhook.deleted`, `webhook.paused` (by an admin, or automatically after consecutive delivery failures), `webhook.resumed`, `webhook.tested`, `webhook.secret.rotated`, `webhook.delivery.resent`, `webhook.delivery.failed` |
 | Domains | `domain.created`, `domain.updated`, `domain.deleted` |
 | Audit logs | `audit-logs.export-requested` (the `Data` includes the requested `StartDate` and `EndDate`), `audit-logs.export-uploaded`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed` |
+| Connections | `connection.created`, `connection.updated`, `connection.deleted`, `connection.tested` (every test, whether or not it passed), `connection.disabled` (automatically, after consecutive failures or a changed host key). Credentials are never included |
 | Automations | See [Automation events](#automations) below |
 
 ### Change tracking on update events
 
-Events that modify an existing object — `organization.updated`, `user.updated`, `share-link.updated`, `webhook.updated`, `organization.member.role.updated`, and `audit-logs.streaming-destination.updated` — record a `Changes` object in their `Data`, listing each property that actually changed with its previous (`From`) and new (`To`) values:
+Events that modify an existing object — `organization.updated`, `user.updated`, `share-link.updated`, `webhook.updated`, `connection.updated`, `organization.member.role.updated`, and `audit-logs.streaming-destination.updated` — record a `Changes` object in their `Data`, listing each property that actually changed with its previous (`From`) and new (`To`) values:
 
 ```json
 {
