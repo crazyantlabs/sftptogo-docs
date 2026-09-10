@@ -28,7 +28,7 @@ Under **Settings → Connections**, click **Add connection**, and provide:
 * The server or storage details and credentials for that type — see below.
 * `Folder` (optional) — a folder on the remote that this connection is limited to. Everything an automation does through the connection stays inside it, so a connection scoped to `/incoming` can't reach `/` even if an action asks to. Leave it blank to allow the whole account or bucket.
 
-Click **Test connection** to check the details before saving — see [Testing a connection](#testing-a-connection) — then click **Add connection**.
+Click **Test and add**. The connection is tested first and saved only if the test passes — see [Testing a connection](#testing-a-connection).
 
 ### SFTP
 
@@ -36,7 +36,7 @@ Click **Test connection** to check the details before saving — see [Testing a 
 * `Username` — the account to sign in as.
 * `Authentication` — **Password**, or **Private key**. For a key, paste the private key (OpenSSH or PEM format) and, if it has one, its `Passphrase`.
 
-When a test succeeds, the server's host key is shown and is pinned when you save. A connection saved without a successful test has no pinned key until you test and save it. See [Host keys](#host-keys) for what happens if it changes.
+When the test succeeds, the server's host key is shown and pinned with the connection. See [Host keys](#host-keys) for what happens if it changes.
 
 ### FTPS
 
@@ -61,7 +61,7 @@ With a role, nothing secret is stored: you create a role in your own AWS account
 2. In the AWS console, create an IAM role. Choose **AWS account** as the trusted entity, then **Another AWS account**, and enter the account ID shown in the trust policy. Tick **Require external ID** and enter the external ID from the trust policy exactly — it is specific to your organization and never changes. Name the role starting with `SftpToGoConnection`, for example `SftpToGoConnectionAcme`; SFTP To Go can only use roles named this way.
 3. Attach the **permissions policy** shown to the role. It is scoped to the bucket you entered above; enter the bucket first so the policy is filled in.
 4. If the bucket is encrypted with a KMS key of your own, allow the role in the key's policy as well — a bucket policy alone isn't enough, and this is the most common cause of an "access denied" result from a role that is otherwise set up correctly.
-5. Paste the role's ARN into `Role ARN`, and click **Test connection**.
+5. Paste the role's ARN into `Role ARN`, and click **Test and add**.
 
 Role-based access is available for Amazon S3 only; other S3-compatible providers don't support it, so the option is disabled once an endpoint is entered.
 
@@ -79,9 +79,11 @@ SharePoint is not supported through WebDAV.
 
 ## Testing a connection
 
-**Test connection** connects to the server or storage, signs in with the details in the form, and lists the folder. It shows the first few entries it finds, so you can see it reached the right place, or says what went wrong — the credentials were rejected, the host couldn't be reached, the certificate couldn't be verified, the bucket or folder doesn't exist, or the role couldn't be assumed.
+Saving a connection tests it first: **Test and add**, or **Test and save** for an edit, connects to the server or storage, signs in with the details in the form, and lists the folder. If that passes, the connection is saved. If not, it says what went wrong — the credentials were rejected, the host couldn't be reached, the certificate couldn't be verified, the bucket or folder doesn't exist, or the role couldn't be assumed — and nothing is saved.
 
-Nothing is saved by a test. When editing a saved connection, a test uses the stored credentials for anything you haven't retyped, so you can check a connection without re-entering its password.
+An edit that changes only the name is saved without a test. When editing anything else, the test uses the stored credentials for anything you haven't retyped, so you don't have to re-enter a password to change a folder.
+
+If the server can't be reached yet — it isn't set up, or it hasn't allowed our addresses — **Save anyway** saves the connection untested. An SFTP connection saved this way has no pinned host key until it is next tested.
 
 A test gives up after about 20 seconds, and each step of it — looking up the host, connecting, listing — after 10. A server that takes longer than that to answer is reported as unreachable.
 
@@ -91,7 +93,7 @@ For S3, "not allowed to list the bucket" after signing in successfully means the
 
 An SFTP server identifies itself with a host key. When a test of a new connection succeeds, the server's host key fingerprint is shown, and it is pinned when you save: from then on the connection only talks to a server presenting that key.
 
-If the key ever changes, a test fails and shows both fingerprints — the one pinned, and the one the server now presents. A changed host key is what a server that has been rebuilt looks like, but it is also what someone intercepting the connection looks like, so check with whoever runs the server that the key really changed before trusting it. When you're sure, click **Trust the new host key** and save. That exact fingerprint is pinned — not whatever the server presents next — and the connection is enabled again if it had been disabled.
+If the key ever changes, a test fails and shows both fingerprints — the one pinned, and the one the server now presents. A changed host key is what a server that has been rebuilt looks like, but it is also what someone intercepting the connection looks like, so check with whoever runs the server that the key really changed before trusting it. When you're sure, click **Trust the new host key**, then **Test and save**. That exact fingerprint is pinned — not whatever the server presents next — and the connection is enabled again if it had been disabled.
 
 ## Enabling, disabling and deleting
 
