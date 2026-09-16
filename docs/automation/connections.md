@@ -15,8 +15,10 @@ How many connections you can have is set by your plan. The **Connections** secti
 ## Supported types
 
 * **SFTP** — an SFTP server, reached over SSH, with a password or a private key.
-* **FTPS** — an FTP server over TLS, explicit or implicit. Plain FTP is not supported.
-* **S3-compatible storage** — Amazon S3, or any service that speaks the S3 API: MinIO, Wasabi, Backblaze B2, Cloudflare R2, DigitalOcean Spaces and others. Amazon S3 can also be reached with a role in your own AWS account instead of an access key.
+* **FTP with TLS/SSL** (FTPS) — an FTP server over TLS, explicit or implicit. Plain FTP is not supported.
+* **Amazon S3** — a bucket in your AWS account, with an access key.
+* **Amazon S3 with IAM role** — a bucket reached through a role in your own AWS account, so no keys are stored.
+* **S3-compatible storage** — any other service that speaks the S3 API: MinIO, Wasabi, Backblaze B2, Cloudflare R2, DigitalOcean Spaces and others.
 * **WebDAV** — Nextcloud, ownCloud, or any WebDAV server.
 
 ## Adding a connection
@@ -26,7 +28,7 @@ Under **Settings → Connections**, click **Add connection**, and provide:
 * `Name` — a label to recognize the connection by, such as the partner or system it reaches.
 * `Type` — one of the types above. It can't be changed once the connection is saved, because every automation using the connection would silently start pointing somewhere else; add a new connection instead.
 * The server or storage details and credentials for that type — see below.
-* `Folder` (optional) — a folder on the remote that this connection is limited to. Everything an automation does through the connection stays inside it, so a connection scoped to `/incoming` can't reach `/` even if an action asks to. Leave it blank to allow the whole account or bucket.
+* `Remote path` (optional) — a path on the remote that this connection is limited to. Everything an automation does through the connection stays under it, so a connection scoped to `/incoming` can't reach `/` even if an action asks to. Leave it blank to allow the whole account or bucket.
 
 Click **Test and add**. The connection is tested first and saved only if the test passes — see [Testing a connection](#testing-a-connection).
 
@@ -38,7 +40,7 @@ Click **Test and add**. The connection is tested first and saved only if the tes
 
 When the test succeeds, the server's host key is shown and pinned with the connection. See [Host keys](#host-keys) for what happens if it changes.
 
-### FTPS
+### FTP with TLS/SSL
 
 * `Host` and `Port` — the server's address, and its port if it isn't the standard `21`.
 * `Username` and `Password`.
@@ -46,12 +48,14 @@ When the test succeeds, the server's host key is shown and pinned with the conne
 
 The server's certificate is always verified. A server with a self-signed or expired certificate can't be connected to.
 
-### S3-compatible storage
+### Amazon S3 and S3-compatible storage
+
+The three S3 types are one kind of connection with a different starting point: **Amazon S3** and **Amazon S3 with IAM role** have no endpoint to enter, and **S3-compatible storage** has no role option. Which one a saved connection is can be changed when editing it.
 
 * `Bucket` — the bucket name.
 * `Region` (optional) — for Amazon S3, leave it blank: a successful **Test connection** fills it in before you save. Other providers name their regions their own way — Cloudflare R2 uses `auto`, Backblaze B2 uses names like `us-west-004` — so enter whatever your provider specifies.
-* `Endpoint` (optional) — leave it blank for Amazon S3. For any other provider, its service URL, such as `https://s3.wasabisys.com` or `https://s3.us-west-004.backblazeb2.com`. It must be an `https://` address.
-* `Authentication` — **Access key** (an access key ID and secret access key for the bucket), or, for Amazon S3 only, **Role in your AWS account**.
+* `Endpoint URL` (S3-compatible storage only) — the provider's service URL, such as `https://s3.wasabisys.com` or `https://s3.us-west-004.backblazeb2.com`, with the port if it isn't 443 — `https://minio.example.com:9000` for a MinIO server. It must be an `https://` address.
+* `Authentication` — an **access key** (an access key ID and secret access key for the bucket) for Amazon S3 and S3-compatible storage, or a **role in your AWS account** for Amazon S3 with IAM role.
 
 #### Using a role instead of an access key
 
@@ -63,7 +67,7 @@ With a role, nothing secret is stored: you create a role in your own AWS account
 4. If the bucket is encrypted with a KMS key of your own, allow the role in the key's policy as well — a bucket policy alone isn't enough, and this is the most common cause of an "access denied" result from a role that is otherwise set up correctly.
 5. Paste the role's ARN into `Role ARN`, and click **Test and add**.
 
-Role-based access is available for Amazon S3 only; other S3-compatible providers don't support it, so the option is disabled once an endpoint is entered.
+Role-based access is available for Amazon S3 only; other S3-compatible providers don't support it.
 
 ### WebDAV
 
@@ -81,7 +85,7 @@ SharePoint is not supported through WebDAV.
 
 Saving a connection tests it first: **Test and add**, or **Test and save** for an edit, connects to the server or storage, signs in with the details in the form, and lists the folder. If that passes, the connection is saved. If not, it says what went wrong — the credentials were rejected, the host couldn't be reached, the certificate couldn't be verified, the bucket or folder doesn't exist, or the role couldn't be assumed — and nothing is saved.
 
-An edit that changes only the name is saved without a test. When editing anything else, the test uses the stored credentials for anything you haven't retyped, so you don't have to re-enter a password to change a folder.
+An edit that changes only the name is saved without a test. When editing anything else, the test uses the stored credentials for anything you haven't retyped, so you don't have to re-enter a password to change the remote path.
 
 If the server can't be reached yet — it isn't set up, or it hasn't allowed our addresses — **Save anyway** saves the connection untested. An SFTP connection saved this way has no pinned host key until it is next tested.
 
