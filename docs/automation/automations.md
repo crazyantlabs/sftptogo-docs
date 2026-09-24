@@ -29,7 +29,9 @@ In the dialog that opens, fill out the following:
   * `File downloaded` — someone asked to download a file. This is raised when the download starts, so it also covers previewing or printing a file in the web portal, and a download that is cancelled part-way. Opening the same file twice raises it twice.
   * `File deleted` — a file or folder was deleted.
   * `File infected` — malware scanning found a file to be infected. Available when malware scanning is enabled.
-* `Filter` (optional) — for an event trigger, only run the automation when the triggering event matches your rules. Filter on the file `Path`, its `Type`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
+* `Filter` (optional) — for an event trigger, only run the automation when the triggering event matches your rules. Filter on the file `Path`, its `Type`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches`. For example, only files whose path starts with `incoming/`, or only files ending with `.csv`.
+
+  A path never starts with `/`: the path of a file at `/incoming/report.csv` is `incoming/report.csv`, so write `Starts with` `incoming/`. A rule written as `Starts with` `/incoming/` matches nothing, and the form won't accept one.
 
   `Type` is either `File` or `Folder`, and is worth adding whenever the actions only make sense for files. Creating a folder raises a `File created` event of its own, so an automation that copies or encrypts what triggered it will otherwise run against the folder as well. A rule of `Type` `is` `File` excludes that.
 * `Schedule` — for a schedule trigger, when and how often to run. See [Running on a schedule](#running-on-a-schedule).
@@ -102,6 +104,8 @@ As with every other schedule, the editor describes the expression in words and l
 | Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | File created, File downloaded, File deleted |
 | Send email | Emails a notification describing the trigger to an address you choose | File created, File downloaded, File deleted |
 | Delay | Pauses the automation at this step before continuing to the next action | Any trigger |
+
+Every path an action takes, whether a destination, a custom source, or a path to create, must start with `/`. That holds when the path begins with a variable or an expression: write `/{{file.parent_folder}}/processed/`, not `{{file.parent_folder}}/processed/`. The [path variables](#variables) carry no leading `/` of their own, so the one at the start is always yours to write.
 
 **Copy**, **Move**, **Rename** and the **PGP** actions fail if the file they are told to work on doesn't exist — nothing is copied and the execution stops, rather than reporting success for work it didn't do. **Delete** is the exception: it succeeds when the path is already gone, since that is the state it was asked to produce. Turn on **Allow failure** on any of the others if a missing file should be tolerated.
 
