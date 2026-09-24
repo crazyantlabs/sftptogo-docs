@@ -31,7 +31,7 @@ In the dialog that opens, fill out the following:
   * `File infected` — malware scanning found a file to be infected. Available when malware scanning is enabled.
 * `Filter` (optional) — for an event trigger, only run the automation when the triggering event matches your rules. Filter on the file `Path`, its `Type`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches`. For example, only files whose path starts with `incoming/`, or only files ending with `.csv`.
 
-  Paths are matched without a leading `/`: the path of `/incoming/report.csv` is `incoming/report.csv`. A rule written with a leading `/` is treated the same as one without, so `Starts with` `/incoming/` and `Starts with` `incoming/` match the same files. A `Matches` regular expression anchored at `^/` is anchored at `^` in the same way.
+  A path never starts with `/`: the path of a file at `/incoming/report.csv` is `incoming/report.csv`, so write `Starts with` `incoming/`. A rule written as `Starts with` `/incoming/` matches nothing, and the form won't accept one.
 
   `Type` is either `File` or `Folder`, and is worth adding whenever the actions only make sense for files. Creating a folder raises a `File created` event of its own, so an automation that copies or encrypts what triggered it will otherwise run against the folder as well. A rule of `Type` `is` `File` excludes that.
 * `Schedule` — for a schedule trigger, when and how often to run. See [Running on a schedule](#running-on-a-schedule).
