@@ -20,6 +20,14 @@ Alternatively, use a shortcut from your SFTP To Go dashboard to connect as any u
 Credentials associated with email addresses can reset their passwords without contacting an administrator by initiating the "Forgot password" flow.
 :::
 
+## Signing in with SSO
+
+If your organization uses [Single Sign-On for credentials](../getting-started/organization-settings#single-sign-on-for-credentials), you sign in through your identity provider instead of entering a password.
+
+The first time, open the sign-in link your administrator sends you and sign in with your identity provider. This links your credentials to your identity provider account. After that, open the portal login link and choose **Sign in with SSO**.
+
+To connect over SFTP or FTPS, set a password or add an SSH key from your user settings after signing in. If your organization requires SSO, sign in to the web portal again whenever you are prompted, so that your SFTP and FTPS access stays active.
+
 ## Organizing files and folders
 
 ### Navigation
