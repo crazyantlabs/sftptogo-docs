@@ -26,7 +26,7 @@ If your organization uses [Single Sign-On for credentials](../getting-started/or
 
 The first time, open the sign-in link your administrator sends you and sign in with your identity provider. This links your credentials to your identity provider account. After that, open the portal login link and choose **Sign in with SSO**.
 
-To connect over SFTP or FTPS, set a password or add an SSH key from your user settings after signing in. If your organization requires SSO, sign in to the web portal again whenever you are prompted, so that your SFTP and FTPS access stays active.
+To connect over SFTP or FTPS, generate a password from your user settings after signing in. It is shown once and has an expiration time, so copy it right away; when it expires, sign in with SSO again to generate a new one. You can add an SSH key instead. If your organization requires SSO, sign in to the web portal again whenever you are prompted, so that your SFTP and FTPS access stays active.
 
 ## Organizing files and folders
 

@@ -48,7 +48,7 @@ To set it up, turn on Single Sign-On for credentials and follow the on-screen st
 
 Each set of credentials has its own home directory and permissions, so you choose which set of credentials a person receives. For every set of credentials you want to move to SSO, generate a sign-in link and send it to the person. The first time they open it and sign in with your identity provider, their credentials are linked, and from then on they sign in with SSO. A person who uses more than one set of credentials receives a separate link for each.
 
-Linking clears the password on a set of credentials. The person signs in to the web portal with SSO, and for SFTP and FTPS they set their own password or SSH key after signing in.
+Linking clears the password on a set of credentials. The person signs in to the web portal with SSO. For SFTP and FTPS, they generate a password from their user settings after signing in. That password is shown once and has an expiration time, so it must be copied right away, and signing in again with SSO produces a new one. They can add an SSH key instead.
 
 #### Requiring SSO
 
