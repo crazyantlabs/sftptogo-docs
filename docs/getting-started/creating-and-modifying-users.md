@@ -9,8 +9,8 @@ To create more credentials to use and access your storage:
 
 1. Click **+ Add credentials**.
 2. Select a username. The username must be unique service-wide and at least 10 characters long. We recommend to leave it blank and have SFTP To Go generate a unique name for the user. If the user is human, you may use the person's email address as the username. Remember to also associate the credentials with the same email address (see below).
-3. This is an optional step: Select a home directory for the credentials. By default, each credential only has access to its own home directory (`/home/<username>`). You can change the credentials' home directory to have multiple credentials access the same directory. The users are chrooted to this directory, meaning that this directory acts as an isolated storage for them. They will not have access to any parent or sibling directories.
-4. Select the level of permissions accessible for the new user. By default, the user has read-only access to their home directory. For more information on the different permissions, see the table below.
+3. This is an optional step: Select a home directory for the credentials. By default, each credential only has access to its own home directory (`/home/<username>`). You can change the credentials' home directory to have multiple credentials access the same directory. The users are chrooted to this directory, meaning that this directory acts as an isolated storage for them. They will not have access to any parent or sibling directories. If you need the credentials to reach several unrelated locations under friendly names, choose **Use virtual folders** instead of a single home directory. See [setting up virtual folders](../security/setting-up-virtual-folders.md) for the full guide.
+4. Select the level of permissions accessible for the new user. By default, the user has read-only access to their home directory. For more information on the different permissions, see the table below. When the credentials use virtual folders, permissions are set on each folder instead, so there is no credentials-level permission to choose here.
 5. Set an optional access expiration date for the credentials. If left blank, credentials access will never expire.
 6. Optionally, associate the credentials with an email address. This allows the user to reset their password on their own or authenticate using a Magic Code (One Time Passwords sent over email). When you associate the credentials with an email address, an email is sent to this address with a verification code. Request the verification code from the recipient in order to continue and associate the email address with the credentials.
 7. Choose a nickname for the credentials (optional). This shows up in the UI solely as a friendly user name.
@@ -29,7 +29,7 @@ To create more credentials to use and access your storage:
 
 ### Editing user credentials
 
-You may edit existing credentials by clicking the menu button (...) for the particular user you wish to edit and then selecting **Edit credentials** from the menu. You may change the username, home directory, user's permissions, email address, and the nickname. 
+You may edit existing credentials by clicking the menu button (...) for the particular user you wish to edit and then selecting **Edit credentials** from the menu. You may change the username, home directory, user's permissions, email address, and the nickname. You can also switch the credentials between a single home directory and [virtual folders](../security/setting-up-virtual-folders.md); the switch takes effect only when you save.
 
 ### Setting user passwords
 
