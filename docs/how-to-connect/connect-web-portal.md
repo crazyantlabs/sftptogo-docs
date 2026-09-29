@@ -48,7 +48,7 @@ Each item includes a menu button (...) for actions such as:
 
 **Print** is available for files the browser can display: PDFs, images, plain text and code, CSV and TSV spreadsheets, and Markdown. When previewing one of these files you can also press `Cmd`+`P` (or `Ctrl`+`P`) to print it. Some browsers cannot print PDFs directly — in that case the file opens in a new tab so you can print it from there.
 
-### Bulk oprations
+### Bulk operations
 
 Selecting all or some files/folders in the items list displays the count of selected items above the list, along with a menu button (...). This allows bulk operations on the selected items:
 
