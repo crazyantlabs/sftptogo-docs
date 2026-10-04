@@ -41,4 +41,4 @@ Depending on your plan, you may add inbound network rules at the organization or
 Auditing
 -------
 
-Login attempts, sessions and file access is audited and stored in logs, which can be made available upon request.
+Login attempts, sessions and file access are audited and stored in logs, which can be made available upon request.

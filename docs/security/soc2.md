@@ -20,7 +20,7 @@ All data in transit uses encrypted protocols, including HTTPS, SFTP, and FTPS wi
 
 ## Access control and authentication
 
-* Admin adshbaord access supports multi-factor authentication for organization administrators.
+* Admin dashboard access supports multi-factor authentication for organization administrators.
 * Passwords for SFTP and FTPS users are enforced to be strong and complex by default.
 * Access follows least-privilege principles using roles and policies. Secrets are stored in secure services.
 

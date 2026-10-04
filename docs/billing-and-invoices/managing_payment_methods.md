@@ -1,6 +1,6 @@
 ---
-sidebar_label: 'Mananging your payment methods'
-title: 'Mananging your payment methods'
+sidebar_label: 'Managing your payment methods'
+title: 'Managing your payment methods'
 sidebar_position: 2
 ---
 SFTP To Go automatically charges your organization's default payment method at the beginning of a new subscription period (monthly or annually). If you need to modify the payment methods you entered when you first sign up, go to your billing portal.

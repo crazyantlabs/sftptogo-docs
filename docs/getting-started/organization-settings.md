@@ -170,7 +170,7 @@ The access section lists the accounts that have access to an organization's mana
 To invite a new member to your organization, scroll down to the **Access** section and click **Invite team member**. Fill out the team member's name and email address and an invitation will be sent out for the new member to join your organization. After clicking the invitation link, the new member will be requested to create a password. Once logged in, the new member will be able to access the organization according to the assigned role.
 
 :::info
-If access to SFTP To go is managed by a partner (e.g. Heroku), use the partner's access management to add or remove team members.
+If access to SFTP To Go is managed by a partner (e.g. Heroku), use the partner's access management to add or remove team members.
 :::
 
 To remove a member from the organization, click the menu button (...) and then **Remove from team**.

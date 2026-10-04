@@ -32,7 +32,7 @@ In transit, all communication is encrypted with AES-256 bit using the HTTPS, SFT
 
 * SFTP and FTPS passwords are by default strong and complex for all users and cannot be overridden by simple passwords.
 
-* Inbound network rules allow IP safelisting (by specific IP addresses or CIDR notation for address range) is allowed in certain plans. If your security team requires IP safelisting, make sure to select the right plan for this.
+* Inbound network rules allow IP safelisting (by specific IP addresses or CIDR notation for address range) in certain plans. If your security team requires IP safelisting, make sure to select the right plan for this.
 
 * File access audit logs are provided by request. The logs track timestamp, IP addresses, usernames, and file access. 
 
