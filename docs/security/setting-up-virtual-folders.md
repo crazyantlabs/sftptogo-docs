@@ -75,6 +75,7 @@ Limitations
 - **The virtual folder itself can't be changed.** A virtual folder is part of the credentials' configuration, not stored content, so it can't be renamed, deleted, copied, moved, or shared from the file browser — only the files and folders inside it can. To change a virtual folder, edit the credentials.
 - **Mapping the root.** If you map the root folder `/`, it must be the only virtual folder.
 - **Maximum of 50.** Credentials can have at most 50 virtual folders.
+- **SFTP and FTPS support fewer.** The number of virtual folders that can be used over SFTP and FTPS is limited. Credentials that exceed it can still be used in the web portal.
 - **Not for the default credentials.** An organization's default credentials cannot use virtual folders.
 - **Different permissions need different paths.** Two virtual folders may point at the same path, or at nested paths, only when their permissions match — a path can't be both read-only and writable at once.
 - **Absolute paths.** Both folders and paths must begin with `/`, and must not end with one — apart from the root `/` itself.
