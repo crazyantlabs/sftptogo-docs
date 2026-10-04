@@ -1,13 +1,14 @@
 name: Test deployment
 
 on:
-  pull_request_target:
-    types:
-      - opened
+  pull_request:
     branches:
       - main
     # Review gh actions docs if you want to further define triggers, paths, etc
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
+
+permissions:
+  contents: read
 
 jobs:
   test-deploy:
@@ -24,13 +25,13 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      
+
       - name: Test documentation build
         env:
-          URL: ${{ secrets.URL }}
+          URL: https://sftptogo.com
           BASE_PATH: docs/
-          SEGMENT_WRITE_KEY: ${{ secrets.SEGMENT_WRITE_KEY }}
-          ALGOLIASEARCH_API_KEY: ${{ secrets.ALGOLIASEARCH_API_KEY }}
-          ALGOLIASEARCH_APPLICATION_ID: ${{ secrets.ALGOLIASEARCH_APPLICATION_ID }}
-          ALGOLIASEARCH_INDEX_NAME: ${{ secrets.ALGOLIASEARCH_INDEX_NAME }}
+          SEGMENT_WRITE_KEY: placeholder
+          ALGOLIASEARCH_API_KEY: placeholder
+          ALGOLIASEARCH_APPLICATION_ID: placeholder
+          ALGOLIASEARCH_INDEX_NAME: placeholder
         run: yarn build
