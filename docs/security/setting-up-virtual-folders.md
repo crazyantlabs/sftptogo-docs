@@ -18,20 +18,20 @@ By default, credentials are bound to a single [home directory](./setting-up-user
 
 Virtual folders solve this. Instead of one home directory, you define a set of folders that the credentials see after logging in, and you map each one to a real location in your storage. Each virtual folder has:
 
-- A **folder** — the name the credentials see after logging in, for example `/invoices`.
-- A **path** — the real location in your storage that the folder points to, for example `/finance/2026/invoices`.
-- Its own **permissions** — read-only, read and write, write-only, and so on.
+- A **folder**, which is the name the credentials see after logging in, for example `/invoices`.
+- A **path**, which is the real location in your storage that the folder points to, for example `/finance/2026/invoices`.
+- Its own **permissions**, such as read-only, read and write, or write-only.
 
 The credentials see only the virtual folders you define and cannot navigate above them. Virtual folders work over SFTP, FTPS, and the web portal.
 
-Because the credentials only ever see the paths you choose, their view of your storage is uniform and stable: a client application that writes to `/upload` keeps working even if you later move the real folder — repoint the virtual folder and nothing changes on the client's side.
+Because the credentials only ever see the paths you choose, their view of your storage is uniform and stable: a client application that writes to `/upload` keeps working even if you later move the real folder. Repoint the virtual folder and nothing changes on the client's side.
 
 Configuring virtual folders
 -----
 
 When [creating or editing credentials](../getting-started/creating-and-modifying-users.md), choose **Use virtual folders** instead of the single home directory. For each virtual folder, set its **folder** (the name the credentials will see), its **path** (the real location in your storage) and its **permissions**. Click **Add folder** to add as many as you need.
 
-Each virtual folder carries its own permissions, chosen when you map it — from read-only through full access. When credentials use virtual folders there is no credentials-level permission; access is defined entirely by the folders. Choosing **None** for a folder suspends access to it without removing it from the mapping, and **Full access** additionally lets the user create share links for files inside that folder.
+Each virtual folder carries its own permissions, chosen when you map it, from read-only through full access. When credentials use virtual folders there is no credentials-level permission; access is defined entirely by the folders. Choosing **None** for a folder suspends access to it without removing it from the mapping, and **Full access** additionally lets the user create share links for files inside that folder.
 
 Case 1 - Reaching unrelated locations
 ---------------------
@@ -71,14 +71,14 @@ Both virtual folders are mapped with read-only permissions, so the credentials c
 Limitations
 -----
 
-- **Virtual folders cannot overlap.** One folder cannot sit inside another — you cannot have both `/reports` and `/reports/2026`. Folders that merely share a prefix are fine, such as `/reports` and `/reports-archive`.
-- **The virtual folder itself can't be changed.** A virtual folder is part of the credentials' configuration, not stored content, so it can't be renamed, deleted, copied, moved, or shared from the file browser — only the files and folders inside it can. To change a virtual folder, edit the credentials.
+- **Virtual folders cannot overlap.** One folder cannot sit inside another, so you cannot have both `/reports` and `/reports/2026`. Folders that merely share a prefix are fine, such as `/reports` and `/reports-archive`.
+- **The virtual folder itself can't be changed.** A virtual folder is part of the credentials' configuration, not stored content, so it can't be renamed, deleted, copied, moved, or shared from the file browser. Only the files and folders inside it can. To change a virtual folder, edit the credentials.
 - **Mapping the root.** If you map the root folder `/`, it must be the only virtual folder.
 - **Maximum of 50.** Credentials can have at most 50 virtual folders.
 - **SFTP and FTPS support fewer.** The number of virtual folders that can be used over SFTP and FTPS is limited. Credentials that exceed it can still be used in the web portal.
 - **Not for the default credentials.** An organization's default credentials cannot use virtual folders.
-- **Different permissions need different paths.** Two virtual folders may point at the same path, or at nested paths, only when their permissions match — a path can't be both read-only and writable at once.
-- **Absolute paths.** Both folders and paths must begin with `/`, and must not end with one — apart from the root `/` itself.
+- **Different permissions need different paths.** Two virtual folders may point at the same path, or at nested paths, only when their permissions match, because a path can't be both read-only and writable at once.
+- **Absolute paths.** Both folders and paths must begin with `/`, and must not end with one, apart from the root `/` itself.
 
 :::note
 Virtual folders are an alternative to a single home directory. If you only need to bind credentials to one folder, see [setting up user home directories](./setting-up-user-home-dirs.md).
