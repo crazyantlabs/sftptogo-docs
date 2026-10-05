@@ -42,6 +42,18 @@ Control how your users share files and folders with others. This will not change
 
 Use the audit logs to monitor access to your storage. The Audit logs dialog lets you browse through your organization's logs, filter them by Username, session ID or timestamp range. You can also export audit logs as files into your storage for long term storage or further processing.
 
+## Automations
+
+What your [automations](../automation/automations) reach for by name.
+
+### Connections
+
+Saved servers and storage that automations copy files to and from: a partner's SFTP server, a bucket in your own cloud account, a WebDAV server. Credentials are entered once and never shown again. See [Connections](../automation/connections).
+
+### Encryption keys
+
+PGP keys that automations encrypt and decrypt files with. See [Encryption keys](../security/encryption-keys).
+
 ## Network
 
 ### Domains
