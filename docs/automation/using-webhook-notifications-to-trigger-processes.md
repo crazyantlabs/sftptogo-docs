@@ -1,6 +1,6 @@
 ---
 sidebar_label: 'Webhook notifications'
-title: 'Using webhooks notification to trigger processes'
+title: 'Using webhook notifications to trigger processes'
 sidebar_position: 3
 ---
 Webhooks enable you to receive notifications whenever particular events occur within your SFTP To Go organization's storage. You can subscribe to notifications for the following events:
@@ -309,7 +309,7 @@ When a Data.Path value ends with `/`, this indicates that a directory has been c
 :::
 
 :::note
-Data.Path is URL encoded - make sure to URL decode it to the get the correct path to the file.
+Data.Path is URL encoded - make sure to URL decode it to get the correct path to the file.
 :::
 
 ### file.deleted Event Format
@@ -401,7 +401,7 @@ When a Data.Path value ends with `/`, this indicates that a directory has been c
 ```
 
 :::note
-Data.Path is URL encoded - make sure to URL decode it to the get the correct path to the file.
+Data.Path is URL encoded - make sure to URL decode it to get the correct path to the file.
 :::
 
 ### webhook.ping Event Format

@@ -10,7 +10,7 @@ SFTP To Go's audit logs keep track of all the activities happening in your stora
 Logs are retained for a certain period, depending on your organization's subscription plan.
 :::
 
-To inspect your audit logs, click your organization's [settings tab](../getting-started/organization-settings#audit-logs) and the click View audit logs to open the audit logs dialog. 
+To inspect your audit logs, click your organization's [settings tab](../getting-started/organization-settings#audit-logs) and then click View audit logs to open the audit logs dialog. 
 
 The logs are sorted in a descending order (latest activity to earliest activity), in your timezone. You can filter the logs by timestamp range, Username or session ID.
 
