@@ -14,8 +14,8 @@ How many connections you can have is set by your plan. The **Connections** secti
 
 ## Supported types
 
-* [**SFTP**](#sftp): an SFTP server, reached over SSH, with a password or a private key.
-* [**FTP with TLS/SSL**](#ftps) (FTPS): an FTP server over TLS, explicit or implicit. Plain FTP is not supported.
+* [**SFTP**](#sftp): SSH File Transfer Protocol. A server reached over SSH, with a password or a private key.
+* [**FTP with TLS/SSL**](#ftps) (FTPS): File Transfer Protocol over TLS. An FTP server secured with TLS, explicit or implicit. Plain FTP is not supported.
 * [**Amazon S3**](#amazon-s3): a bucket in your AWS account, with an access key.
 * [**Amazon S3 with IAM role**](#amazon-s3-with-iam-role): a bucket reached through a role in your own AWS account, so no keys are stored.
 * [**S3-compatible storage**](#s3-compatible-storage): any other service that speaks the S3 API, such as MinIO, Wasabi, Backblaze B2, Cloudflare R2 or DigitalOcean Spaces.
