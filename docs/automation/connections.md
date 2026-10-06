@@ -53,7 +53,7 @@ The server's certificate is always verified. A server with a self-signed or expi
 A bucket in your AWS account, reached with an access key.
 
 * `Bucket`: the bucket name.
-* `Region` (optional): the bucket's region, such as `eu-west-1`. The field suggests the AWS regions as you type. Leave it blank and a successful test fills it in before you save.
+* `Region` (optional): the bucket's region, such as `eu-west-1`. The field offers the AWS regions to pick from. Leave it blank and a successful test finds it and fills it in before you save; that lookup needs no permission of its own.
 * `Access key ID` and `Secret access key`: a key for an IAM user allowed to list, read and write the bucket. The secret is stored encrypted and never shown again.
 
 If you would rather not hand out a key, use [Amazon S3 with IAM role](#amazon-s3-with-iam-role) instead. The three S3 types are one kind of connection with a different starting point, so a saved Amazon S3 connection can be moved to a role, or to S3-compatible storage, when editing it.
