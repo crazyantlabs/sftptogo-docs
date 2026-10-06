@@ -14,12 +14,12 @@ How many connections you can have is set by your plan. The **Connections** secti
 
 ## Supported types
 
-* **SFTP**: an SFTP server, reached over SSH, with a password or a private key.
-* **FTP with TLS/SSL** (FTPS): an FTP server over TLS, explicit or implicit. Plain FTP is not supported.
-* **Amazon S3**: a bucket in your AWS account, with an access key.
-* **Amazon S3 with IAM role**: a bucket reached through a role in your own AWS account, so no keys are stored.
-* **S3-compatible storage**: any other service that speaks the S3 API, such as MinIO, Wasabi, Backblaze B2, Cloudflare R2 or DigitalOcean Spaces.
-* **WebDAV**: Nextcloud, ownCloud, or any WebDAV server.
+* [**SFTP**](#sftp): an SFTP server, reached over SSH, with a password or a private key.
+* [**FTP with TLS/SSL**](#ftps) (FTPS): an FTP server over TLS, explicit or implicit. Plain FTP is not supported.
+* [**Amazon S3**](#amazon-s3): a bucket in your AWS account, with an access key.
+* [**Amazon S3 with IAM role**](#amazon-s3-with-iam-role): a bucket reached through a role in your own AWS account, so no keys are stored.
+* [**S3-compatible storage**](#s3-compatible-storage): any other service that speaks the S3 API, such as MinIO, Wasabi, Backblaze B2, Cloudflare R2 or DigitalOcean Spaces.
+* [**WebDAV**](#webdav): Nextcloud, ownCloud, or any WebDAV server.
 
 ## Adding a connection
 
@@ -32,15 +32,15 @@ Under **Settings → Automations → Connections**, click **Add connection**, an
 
 Click **Test and add**. The connection is tested first and saved only if the test passes. See [Testing a connection](#testing-a-connection).
 
-### SFTP
+### SFTP {#sftp}
 
 * `Host` and `Port`: the server's address, and its port if it isn't the standard `22`.
 * `Username`: the account to sign in as.
-* `Authentication`: **Password**, or **Private key**. For a key, paste the private key (OpenSSH or PEM format) and, if it has one, its `Passphrase`.
+* `Authentication`: **Password**, authentication based on a username and a password, or **Private key**, authentication based on a username and an SSH key pair. For a key, paste the private key (OpenSSH or PEM format) and, if it is protected by one, its `Passphrase`. The matching public key must be on the server.
 
 When the test succeeds, the server's host key is shown and pinned with the connection. See [Host keys](#host-keys) for what happens if it changes.
 
-### FTP with TLS/SSL
+### FTP with TLS/SSL {#ftps}
 
 * `Host` and `Port`: the server's address, and its port if it isn't the standard `21`.
 * `Username` and `Password`.
@@ -48,28 +48,42 @@ When the test succeeds, the server's host key is shown and pinned with the conne
 
 The server's certificate is always verified. A server with a self-signed or expired certificate can't be connected to.
 
-### Amazon S3 and S3-compatible storage
+### Amazon S3 {#amazon-s3}
 
-The three S3 types are one kind of connection with a different starting point: **Amazon S3** and **Amazon S3 with IAM role** have no endpoint to enter, and **S3-compatible storage** has no role option. Which one a saved connection is can be changed when editing it.
+A bucket in your AWS account, reached with an access key.
 
 * `Bucket`: the bucket name.
-* `Region` (optional): for Amazon S3, leave it blank and a successful test fills it in before you save. Other providers name their regions their own way, so enter whatever your provider specifies. Cloudflare R2 uses `auto`, and Backblaze B2 uses names like `us-west-004`.
-* `Endpoint URL` (S3-compatible storage only): the provider's service URL, such as `https://s3.wasabisys.com` or `https://s3.us-west-004.backblazeb2.com`, including the port if it isn't 443, for example `https://minio.example.com:9000` for a MinIO server. It must be an `https://` address.
-* `Authentication`: an **access key** (an access key ID and secret access key for the bucket) for Amazon S3 and S3-compatible storage, or a **role in your AWS account** for Amazon S3 with IAM role.
+* `Region` (optional): the bucket's region, such as `eu-west-1`. The field suggests the AWS regions as you type. Leave it blank and a successful test fills it in before you save.
+* `Access key ID` and `Secret access key`: a key for an IAM user allowed to list, read and write the bucket. The secret is stored encrypted and never shown again.
 
-#### Using a role instead of an access key
+If you would rather not hand out a key, use [Amazon S3 with IAM role](#amazon-s3-with-iam-role) instead. The three S3 types are one kind of connection with a different starting point, so a saved Amazon S3 connection can be moved to a role, or to S3-compatible storage, when editing it.
 
-With a role, nothing secret is stored: you create a role in your own AWS account that trusts SFTP To Go, and you can revoke that trust at any time from your account. Access appears in your own CloudTrail under the role. This is the option to prefer for Amazon S3.
+### Amazon S3 with IAM role {#amazon-s3-with-iam-role}
 
-1. Choose **Role in your AWS account**. Two policies appear below, filled in for your organization.
+A bucket in your AWS account, reached through a role you create there. Nothing secret is stored: the role trusts SFTP To Go, and you can revoke that trust at any time from your account. Access appears in your own CloudTrail under the role. This is the option to prefer for Amazon S3.
+
+* `Bucket`: the bucket name. Enter it first, so the permissions policy below is filled in for it.
+* `Region` (optional): as for Amazon S3.
+* `Role ARN`: the ARN of the role, once created as follows.
+
+1. Two policies appear below the fields, filled in for your organization: a **trust policy** and a **permissions policy**.
 2. In the AWS console, create an IAM role. Choose **AWS account** as the trusted entity, then **Another AWS account**, and enter the account ID shown in the trust policy. Tick **Require external ID** and enter the external ID from the trust policy exactly. It is specific to your organization and never changes. Name the role starting with `SftpToGoConnection`, for example `SftpToGoConnectionAcme`; SFTP To Go can only use roles named this way.
-3. Attach the **permissions policy** shown to the role. It is scoped to the bucket you entered above; enter the bucket first so the policy is filled in.
+3. Attach the **permissions policy** shown to the role. It is scoped to the bucket you entered.
 4. If the bucket is encrypted with a KMS key of your own, allow the role in the key's policy as well. A bucket policy alone isn't enough, and this is the most common cause of an "access denied" result from a role that is otherwise set up correctly.
 5. Paste the role's ARN into `Role ARN`, and click **Test and add**.
 
 Role-based access is available for Amazon S3 only; other S3-compatible providers don't support it.
 
-### WebDAV
+### S3-compatible storage {#s3-compatible-storage}
+
+Any other service that speaks the S3 API: MinIO, Wasabi, Backblaze B2, Cloudflare R2, DigitalOcean Spaces and others.
+
+* `Bucket`: the bucket name.
+* `Endpoint URL`: the provider's service URL, such as `https://s3.wasabisys.com` or `https://s3.us-west-004.backblazeb2.com`, including the port if it isn't 443, for example `https://minio.example.com:9000` for a MinIO server. It must be an `https://` address.
+* `Region` (optional): whatever your provider specifies. Many use AWS-style names, which the field suggests as you type; Cloudflare R2 uses `auto`, and Backblaze B2 uses names like `us-west-004`.
+* `Access key ID` and `Secret access key`: a key for an account allowed to list, read and write the bucket. The secret is stored encrypted and never shown again.
+
+### WebDAV {#webdav}
 
 * `URL`: the WebDAV address, for example `https://cloud.example.com/remote.php/dav/files/you` for Nextcloud. It must be an `https://` address.
 * `Server`: **Nextcloud**, **ownCloud**, or **Other** for any other WebDAV server.
