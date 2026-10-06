@@ -56,6 +56,10 @@ A bucket in your AWS account, reached with an access key.
 * `Region` (optional): the bucket's region, such as `eu-west-1`. The field offers the AWS regions to pick from. Leave it blank and a successful test finds it and fills it in before you save; that lookup needs no permission of its own.
 * `Access key ID` and `Secret access key`: a key for an IAM user allowed to list, read and write the bucket. The secret is stored encrypted and never shown again.
 
+:::caution Encrypted with your own KMS key?
+Then the key's policy must allow the user the key belongs to as well. A bucket policy alone isn't enough, and this is the most common cause of an "access denied" result on a bucket that is otherwise set up correctly.
+:::
+
 If you would rather not hand out a key, use [Amazon S3 with IAM role](#amazon-s3-with-iam-role) instead. The three S3 types are one kind of connection with a different starting point, so a saved Amazon S3 connection can be moved to a role, or to S3-compatible storage, when editing it.
 
 ### Amazon S3 with IAM role {#amazon-s3-with-iam-role}
@@ -68,9 +72,12 @@ A bucket in your AWS account, reached through a role you create there. Nothing s
 
 1. Two policies appear below the fields, filled in for your organization: a **trust policy** and a **permissions policy**.
 2. In the AWS console, create an IAM role. Choose **AWS account** as the trusted entity, then **Another AWS account**, and enter the account ID shown in the trust policy. Tick **Require external ID** and enter the external ID from the trust policy exactly. It is specific to your organization and never changes. Name the role starting with `SftpToGoConnection`, for example `SftpToGoConnectionAcme`; SFTP To Go can only use roles named this way.
-3. Attach the **permissions policy** shown to the role. It is scoped to the bucket you entered.
-4. If the bucket is encrypted with a KMS key of your own, allow the role in the key's policy as well. A bucket policy alone isn't enough, and this is the most common cause of an "access denied" result from a role that is otherwise set up correctly.
-5. Paste the role's ARN into `Role ARN`, and click **Test and add**.
+3. Attach the **permissions policy** shown to the role. It is scoped to the bucket you entered, and covers listing, reading, writing and deleting objects, finding the bucket's region, and the multipart actions a large upload needs.
+4. Paste the role's ARN into `Role ARN`, and click **Test and add**.
+
+:::caution Encrypted with your own KMS key?
+Then the key's policy must allow the role as well. A bucket policy alone isn't enough, and this is the most common cause of an "access denied" result from a role that is otherwise set up correctly. The same holds for an access key: the account it belongs to must be allowed in the key's policy.
+:::
 
 Role-based access is available for Amazon S3 only; other S3-compatible providers don't support it.
 
