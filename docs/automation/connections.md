@@ -4,7 +4,7 @@ title: 'Connecting to remote servers and storage'
 sidebar_position: 2
 ---
 
-Connections are the servers and storage your [automations](./automations) can copy files to and from, such as a partner's SFTP server, a bucket in your own cloud account or a WebDAV server. Set one up once under **Settings → Automations → Connections**, test it there, and reference it from automation actions by name. The credentials are entered once and never have to be put into an automation.
+Connections are the servers and storage your [automations](./automations) copy files to, such as a partner's SFTP server, a bucket in your own cloud account or a WebDAV server. Set one up once under **Settings → Automations → Connections**, test it there, and reference it from automation actions by name. The credentials are entered once and never have to be put into an automation.
 
 :::info
 Connections are only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
