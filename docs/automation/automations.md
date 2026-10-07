@@ -97,7 +97,8 @@ As with every other schedule, the editor describes the expression in words and l
 | Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
 | Delete file or folder | Deletes the file | File created, File downloaded |
 | Create file or folder | Creates an empty file, or a folder | Any trigger |
-| Copy to a remote server | Puts the file on a [connection](./connections): a partner's SFTP server, a bucket, a WebDAV server. The original stays | File created, File downloaded |
+| Copy to a remote server | Puts the file or folder on a [connection](./connections): a partner's SFTP server, a bucket, a WebDAV server. The original stays | File created, File downloaded |
+| Move to a remote server | Puts the file or folder on a connection and deletes the original | File created, File downloaded |
 | PGP encrypt file | Encrypts the file to a PGP key's public key | File created, File downloaded |
 | PGP decrypt file | Decrypts a PGP-encrypted file with a private key | File created, File downloaded |
 | Send webhook request | Sends an HTTP POST request describing the trigger to an endpoint you choose | File created, File downloaded, File deleted |
@@ -129,17 +130,17 @@ Because it doesn't act on the triggering file, this action has no source to choo
 
 Turning off **Overwrite existing files** makes the action fail rather than replace a file that's already there. It has no effect when creating a folder — writing a folder that already exists changes nothing.
 
-### Copy to a remote server
+### Copy or move to a remote server
 
-A **Copy to a remote server** action puts the file on a [connection](./connections) you have set up under **Settings → Automations → Connections**. The original stays in your storage; chain a **Delete** action to remove it after the copy.
+A **Copy to a remote server** action puts the file or folder on a [connection](./connections) you have set up under **Settings → Automations → Connections**. The original stays in your storage. A **Move to a remote server** action does the same and then deletes the original, each file only once its copy has been confirmed. Since a move leaves nothing behind, no later action in the automation can work on the file.
 
 * `Connection`: one of your enabled connections.
-* `Destination path` (optional): where the file lands on the remote, under the connection's remote path. Leave it blank to keep the file's name there, give a folder (for example, `2026/`) to keep the name inside it, or a full path to rename it. Variables and expressions are supported.
-* `Overwrite existing files`: turn it off to have the action fail rather than replace a file that is already there.
+* `Destination path` (optional): where the file or folder lands on the remote, under the connection's remote path. Leave it blank to keep its name there, give a folder (for example, `2026/`) to keep the name inside it, or a full path to rename it. Variables and expressions are supported.
+* `Overwrite existing files`: turn it off to have the action fail rather than replace a file that is already there. For a folder, files already on the remote are skipped instead.
 
-The action works on a single file. A folder being created raises a `File created` event of its own, so an automation with this action should filter on `Type` `is` `File`.
+A folder is transferred with everything under it, several files at a time, and lands as a folder of the same name at the destination. A transfer carries up to 10,000 files and 4 GB in all.
 
-A copy can take as long as fifteen minutes, which covers several gigabytes on an ordinary link; a transfer that slows to a crawl is stopped early and reported, rather than left to run out the clock. The transfer arrives at the remote from the [addresses we publish](#allowing-our-ip-addresses).
+A transfer can take as long as fifteen minutes, which covers several gigabytes on an ordinary link; one that slows to a crawl is stopped early and reported, rather than left to run out the clock. The transfer arrives at the remote from the [addresses we publish](#allowing-our-ip-addresses).
 
 If the remote refuses the credentials, can't be reached, or presents a changed SFTP host key, the failure counts against the connection, and after ten in a row the connection is disabled and every automation using it fails until it is tested and enabled again. A changed host key disables it at once.
 
