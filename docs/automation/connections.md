@@ -23,10 +23,10 @@ How many connections you can have is set by your plan. The **Connections** secti
 
 ## Adding a connection
 
-Under **Settings → Automations → Connections**, click **Add connection**, and provide:
+Under **Settings → Automations → Connections**, click **Add connection**, choose the type and click **Next**, then provide:
 
 * `Name`: a label to recognize the connection by, such as the partner or system it reaches.
-* `Type`: one of the types above. It can't be changed once the connection is saved, because every automation using the connection would silently start pointing somewhere else; add a new connection instead.
+* `Type`: the type chosen on the first step. It can't be changed once the connection is saved, because every automation using the connection would silently start pointing somewhere else; add a new connection instead. The exception is the three Amazon S3 and S3-compatible types, which are one kind of connection and can be switched between when editing.
 * The server or storage details and credentials for that type, described below.
 * `Remote path` (optional): a path on the remote that this connection is limited to. Everything an automation does through the connection stays under it, so a connection scoped to `/incoming` can't reach `/` even if an action asks to. Leave it blank to allow the whole account or bucket.
 
@@ -36,7 +36,14 @@ Click **Test and add**. The connection is tested first and saved only if the tes
 
 * `Host` and `Port`: the server's address, and its port if it isn't the standard `22`.
 * `Username`: the account to sign in as.
-* `Authentication`: **Password**, authentication based on a username and a password, or **Private key**, authentication based on a username and an SSH key pair. For a key, paste the private key in OpenSSH format, which is what ssh-keygen produces, or in PEM format, and, if it is protected by one, its `Passphrase`. A PuTTY (.ppk), SSH2 or PKCS#8 key has to be converted to OpenSSH format first, with PuTTYgen or ssh-keygen. Once saved, the connection shows the key's fingerprint, the same `SHA256:` value `ssh-keygen -l` prints, and offers its public key to copy, so you can tell which key it holds and install the public key on the server. The matching public key must be on the server. If you have no key pair yet, choose **Generate a key for this connection**: the key is created for you, the private half is stored with the connection, and the public half is shown for you to add to the server's authorized keys before testing. Ed25519 is the default; choose RSA for a server that does not accept it.
+* `Authentication`: **Password**, authentication based on a username and a password, or **Private key**, authentication based on a username and an SSH key pair. The matching public key must be in the account's authorized keys on the server.
+
+For a private key, either:
+
+* **Paste an existing key**: the private key, usually the file named `id_ed25519` or `id_rsa` in `~/.ssh`, in OpenSSH format, which is what `ssh-keygen` produces, or in PEM format. RSA, ECDSA and Ed25519 keys are accepted. A PuTTY (`.ppk`), SSH2 or PKCS#8 key has to be converted to OpenSSH format first, with PuTTYgen (**Conversions → Export OpenSSH key**) or `ssh-keygen -p`. If the key is protected by a passphrase, the form asks for it in `Passphrase` as soon as the key is pasted.
+* **Generate a key for this connection**: a key pair is created for you. Its private half is stored with the connection when you save; its public half is shown, with its fingerprint, for you to add to the server's authorized keys before testing. Ed25519 is the default; choose RSA for a server that does not accept it.
+
+Either way, once saved the connection shows the key's fingerprint, the same `SHA256:` value `ssh-keygen -l` prints for the key, and offers its public key to copy, so you can tell which key it holds and install the public key on another server later.
 
 When the test succeeds, the server's host key is shown and pinned with the connection. See [Host keys](#host-keys) for what happens if it changes.
 
