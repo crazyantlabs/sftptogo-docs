@@ -36,7 +36,7 @@ Click **Test and add**. The connection is tested first and saved only if the tes
 
 * `Host` and `Port`: the server's address, and its port if it isn't the standard `22`.
 * `Username`: the account to sign in as.
-* `Authentication`: **Password**, authentication based on a username and a password, or **Private key**, authentication based on a username and an SSH key pair. For a key, paste the private key (OpenSSH or PEM format) and, if it is protected by one, its `Passphrase`. The matching public key must be on the server.
+* `Authentication`: **Password**, authentication based on a username and a password, or **Private key**, authentication based on a username and an SSH key pair. For a key, paste the private key in OpenSSH format, which is what ssh-keygen produces, or in PEM format, and, if it is protected by one, its `Passphrase`. A PuTTY (.ppk), SSH2 or PKCS#8 key has to be converted to OpenSSH format first, with PuTTYgen or ssh-keygen. The matching public key must be on the server.
 
 When the test succeeds, the server's host key is shown and pinned with the connection. See [Host keys](#host-keys) for what happens if it changes.
 
