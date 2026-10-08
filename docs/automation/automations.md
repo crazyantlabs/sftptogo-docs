@@ -92,8 +92,8 @@ As with every other schedule, the editor describes the expression in words and l
 
 | Action | Description | Available for |
 |--|--|--|
-| Copy file or folder | Copies the file to a destination path, leaving the original in place | File created, File downloaded |
-| Move file or folder | Copies the file to a destination path and deletes the original | File created, File downloaded |
+| Copy file or folder | Copies the file or folder to a destination path in your storage, or to a [connection](./connections), leaving the original in place | File created, File downloaded |
+| Move file or folder | Copies the file or folder to a destination path in your storage, or to a connection, and deletes the original | File created, File downloaded |
 | Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
 | Delete file or folder | Deletes the file | File created, File downloaded |
 | Create file or folder | Creates an empty file, or a folder | Any trigger |
@@ -128,6 +128,20 @@ Because it doesn't act on the triggering file, this action has no source to choo
 
 Turning off **Overwrite existing files** makes the action fail rather than replace a file that's already there. It has no effect when creating a folder — writing a folder that already exists changes nothing.
 
+### Copy or move to a connection
+
+A **Copy file or folder** or **Move file or folder** action can go to a [connection](./connections) instead of a path in your storage: under **Destination**, choose **A connection** and pick one, or choose **+ New connection** to set one up without leaving the automation. A copy leaves the original in your storage. A move deletes it, each file only once its copy has been confirmed. After a copy, a later action set to work on the previous action's file works on the original, since the copy is on the remote and not in your storage. Since a move leaves nothing behind, no later action in the automation can work on the file.
+
+* `Connection`: one of your enabled connections, or a new one.
+* `Destination path` (optional): where the file or folder lands on the remote, under the connection's remote path. Leave it blank to keep its name there, give a folder (for example, `2026/`) to keep the name inside it, or a full path to rename it. Variables and expressions are supported.
+* `Overwrite existing files`: turn it off to have the action fail rather than replace a file that is already there. For a folder, files already on the remote are skipped instead.
+
+A folder is transferred with everything under it, several files at a time, and lands as a folder of the same name at the destination. A transfer carries up to 10,000 files and 4 GB in all.
+
+A transfer can take as long as fifteen minutes, which covers several gigabytes on an ordinary link. One that stops making progress for more than a minute is stopped early and reported as stalled, rather than left to run out the clock. In the execution history a transfer shows the connection it used, the path the file or folder landed at there, and for a folder the number of files and the bytes transferred. The transfer arrives at the remote from the [addresses we publish](#allowing-our-ip-addresses).
+
+If the remote refuses the credentials, can't be reached, or presents a changed SFTP host key, the failure counts against the connection, and after ten in a row the connection is disabled and every automation using it fails until it is tested and enabled again. A changed host key disables it at once.
+
 ### Delay
 
 A **Delay** action pauses the automation at that step, then continues with the next action. Set an amount and a unit — seconds, minutes, hours or days — up to a maximum of 7 days.
@@ -144,7 +158,7 @@ The file actions (copy, move, rename, delete) after the first **default to opera
 
 The notification actions (webhook, Slack, Microsoft Teams and email) after the first **default to describing the previous action's result**, but can be switched to the **triggering event**. This lets you announce what a step did — for example, encrypt a file and then notify about the encrypted file, or delete a file and notify that it was removed. When set to the previous action, the notification is sent in the same format as any other file event: a **`file.created`** event for the file the step produced (copy, move, rename, PGP encrypt/decrypt), or a **`file.deleted`** event for the file a delete removed.
 
-By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files only — folder operations always overwrite.
+By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files in your storage; the copy, move, rename and PGP actions always overwrite when given a folder. The remote server actions are different: with the setting off, a folder transfer skips the files that already exist on the remote.
 
 ### PGP encrypt and decrypt
 
