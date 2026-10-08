@@ -48,7 +48,7 @@ What your [automations](../automation/automations) reach for by name.
 
 ### Connections
 
-Saved servers and storage that automations copy files to and from: a partner's SFTP server, a bucket in your own cloud account, a WebDAV server. Credentials are entered once and never shown again. See [Connections](../automation/connections).
+Saved servers and storage that automations copy files to: a partner's SFTP server, a bucket in your own cloud account, a WebDAV server. Credentials are entered once and never shown again. See [Connections](../automation/connections).
 
 ### Encryption keys
 

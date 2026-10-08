@@ -40,10 +40,10 @@ Click **Test and add**. The connection is tested first and saved only if the tes
 
 For a private key, either:
 
-* **Paste an existing key**: the private key, usually the file named `id_ed25519` or `id_rsa` in `~/.ssh`, in OpenSSH format, which is what `ssh-keygen` produces, or in PEM format. RSA, ECDSA and Ed25519 keys are accepted. A PuTTY (`.ppk`), SSH2 or PKCS#8 key has to be converted to OpenSSH format first, with PuTTYgen (**Conversions → Export OpenSSH key**) or `ssh-keygen -p`. If the key is protected by a passphrase, the form asks for it in `Passphrase` as soon as the key is pasted.
-* **Generate a key for this connection**: a key pair is created for you. Its private half is stored with the connection when you save; its public half is shown, with its fingerprint, for you to add to the server's authorized keys before testing. Ed25519 is the default; choose RSA for a server that does not accept it.
+* **Paste an existing key**: the private key, usually the file named `id_ed25519` or `id_rsa` in `~/.ssh`, in OpenSSH format, which is what `ssh-keygen` produces, or in PEM format. RSA, ECDSA and Ed25519 keys are accepted. A PuTTY (`.ppk`), SSH2 or PKCS#8 key has to be converted to OpenSSH format first, with PuTTYgen (**Conversions → Export OpenSSH key**) or `ssh-keygen -p`. If the key is protected by a passphrase, enter it in `Passphrase`; a key that needs one is refused until it is given.
+* **Generate a key for this connection**: a key pair is created for you. Its private half is stored with the connection when you save; its public half is shown, with its fingerprint, for you to add to the server's authorized keys before testing. Choose **Ed25519 (recommended)**, or **RSA 4096** for a server that does not accept Ed25519, and click **Generate key**.
 
-Either way, once saved the connection shows the key's fingerprint, the same `SHA256:` value `ssh-keygen -l` prints for the key, and offers its public key to copy, so you can tell which key it holds and install the public key on another server later.
+Either way, when you edit the connection later it shows the stored key's fingerprint, the same `SHA256:` value `ssh-keygen -l` prints for the key, and offers its public key to copy, so you can tell which key it holds and install the public key on another server.
 
 When the test succeeds, the server's host key is shown and pinned with the connection. See [Host keys](#host-keys) for what happens if it changes.
 
@@ -119,7 +119,7 @@ Saving a connection tests it first: **Test and add**, or **Test and save** for a
 
 An edit that changes only the name is saved without a test. When editing anything else, the test uses the stored credentials for anything you haven't retyped, so you don't have to re-enter a password to change the remote path.
 
-If the server can't be reached yet, because it isn't set up or hasn't allowed our addresses, **Save anyway** saves the connection untested. An SFTP connection saved this way has no pinned host key until it is next tested.
+If the server can't be reached yet, because it isn't set up or hasn't allowed our addresses, **Save anyway** saves the connection untested. An SFTP connection saved this way has no pinned host key until it is next tested, and until then any action that uses it fails, so test and save it once the server is reachable.
 
 A test gives up after about 20 seconds, and each step of it (looking up the host, connecting, listing) after 10. A server that takes longer than that to answer is reported as unreachable.
 
@@ -135,11 +135,11 @@ If the key ever changes, a test fails and shows both fingerprints: the one pinne
 
 Use the menu next to a connection to:
 
-* **Edit**: change its details or credentials. A credential left blank keeps what is stored.
-* **Disable**: stop every automation that uses the connection, without deleting it. Actions using a disabled connection fail until it is enabled again.
+* **Edit**: change its details or credentials. Credentials left blank keep what is stored. Opening a saved connection and clicking **Test connection** checks it again without saving anything.
+* **Disable**: take the connection out of service without deleting it. Any automation action that uses it fails until it is enabled again; the connection and its credentials are kept.
 * **Delete**: remove the connection. Any automation action that references it will fail when it next runs, so update those actions first.
 
-When automations use a connection, the list also shows what the last use found: **Failing**, with the reason, when the credentials were rejected, the host couldn't be reached, or the host key changed. Fix the cause, test, and enable the connection again if it was disabled.
+When automations use a connection, the list also shows what the last use found: **Failing**, with the reason, when the credentials were rejected, the host couldn't be reached, its certificate couldn't be verified, or the host key changed. Fix the cause, test, and enable the connection again if it was disabled. The warning clears the next time an automation uses the connection successfully.
 
 ## Security
 
