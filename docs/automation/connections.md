@@ -1,0 +1,151 @@
+---
+sidebar_label: 'Connections'
+title: 'Connecting to remote servers and storage'
+sidebar_position: 2
+---
+
+Connections are the servers and storage your [automations](./automations) can copy files to and from, such as a partner's SFTP server, a bucket in your own cloud account or a WebDAV server. Set one up once under **Settings → Automations → Connections**, test it there, and reference it from automation actions by name. The credentials are entered once and never have to be put into an automation.
+
+:::info
+Connections are only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
+:::
+
+How many connections you can have is set by your plan. The **Connections** section shows how many you have used out of that allowance.
+
+## Supported types
+
+* [**SFTP**](#sftp): SSH File Transfer Protocol. A server reached over SSH, with a password or a private key.
+* [**FTP with TLS/SSL**](#ftps) (FTPS): File Transfer Protocol over TLS. An FTP server secured with TLS, explicit or implicit. Plain FTP is not supported.
+* [**Amazon S3**](#amazon-s3): a bucket in your AWS account, with an access key.
+* [**Amazon S3 with IAM role**](#amazon-s3-with-iam-role): a bucket reached through a role in your own AWS account, so no keys are stored.
+* [**S3-compatible storage**](#s3-compatible-storage): any other service that speaks the S3 API, such as MinIO, Wasabi, Backblaze B2, Cloudflare R2 or DigitalOcean Spaces.
+* [**WebDAV**](#webdav): Nextcloud, ownCloud, or any WebDAV server.
+
+## Adding a connection
+
+Under **Settings → Automations → Connections**, click **Add connection**, choose the type and click **Next**, then provide:
+
+* `Name`: a label to recognize the connection by, such as the partner or system it reaches.
+* `Type`: the type chosen on the first step. It can't be changed once the connection is saved, because every automation using the connection would silently start pointing somewhere else; add a new connection instead. The exception is the three Amazon S3 and S3-compatible types, which are one kind of connection and can be switched between when editing.
+* The server or storage details and credentials for that type, described below.
+* `Remote path` (optional): a path on the remote that this connection is limited to. Everything an automation does through the connection stays under it, so a connection scoped to `/incoming` can't reach `/` even if an action asks to. Leave it blank to allow the whole account or bucket.
+
+Click **Test and add**. The connection is tested first and saved only if the test passes. See [Testing a connection](#testing-a-connection).
+
+### SFTP {#sftp}
+
+* `Host` and `Port`: the server's address, and its port if it isn't the standard `22`.
+* `Username`: the account to sign in as.
+* `Authentication`: **Password**, authentication based on a username and a password, or **Private key**, authentication based on a username and an SSH key pair. The matching public key must be in the account's authorized keys on the server.
+
+For a private key, either:
+
+* **Paste an existing key**: the private key, usually the file named `id_ed25519` or `id_rsa` in `~/.ssh`, in OpenSSH format, which is what `ssh-keygen` produces, or in PEM format. RSA, ECDSA and Ed25519 keys are accepted. A PuTTY (`.ppk`), SSH2 or PKCS#8 key has to be converted to OpenSSH format first, with PuTTYgen (**Conversions → Export OpenSSH key**) or `ssh-keygen -p`. If the key is protected by a passphrase, enter it in `Passphrase`; a key that needs one is refused until it is given.
+* **Generate a key for this connection**: a key pair is created for you. Its private half is stored with the connection when you save; its public half is shown, with its fingerprint, for you to add to the server's authorized keys before testing. Choose **Ed25519 (recommended)**, or **RSA 4096** for a server that does not accept Ed25519, and click **Generate key**.
+
+Either way, when you edit the connection later it shows the stored key's fingerprint, the same `SHA256:` value `ssh-keygen -l` prints for the key, and offers its public key to copy, so you can tell which key it holds and install the public key on another server.
+
+When the test succeeds, the server's host key is shown and pinned with the connection. See [Host keys](#host-keys) for what happens if it changes.
+
+### FTP with TLS/SSL {#ftps}
+
+* `Host` and `Port`: the server's address, and its port if it isn't the standard `21`.
+* `Username` and `Password`.
+* `TLS`: **Explicit (AUTH TLS)**, the default and the common one, where the connection is upgraded after connecting, or **Implicit**, where it is TLS from the first byte, usually on port `990`.
+
+The server's certificate is always verified. A server with a self-signed or expired certificate can't be connected to.
+
+### Amazon S3 {#amazon-s3}
+
+A bucket in your AWS account, reached with an access key.
+
+* `Bucket`: the bucket name.
+* `Region` (optional): the bucket's region, such as `eu-west-1`. The field offers the AWS regions to pick from. Leave it blank and a successful test finds it and fills it in before you save; that lookup needs no permission of its own.
+* `Access key ID` and `Secret access key`: a key for an IAM user allowed to list, read and write the bucket. The secret is stored encrypted and never shown again.
+
+:::caution Encrypted with your own KMS key?
+Then the key's policy must allow the user the key belongs to as well. A bucket policy alone isn't enough, and this is the most common cause of an "access denied" result on a bucket that is otherwise set up correctly.
+:::
+
+If you would rather not hand out a key, use [Amazon S3 with IAM role](#amazon-s3-with-iam-role) instead. The three S3 types are one kind of connection with a different starting point, so a saved Amazon S3 connection can be moved to a role, or to S3-compatible storage, when editing it.
+
+### Amazon S3 with IAM role {#amazon-s3-with-iam-role}
+
+A bucket in your AWS account, reached through a role you create there. Nothing secret is stored: the role trusts SFTP To Go, and you can revoke that trust at any time from your account. Access appears in your own CloudTrail under the role. This is the option to prefer for Amazon S3.
+
+* `Bucket`: the bucket name. Enter it first, so the permissions policy below is filled in for it.
+* `Region` (optional): as for Amazon S3.
+* `Role ARN`: the ARN of the role, once created as follows.
+
+1. Two policies appear below the fields, filled in for your organization: a **trust policy** and a **permissions policy**.
+2. In the AWS console, create an IAM role. Choose **AWS account** as the trusted entity, then **Another AWS account**, and enter the account ID shown in the trust policy. Tick **Require external ID** and enter the external ID from the trust policy exactly. It is specific to your organization and never changes. Name the role starting with `SftpToGoConnection`, for example `SftpToGoConnectionAcme`; SFTP To Go can only use roles named this way.
+3. Attach the **permissions policy** shown to the role. It is scoped to the bucket you entered, and covers listing, reading, writing and deleting objects, finding the bucket's region, and the multipart actions a large upload needs.
+4. Paste the role's ARN into `Role ARN`, and click **Test and add**.
+
+:::caution Encrypted with your own KMS key?
+Then the key's policy must allow the role as well. A bucket policy alone isn't enough, and this is the most common cause of an "access denied" result from a role that is otherwise set up correctly. The same holds for an access key: the account it belongs to must be allowed in the key's policy.
+:::
+
+Role-based access is available for Amazon S3 only; other S3-compatible providers don't support it.
+
+### S3-compatible storage {#s3-compatible-storage}
+
+Any other service that speaks the S3 API: MinIO, Wasabi, Backblaze B2, Cloudflare R2, DigitalOcean Spaces and others.
+
+* `Bucket`: the bucket name.
+* `Endpoint URL`: the provider's service URL, such as `https://s3.wasabisys.com` or `https://s3.us-west-004.backblazeb2.com`, including the port if it isn't 443, for example `https://minio.example.com:9000` for a MinIO server. It must be an `https://` address.
+* `Region` (optional): whatever your provider specifies. Many use AWS-style names, which the field suggests as you type; Cloudflare R2 uses `auto`, and Backblaze B2 uses names like `us-west-004`.
+* `Access key ID` and `Secret access key`: a key for an account allowed to list, read and write the bucket. The secret is stored encrypted and never shown again.
+
+:::note Google Cloud Storage
+A Google Cloud Storage bucket can be connected this way through its S3 interoperability. In the Google Cloud console, under **Cloud Storage → Settings → Interoperability**, create an HMAC key for a service account that can read and write the bucket, then use `https://storage.googleapis.com` as the `Endpoint URL`, the HMAC access key and secret as the key pair, and leave `Region` blank.
+:::
+
+### WebDAV {#webdav}
+
+* `URL`: the WebDAV address, for example `https://cloud.example.com/remote.php/dav/files/you` for Nextcloud. It must be an `https://` address.
+* `Server`: **Nextcloud**, **ownCloud**, or **Other** for any other WebDAV server.
+* `Username` and `Password`.
+
+:::note
+A Nextcloud or ownCloud account with two-factor authentication needs an **app password** here, created under the account's security settings, rather than the account password.
+:::
+
+SharePoint is not supported through WebDAV.
+
+## Testing a connection
+
+Saving a connection tests it first: **Test and add**, or **Test and save** for an edit, connects to the server or storage, signs in with the details in the form, and lists the folder. If that passes, the connection is saved. If not, nothing is saved and it says what went wrong: the credentials were rejected, the host couldn't be reached, the certificate couldn't be verified, the bucket or folder doesn't exist, or the role couldn't be assumed.
+
+An edit that changes only the name is saved without a test. When editing anything else, the test uses the stored credentials for anything you haven't retyped, so you don't have to re-enter a password to change the remote path.
+
+If the server can't be reached yet, because it isn't set up or hasn't allowed our addresses, **Save anyway** saves the connection untested. An SFTP connection saved this way has no pinned host key until it is next tested, and until then any action that uses it fails, so test and save it once the server is reachable.
+
+A test gives up after about 20 seconds, and each step of it (looking up the host, connecting, listing) after 10. A server that takes longer than that to answer is reported as unreachable.
+
+For S3, "not allowed to list the bucket" after signing in successfully means the permissions policy, or the key policy for an encrypted bucket, is missing something. The message says which to check.
+
+## Host keys
+
+An SFTP server identifies itself with a host key. When a test of a new connection succeeds, the server's host key fingerprint is shown, and it is pinned when you save: from then on the connection only talks to a server presenting that key.
+
+If the key ever changes, a test fails and shows both fingerprints: the one pinned, and the one the server now presents. A changed host key is what a server that has been rebuilt looks like, but it is also what someone intercepting the connection looks like, so check with whoever runs the server that the key really changed before trusting it. When you're sure, click **Trust the new host key**, then **Test and save**. That exact fingerprint is pinned, not whatever the server presents next, and the connection is enabled again if it had been disabled.
+
+## Enabling, disabling and deleting
+
+Use the menu next to a connection to:
+
+* **Edit**: change its details or credentials. Credentials left blank keep what is stored. Opening a saved connection and clicking **Test connection** checks it again without saving anything.
+* **Disable**: take the connection out of service without deleting it. Any automation action that uses it fails until it is enabled again; the connection and its credentials are kept.
+* **Delete**: remove the connection. Any automation action that references it will fail when it next runs, so update those actions first.
+
+When automations use a connection, the list also shows what the last use found: **Failing**, with the reason, when the credentials were rejected, the host couldn't be reached, its certificate couldn't be verified, or the host key changed. Fix the cause, test, and enable the connection again if it was disabled. The warning clears the next time an automation uses the connection successfully.
+
+## Security
+
+* Credentials are held in a dedicated secrets store, **encrypted at rest** and kept **separately from your automations**. An automation references a connection and never carries the credentials.
+* Neither a password, a private key, nor an access key is **ever shown again** after it is saved, or included in any API response. Only whether one is stored is reported.
+* A connection that uses a role in your AWS account stores nothing secret at all.
+* Connections can only reach public addresses. A server or endpoint on a private network can't be connected to.
+* If the server only accepts connections from known addresses, allow ours: connections are made from [the same addresses](./automations#allowing-our-ip-addresses) the notification actions send from.
+* Adding, editing, deleting and testing a connection are recorded in your [audit logs](../security/audit-logs). Passwords, keys and secrets are never logged.
