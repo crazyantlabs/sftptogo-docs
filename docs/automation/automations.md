@@ -132,7 +132,7 @@ Turning off **Overwrite existing files** makes the action fail rather than repla
 
 ### Copy or move to a remote server
 
-A **Copy to a remote server** action puts the file or folder on a [connection](./connections) you have set up under **Settings → Automations → Connections**. The original stays in your storage. A **Move to a remote server** action does the same and then deletes the original, each file only once its copy has been confirmed. Since a move leaves nothing behind, no later action in the automation can work on the file.
+A **Copy to a remote server** action puts the file or folder on a [connection](./connections) you have set up under **Settings → Automations → Connections**. The original stays in your storage. A **Move to a remote server** action does the same and then deletes the original, each file only once its copy has been confirmed. After a copy, a later action set to work on the previous action's file works on the original, since the copy is on the remote and not in your storage. Since a move leaves nothing behind, no later action in the automation can work on the file.
 
 * `Connection`: one of your enabled connections.
 * `Destination path` (optional): where the file or folder lands on the remote, under the connection's remote path. Leave it blank to keep its name there, give a folder (for example, `2026/`) to keep the name inside it, or a full path to rename it. Variables and expressions are supported.
@@ -140,7 +140,7 @@ A **Copy to a remote server** action puts the file or folder on a [connection](.
 
 A folder is transferred with everything under it, several files at a time, and lands as a folder of the same name at the destination. A transfer carries up to 10,000 files and 4 GB in all.
 
-A transfer can take as long as fifteen minutes, which covers several gigabytes on an ordinary link; one that slows to a crawl is stopped early and reported, rather than left to run out the clock. The transfer arrives at the remote from the [addresses we publish](#allowing-our-ip-addresses).
+A transfer can take as long as fifteen minutes, which covers several gigabytes on an ordinary link. One that stops making progress for more than a minute is stopped early and reported as stalled, rather than left to run out the clock. In the execution history a transfer shows the connection it used, the path the file or folder landed at there, and for a folder the number of files and the bytes transferred. The transfer arrives at the remote from the [addresses we publish](#allowing-our-ip-addresses).
 
 If the remote refuses the credentials, can't be reached, or presents a changed SFTP host key, the failure counts against the connection, and after ten in a row the connection is disabled and every automation using it fails until it is tested and enabled again. A changed host key disables it at once.
 
@@ -160,7 +160,7 @@ The file actions (copy, move, rename, delete) after the first **default to opera
 
 The notification actions (webhook, Slack, Microsoft Teams and email) after the first **default to describing the previous action's result**, but can be switched to the **triggering event**. This lets you announce what a step did — for example, encrypt a file and then notify about the encrypted file, or delete a file and notify that it was removed. When set to the previous action, the notification is sent in the same format as any other file event: a **`file.created`** event for the file the step produced (copy, move, rename, PGP encrypt/decrypt), or a **`file.deleted`** event for the file a delete removed.
 
-By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files only — folder operations always overwrite.
+By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files in your storage; the copy, move, rename and PGP actions always overwrite when given a folder. The remote server actions are different: with the setting off, a folder transfer skips the files that already exist on the remote.
 
 ### PGP encrypt and decrypt
 
