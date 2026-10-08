@@ -97,6 +97,10 @@ Any other service that speaks the S3 API: MinIO, Wasabi, Backblaze B2, Cloudflar
 * `Region` (optional): whatever your provider specifies. Many use AWS-style names, which the field suggests as you type; Cloudflare R2 uses `auto`, and Backblaze B2 uses names like `us-west-004`.
 * `Access key ID` and `Secret access key`: a key for an account allowed to list, read and write the bucket. The secret is stored encrypted and never shown again.
 
+:::note Google Cloud Storage
+A Google Cloud Storage bucket can be connected this way through its S3 interoperability. In the Google Cloud console, under **Cloud Storage → Settings → Interoperability**, create an HMAC key for a service account that can read and write the bucket, then use `https://storage.googleapis.com` as the `Endpoint URL`, the HMAC access key and secret as the key pair, and leave `Region` blank.
+:::
+
 ### WebDAV {#webdav}
 
 * `URL`: the WebDAV address, for example `https://cloud.example.com/remote.php/dav/files/you` for Nextcloud. It must be an `https://` address.
