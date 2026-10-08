@@ -92,13 +92,11 @@ As with every other schedule, the editor describes the expression in words and l
 
 | Action | Description | Available for |
 |--|--|--|
-| Copy file or folder | Copies the file to a destination path, leaving the original in place | File created, File downloaded |
-| Move file or folder | Copies the file to a destination path and deletes the original | File created, File downloaded |
+| Copy file or folder | Copies the file or folder to a destination path in your storage, or to a [connection](./connections), leaving the original in place | File created, File downloaded |
+| Move file or folder | Copies the file or folder to a destination path in your storage, or to a connection, and deletes the original | File created, File downloaded |
 | Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
 | Delete file or folder | Deletes the file | File created, File downloaded |
 | Create file or folder | Creates an empty file, or a folder | Any trigger |
-| Copy to a remote server | Puts the file or folder on a [connection](./connections): a partner's SFTP server, a bucket, a WebDAV server. The original stays | File created, File downloaded |
-| Move to a remote server | Puts the file or folder on a connection and deletes the original | File created, File downloaded |
 | PGP encrypt file | Encrypts the file to a PGP key's public key | File created, File downloaded |
 | PGP decrypt file | Decrypts a PGP-encrypted file with a private key | File created, File downloaded |
 | Send webhook request | Sends an HTTP POST request describing the trigger to an endpoint you choose | File created, File downloaded, File deleted |
@@ -130,11 +128,11 @@ Because it doesn't act on the triggering file, this action has no source to choo
 
 Turning off **Overwrite existing files** makes the action fail rather than replace a file that's already there. It has no effect when creating a folder — writing a folder that already exists changes nothing.
 
-### Copy or move to a remote server
+### Copy or move to a connection
 
-A **Copy to a remote server** action puts the file or folder on a [connection](./connections) you have set up under **Settings → Automations → Connections**. The original stays in your storage. A **Move to a remote server** action does the same and then deletes the original, each file only once its copy has been confirmed. After a copy, a later action set to work on the previous action's file works on the original, since the copy is on the remote and not in your storage. Since a move leaves nothing behind, no later action in the automation can work on the file.
+A **Copy file or folder** or **Move file or folder** action can go to a [connection](./connections) instead of a path in your storage: under **Destination**, choose **A connection** and pick one, or choose **+ New connection** to set one up without leaving the automation. A copy leaves the original in your storage. A move deletes it, each file only once its copy has been confirmed. After a copy, a later action set to work on the previous action's file works on the original, since the copy is on the remote and not in your storage. Since a move leaves nothing behind, no later action in the automation can work on the file.
 
-* `Connection`: one of your enabled connections.
+* `Connection`: one of your enabled connections, or a new one.
 * `Destination path` (optional): where the file or folder lands on the remote, under the connection's remote path. Leave it blank to keep its name there, give a folder (for example, `2026/`) to keep the name inside it, or a full path to rename it. Variables and expressions are supported.
 * `Overwrite existing files`: turn it off to have the action fail rather than replace a file that is already there. For a folder, files already on the remote are skipped instead.
 
