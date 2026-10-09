@@ -92,8 +92,8 @@ As with every other schedule, the editor describes the expression in words and l
 
 | Action | Description | Available for |
 |--|--|--|
-| Copy file or folder | Copies the file or folder to a destination path in your storage, or to a [connection](./connections), leaving the original in place | File created, File downloaded |
-| Move file or folder | Copies the file or folder to a destination path in your storage, or to a connection, and deletes the original | File created, File downloaded |
+| Copy file or folder | Copies the file or folder to a destination path in your storage, to a [connection](./connections), or from a connection into your storage, leaving the original in place | File created, File downloaded, On a schedule |
+| Move file or folder | Copies the file or folder to a destination path in your storage, to a connection, or from a connection into your storage, and deletes the original | File created, File downloaded, On a schedule |
 | Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
 | Delete file or folder | Deletes the file | File created, File downloaded |
 | Create file or folder | Creates an empty file, or a folder | Any trigger |
@@ -141,6 +141,19 @@ A folder is transferred with everything under it, several files at a time, and l
 A transfer can take as long as fifteen minutes, which covers several gigabytes on an ordinary link. One that stops making progress for more than a minute is stopped early and reported as stalled, rather than left to run out the clock. In the execution history a transfer shows the connection it used, the path the file or folder landed at there, and for a folder the number of files and the bytes transferred. The transfer arrives at the remote from the [addresses we publish](#allowing-our-ip-addresses).
 
 If the remote refuses the credentials, can't be reached, or presents a changed SFTP host key, the failure counts against the connection, and after ten in a row the connection is disabled and every automation using it fails until it is tested and enabled again. A changed host key disables it at once.
+
+### Copy or move from a connection
+
+A **Copy file or folder** or **Move file or folder** action can also bring files in from a [connection](./connections): under **Source**, choose **A connection**. This is how you collect what a partner leaves for you, for example every night on a schedule. A copy leaves the files where they are on the remote. A move deletes each file there once it has arrived in your storage, so the next run does not collect it again; the folders on the remote stay as they are.
+
+* `Connection`: one of your enabled connections, or a new one.
+* `Remote path`: the file or folder to bring in, under the connection's remote path (for example, `outgoing/report.csv`). End it with `/` to bring in a folder and everything in it. Variables and expressions are supported.
+* `Destination path`: where it lands in your storage. Give a folder (for example, `/incoming/`) to keep its name, or a full path to rename a file. It must start with `/`. Variables and expressions are supported.
+* `Overwrite existing files`: turn it off to have the action fail rather than replace a file already in your storage. For a folder, files already in your storage are skipped instead.
+
+A later action set to work on the previous action's file works on what was brought in, so you can, for example, collect an encrypted file and then decrypt it with a **PGP decrypt** action. An empty remote folder is not a failure: the action succeeds and reports that there was nothing to fetch. A remote path that does not exist fails the action, without counting against the connection.
+
+Files brought in this way don't start other automations, in the same way that files an automation writes never do. The same limits apply as when sending to a connection: up to 10,000 files and 4 GB in all, and fifteen minutes per run.
 
 ### Delay
 
