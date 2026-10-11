@@ -135,7 +135,7 @@ Turning off **Overwrite existing files** makes the action fail rather than repla
 A **Copy file or folder** or **Move file or folder** action can go to a [connection](./connections) instead of a path in your storage: pick it in the **Destination connection** list, or choose **+ New connection** to set one up without leaving the automation. Left on **Your storage**, the action copies or moves within your storage. A copy leaves the original in your storage. A move deletes it, each file only once its copy has been confirmed. After a copy, a later action set to work on the previous action's file works on the original, since the copy is on the remote and not in your storage. Since a move leaves nothing behind, no later action in the automation can work on the file.
 
 * `Connection`: one of your enabled connections, or a new one.
-* `Destination path` (optional): where the file or folder lands on the remote, under the connection's remote path, so it needs no leading `/`. Leave it blank to keep its name there, give a folder (for example, `2026/`) to keep the name inside it, or a full path to rename it. Variables and expressions are supported.
+* `Destination path` (optional): where the file or folder lands on the remote. It must start with `/`, which stands for the connection's remote path. Specify a folder (for example, `/archive/`) to keep the original name, or a full path (for example, `/archive/{{file.name}}`) to set a custom name. Leave it blank to keep the name at the connection's remote path. Variables and expressions are supported.
 * `Overwrite existing files`: turn it off to have the action fail rather than replace a file that is already there. For a folder, files already on the remote are skipped instead.
 
 A folder is transferred with everything under it, several files at a time, and lands as a folder of the same name at the destination. A transfer carries up to 10,000 files and 4 GB in all.
@@ -149,7 +149,7 @@ If the remote refuses the credentials, can't be reached, or presents a changed S
 A **Copy file or folder** or **Move file or folder** action can also bring files in from a [connection](./connections): set the source to **Custom…** and pick the connection in the **Source connection** list. This is how you collect what a partner leaves for you, for example every night on a schedule. A copy leaves the files where they are on the remote. A move deletes each file there once it has arrived in your storage, so the next run does not collect it again; the folders on the remote stay as they are.
 
 * `Connection`: one of your enabled connections, or a new one.
-* `Path`: the file or folder to bring in, under the connection's remote path (for example, `outgoing/report.csv`). End it with `/` to bring in a folder and everything in it. Variables and expressions are supported.
+* `Path`: the file or folder to bring in. It must start with `/`, which stands for the connection's remote path (for example, `/outgoing/report.csv`), and a folder ends with `/`. Variables and expressions are supported.
 * `Destination path`: where it lands in your storage. Give a folder (for example, `/incoming/`) to keep its name, or a full path to rename a file. It must start with `/`. Variables and expressions are supported.
 * `Overwrite existing files`: turn it off to have the action fail rather than replace a file already in your storage. For a folder, files already in your storage are skipped instead.
 
