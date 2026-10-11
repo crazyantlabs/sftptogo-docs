@@ -148,7 +148,7 @@ By default, the file-writing actions (copy, move, rename, and PGP encrypt/decryp
 
 ### PGP encrypt and decrypt
 
-The PGP actions encrypt or decrypt a single file using a key from your [encryption keys](../security/encryption-keys) (**Settings → Security → Encryption keys**). The key is referenced by selection — no key material is stored on the automation.
+The PGP actions encrypt or decrypt a single file using a key from your [encryption keys](../security/encryption-keys) (**Settings → Automations → Encryption keys**). The key is referenced by selection — no key material is stored on the automation.
 
 * `PGP key` — the key to use. For **PGP encrypt**, pick a key that can encrypt (any public or private key). For **PGP decrypt**, pick the private key the file was encrypted to — a file can only be decrypted with a private key it was encrypted to (you must be one of its recipients). The **+ New key** option lets you import a key without leaving the builder.
 * `Destination path` (optional) — where to write the result. By default, **encrypt** appends a `.pgp` extension to the source path, and **decrypt** removes a trailing `.pgp`, `.gpg` or `.asc` extension. To keep that default name but write it somewhere else, give a **folder** (e.g. `/decrypted/`) — the file keeps the extension-stripped name. For a custom name, give a full path; `{{file.basename}}` is the source name without its last extension, so `/decrypted/{{file.basename}}` also drops the `.pgp`.

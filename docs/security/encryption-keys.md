@@ -4,7 +4,7 @@ title: 'Managing encryption keys'
 sidebar_position: 20
 ---
 
-PGP keys let you encrypt and decrypt files as part of an [automation](../automation/automations). Store the keys you need once under **Settings → Security → Encryption keys**, then reference them from the **PGP encrypt** and **PGP decrypt** automation actions — the key material never has to be entered into an automation.
+PGP keys let you encrypt and decrypt files as part of an [automation](../automation/automations). Store the keys you need once under **Settings → Automations → Encryption keys**, then reference them from the **PGP encrypt** and **PGP decrypt** automation actions — the key material never has to be entered into an automation.
 
 How many encryption keys you can store is set by your plan. The **Encryption keys** page shows how many you have used out of that allowance.
 
@@ -21,7 +21,7 @@ RSA keys (2048–4096 bit) and ECC keys on Curve25519, the NIST curves (P-256, P
 
 ## Importing a key
 
-Under **Settings → Security → Encryption keys**, click **Import key**, and provide:
+Under **Settings → Automations → Encryption keys**, click **Import key**, and provide:
 
 * `Name` (optional) — a label to recognize the key by. Leave it blank to default to the key's identity (its user ID), or the key fingerprint when the key has no user ID.
 * `Key` — paste the ASCII-armored key block (it begins with `-----BEGIN PGP PUBLIC KEY BLOCK-----` for a public key, or `-----BEGIN PGP PRIVATE KEY BLOCK-----` for a private key), or drag a key file onto the field to load it. Import one key at a time.
