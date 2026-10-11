@@ -136,14 +136,14 @@ If the key ever changes, a test fails and shows both fingerprints: the one pinne
 Use the menu next to a connection to:
 
 * **Edit**: change its details or credentials. Credentials left blank keep what is stored. Opening a saved connection and clicking **Test connection** checks it again without saving anything.
-* **Disable**: take the connection out of service without deleting it. Any automation action that uses it fails until it is enabled again; the connection and its credentials are kept.
+* **Disable**: take the connection out of service without deleting it. Any automation action that uses it fails until it is enabled again.
 * **Delete**: remove the connection. Any automation action that references it will fail when it next runs, so update those actions first.
 
 When automations use a connection, the list also shows what the last use found: **Failing**, with the reason, when the credentials were rejected, the host couldn't be reached, its certificate couldn't be verified, or the host key changed. Fix the cause, test, and enable the connection again if it was disabled. The warning clears the next time an automation uses the connection successfully.
 
 ## Security
 
-* Credentials are held in a dedicated secrets store, **encrypted at rest** and kept **separately from your automations**. An automation references a connection and never carries the credentials.
+* Credentials are stored securely in a dedicated secrets store, **encrypted at rest** and **separately from your automations**. An automation references a connection and never carries the credentials.
 * Neither a password, a private key, nor an access key is **ever shown again** after it is saved, or included in any API response. Only whether one is stored is reported.
 * A connection that uses a role in your AWS account stores nothing secret at all.
 * Connections can only reach public addresses. A server or endpoint on a private network can't be connected to.
