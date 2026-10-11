@@ -173,7 +173,7 @@ The file actions (copy, move, rename, delete) after the first **default to opera
 
 The notification actions (webhook, Slack, Microsoft Teams and email) after the first **default to describing the previous action's result**, but can be switched to the **triggering event**. This lets you announce what a step did — for example, encrypt a file and then notify about the encrypted file, or delete a file and notify that it was removed. When set to the previous action, the notification is sent in the same format as any other file event: a **`file.created`** event for the file the step produced (copy, move, rename, PGP encrypt/decrypt), or a **`file.deleted`** event for the file a delete removed.
 
-By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files in your storage; the copy, move, rename and PGP actions always overwrite when given a folder. The remote server actions are different: with the setting off, a folder transfer skips the files that already exist on the remote.
+By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files in your storage; the copy, move, rename and PGP actions always overwrite when given a folder. Copying or moving to or from a connection is different: with the setting off, a folder transfer skips the files that already exist on the remote.
 
 ### PGP encrypt and decrypt
 
