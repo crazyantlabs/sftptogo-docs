@@ -143,7 +143,7 @@ When automations use a connection, the list also shows what the last use found: 
 
 ## Security
 
-* Credentials are stored securely in a dedicated secrets store, **encrypted at rest** and **separately from your automations**. An automation references a connection and never carries the credentials.
+* Credentials are stored securely in a dedicated secrets store, **encrypted at rest** and **separately from your automations**.
 * Neither a password, a private key, nor an access key is **ever shown again** after it is saved, or included in any API response. Only whether one is stored is reported.
 * A connection that uses a role in your AWS account stores nothing secret at all.
 * Connections can only reach public addresses. A server or endpoint on a private network can't be connected to.
