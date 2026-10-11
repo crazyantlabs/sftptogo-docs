@@ -313,13 +313,15 @@ When the automation runs on a schedule there is no file event to describe, so th
 
 ## Allowing our IP addresses
 
-If the endpoint an automation sends to only accepts traffic from known addresses, add ours to its allowlist. Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions always arrive from one of these addresses:
+If a server or endpoint an automation reaches only accepts traffic from known addresses, add ours to its allowlist. Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions, and everything that reaches a [connection](./connections) (copying or moving files to or from it, and testing it), always arrive from one of these addresses:
 
 * `3.215.222.67`
 * `44.218.45.54`
 * `52.22.213.13`
 
-Add all of them, not just one. Any given request may arrive from any address in the list, and which one it is varies from one execution to the next — allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
+Add all of them, not just one. Any given request may arrive from any address in the list, and which one it is varies from one execution to the next. Allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
+
+Files sent to or fetched from a connection never leave the region your storage is in.
 
 These addresses are stable, and we will give notice before they change.
 

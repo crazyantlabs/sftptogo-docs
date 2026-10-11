@@ -147,5 +147,6 @@ When automations use a connection, the list also shows what the last use found: 
 * Neither a password, a private key, nor an access key is **ever shown again** after it is saved, or included in any API response. Only whether one is stored is reported.
 * A connection that uses a role in your AWS account stores nothing secret at all.
 * Connections can only reach public addresses. A server or endpoint on a private network can't be connected to.
-* If the server only accepts connections from known addresses, allow ours: connections are made from [the same addresses](./automations#allowing-our-ip-addresses) the notification actions send from.
+* Connections always reach your servers from a fixed set of IP addresses. If a server only accepts connections from known addresses, add **all** of [our addresses](./automations#allowing-our-ip-addresses) to its allowlist, not just one.
+* Files sent to or fetched from a connection are transferred from the region your storage is in, and never leave it on the way.
 * Adding, editing, deleting and testing a connection are recorded in your [audit logs](../security/audit-logs). Passwords, keys and secrets are never logged.
