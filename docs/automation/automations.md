@@ -142,7 +142,7 @@ A folder is transferred with everything under it, several files at a time, and l
 
 A transfer can take as long as fifteen minutes, which covers several gigabytes on an ordinary link. One that stops making progress for more than a minute is stopped early and reported as stalled, rather than left to run out the clock. In the execution history a transfer shows the connection it used, the path the file or folder landed at there, and for a folder the number of files and the bytes transferred. The transfer arrives at the remote from the [addresses we publish](#allowing-our-ip-addresses).
 
-If the remote refuses the credentials, can't be reached, or presents a changed SFTP host key, the failure counts against the connection, and after ten in a row the connection is disabled and every automation using it fails until it is tested and enabled again. A changed host key disables it at once.
+If the remote refuses the credentials, can't be reached, or presents a changed SFTP host key, the failure counts against the connection, and after ten in a row the connection is disabled and every automation using it fails until it is tested and enabled again. A changed host key disables it at once. The same failures count against each automation that ran into them, so an automation that failed ten times in a row is [paused](#when-an-automation-fails) too. Enabling the connection doesn't resume it: check the automations that use the connection, and click **Resume** on any that were paused.
 
 ### Copy or move from a connection
 

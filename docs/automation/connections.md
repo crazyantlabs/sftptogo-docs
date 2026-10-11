@@ -139,7 +139,7 @@ Use the menu next to a connection to:
 * **Disable**: take the connection out of service without deleting it. Any automation action that uses it fails until it is enabled again.
 * **Delete**: remove the connection. Any automation action that references it will fail when it next runs, so update those actions first.
 
-When automations use a connection, the list also shows what the last use found: **Failing**, with the reason, when the credentials were rejected, the host couldn't be reached, its certificate couldn't be verified, or the host key changed. Fix the cause, test, and enable the connection again if it was disabled. The warning clears the next time an automation uses the connection successfully.
+When automations use a connection, the list also shows what the last use found: **Failing**, with the reason, when the credentials were rejected, the host couldn't be reached, its certificate couldn't be verified, or the host key changed. Fix the cause, test, and enable the connection again if it was disabled. Then check the automations that use it: one that failed ten times in a row was [paused](./automations#when-an-automation-fails) as well, and stays paused until you click **Resume**. The warning clears the next time an automation uses the connection successfully.
 
 ## Security
 
