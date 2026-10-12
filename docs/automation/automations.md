@@ -173,7 +173,7 @@ The file actions (copy, move, rename, delete) after the first **default to opera
 
 The notification actions (webhook, Slack, Microsoft Teams and email) after the first **default to describing the previous action's result**, but can be switched to the **triggering event**. This lets you announce what a step did — for example, encrypt a file and then notify about the encrypted file, or delete a file and notify that it was removed. When set to the previous action, the notification is sent in the same format as any other file event: a **`file.created`** event for the file the step produced (copy, move, rename, PGP encrypt/decrypt), or a **`file.deleted`** event for the file a delete removed.
 
-By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files in your storage; the copy, move, rename and PGP actions always overwrite when given a folder. The remote server actions are different: with the setting off, a folder transfer skips the files that already exist on the remote.
+By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files in your storage; the copy, move, rename and PGP actions always overwrite when given a folder. Copying or moving to or from a connection is different: with the setting off, a folder transfer skips the files that already exist on the remote.
 
 ### PGP encrypt and decrypt
 
@@ -313,13 +313,15 @@ When the automation runs on a schedule there is no file event to describe, so th
 
 ## Allowing our IP addresses
 
-If the endpoint an automation sends to only accepts traffic from known addresses, add ours to its allowlist. Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions always arrive from one of these addresses:
+If a server or endpoint an automation reaches only accepts traffic from known addresses, add ours to its allowlist. Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions, and everything that reaches a [connection](./connections) (copying or moving files to or from it, and testing it), always arrive from one of these addresses:
 
 * `3.215.222.67`
 * `44.218.45.54`
 * `52.22.213.13`
 
-Add all of them, not just one. Any given request may arrive from any address in the list, and which one it is varies from one execution to the next — allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
+Add all of them, not just one. Any given request may arrive from any address in the list, and which one it is varies from one execution to the next. Allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
+
+Files sent to or fetched from a connection never leave the region your storage is in.
 
 These addresses are stable, and we will give notice before they change.
 
