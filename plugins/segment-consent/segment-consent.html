@@ -19,9 +19,10 @@
           purposes = consent.purposes || {};
           if (!first) return;
           analytics.load("__SEGMENT_WRITE_KEY__", { updateCDNSettings: function (settings) {
+            var consented = function (c) { return purposes[c] === true; };
             for (var name in settings.integrations) {
               var categories = (settings.integrations[name].consentSettings || {}).categories || [];
-              if (!categories.every(function (c) { return purposes[c] === true; })) delete settings.integrations[name];
+              if (!categories.every(consented)) delete settings.integrations[name];
             }
             settings.remotePlugins = (settings.remotePlugins || []).filter(function (p) { return settings.integrations[p.creationName]; });
             return settings;
