@@ -51,11 +51,11 @@
       });
     }
 
+    // Loads Segment once both have happened, in either order: analytics.load() was
+    // called, and Ketch reported consent. Until then events wait in the snippet's
+    // buffer, so none leaves without a consent object.
     function loadIfConsented() {
       if (loaded || !loadArgs || !purposes) return;
-      var preferences = categoryPreferences();
-      // Nothing consented at all: send nothing.
-      if (!Object.keys(preferences).some(function (code) { return preferences[code]; })) return;
       loaded = true;
 
       analytics.addSourceMiddleware(function (ctx) {
