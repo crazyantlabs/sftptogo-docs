@@ -5,7 +5,8 @@
       requires (Ketch purpose codes are the Segment category names; Ketch leaves
       ungranted ones out, which Segment treats as not consented). Browser-side
       destinations the visitor hasn't consented to are not loaded, since consent
-      filtering only applies to the events sent to them.
+      filtering doesn't stop them; if the visitor withdraws consent, the page
+      reloads so the destinations they no longer consent to are dropped.
     -->
     <script type="text/javascript">
       !function () {
@@ -15,9 +16,14 @@
           ctx.next(ctx.payload);
         });
         ketch('on', 'consent', function (consent) {
-          var first = !purposes;
+          var previous = purposes;
           purposes = consent.purposes || {};
-          if (!first) return;
+          if (previous) {
+            // Destinations already running in the page can't be unloaded, so a withdrawn
+            // consent reloads the page, which loads Segment without them.
+            for (var code in previous) if (previous[code] === true && purposes[code] !== true) return location.reload();
+            return;
+          }
           analytics.load("__SEGMENT_WRITE_KEY__", { updateCDNSettings: function (settings) {
             var consented = function (c) { return purposes[c] === true; };
             for (var name in settings.integrations) {
