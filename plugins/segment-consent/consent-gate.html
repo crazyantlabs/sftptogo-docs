@@ -33,10 +33,6 @@
       return preferences;
     }
 
-    function samePurposes(a, b) {
-      return Object.keys(a).concat(Object.keys(b)).every(function (code) { return !a[code] === !b[code]; });
-    }
-
     // Device-mode destinations (GA4, Google Ads, GTM, Intercom) run in the browser,
     // out of reach of Segment's server-side consent filtering, so the ones the visitor
     // hasn't consented to are never loaded. Consent granted later takes effect on the
@@ -84,11 +80,9 @@
     };
 
     // Ketch fires this once consent is resolved on page load, and again on every change.
+    // Events are stamped when sent, so a change applies to every event after it.
     window.ketch('on', 'consent', function (consent) {
-      var next = consent.purposes || {};
-      var changed = purposes !== null && !samePurposes(purposes, next);
-      purposes = Object.assign({}, next);
-      if (changed && loaded) window.analytics.track('Segment Consent Preference Updated');
+      purposes = Object.assign({}, consent.purposes);
       loadIfConsented();
     });
   }();
