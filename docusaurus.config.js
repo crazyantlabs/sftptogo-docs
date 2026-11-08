@@ -60,7 +60,7 @@ const config = {
         page: {
           category: 'Docs',
         },
-        // analytics.load() is called by ./plugins/segment-consent, once Ketch reports consent.
+        // analytics.load() is called by ./plugins/segment-consent once Ketch reports consent.
         load: false,
       },
     ],

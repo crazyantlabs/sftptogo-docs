@@ -1,0 +1,32 @@
+    <!-- Segment consent begin -->
+    <!--
+      Loads Segment once Ketch reports consent. Every event carries the visitor's
+      choices in context.consent.categoryPreferences, as Segment Consent Management
+      requires (Ketch purpose codes are the Segment category names; Ketch leaves
+      ungranted ones out, which Segment treats as not consented). Browser-side
+      destinations the visitor hasn't consented to are not loaded, since consent
+      filtering only applies to the events sent to them.
+    -->
+    <script type="text/javascript">
+      !function () {
+        var purposes;
+        analytics.addSourceMiddleware(function (ctx) {
+          ctx.payload.obj.context.consent = { categoryPreferences: purposes };
+          ctx.next(ctx.payload);
+        });
+        ketch('on', 'consent', function (consent) {
+          var first = !purposes;
+          purposes = consent.purposes || {};
+          if (!first) return;
+          analytics.load("__SEGMENT_WRITE_KEY__", { updateCDNSettings: function (settings) {
+            for (var name in settings.integrations) {
+              var categories = (settings.integrations[name].consentSettings || {}).categories || [];
+              if (!categories.every(function (c) { return purposes[c] === true; })) delete settings.integrations[name];
+            }
+            settings.remotePlugins = (settings.remotePlugins || []).filter(function (p) { return settings.integrations[p.creationName]; });
+            return settings;
+          } });
+        });
+      }();
+    </script>
+    <!-- Segment consent end -->
