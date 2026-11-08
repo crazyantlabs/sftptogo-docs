@@ -60,7 +60,15 @@ const config = {
         page: {
           category: 'Docs',
         },
-        // Add other options here.
+        // analytics.load() is called by ./plugins/segment-consent, once Ketch reports consent.
+        load: false,
+      },
+    ],
+    // Must stay after docusaurus-plugin-segment: its tags go after the snippet.
+    [
+      './plugins/segment-consent',
+      {
+        writeKey: process.env.SEGMENT_WRITE_KEY,
       },
     ],
   ],
