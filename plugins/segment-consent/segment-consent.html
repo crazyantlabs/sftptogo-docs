@@ -7,10 +7,24 @@
       destinations the visitor hasn't consented to are not loaded, since consent
       filtering doesn't stop them; if the visitor withdraws consent, the page
       reloads so the destinations they no longer consent to are dropped.
+
+      Google's destinations are the exception: they use Google Consent Mode
+      (advanced), so they always load, start with storage denied, and follow the
+      visitor's choices as they change, without a reload.
     -->
     <script type="text/javascript">
       !function () {
         var purposes;
+        var googleDestinations = { 'Google Analytics 4 Web': true, 'Google AdWords New': true, 'Google Tag Manager': true };
+        var browserCategories = {}; // consent categories of the destinations running in the browser, other than Google's
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { window.dataLayer.push(arguments); }
+        function googleConsent(purposes) {
+          var analytics = purposes.analytics === true ? 'granted' : 'denied';
+          var marketing = purposes.marketing === true ? 'granted' : 'denied';
+          return { analytics_storage: analytics, ad_storage: marketing, ad_user_data: marketing, ad_personalization: marketing };
+        }
+        gtag('consent', 'default', googleConsent({}));
         analytics.addSourceMiddleware(function (ctx) {
           ctx.payload.obj.context.consent = { categoryPreferences: purposes };
           ctx.next(ctx.payload);
@@ -18,19 +32,31 @@
         ketch('on', 'consent', function (consent) {
           var previous = purposes;
           purposes = consent.purposes || {};
+          gtag('consent', 'update', googleConsent(purposes));
           if (previous) {
             // Destinations already running in the page can't be unloaded, so a withdrawn
             // consent reloads the page, which loads Segment without them.
-            for (var code in previous) if (previous[code] === true && purposes[code] !== true) return location.reload();
+            for (var code in previous) if (previous[code] === true && purposes[code] !== true && browserCategories[code]) return location.reload();
             return;
           }
           analytics.load("__SEGMENT_WRITE_KEY__", { updateCDNSettings: function (settings) {
-            var consented = function (c) { return purposes[c] === true; };
-            for (var name in settings.integrations) {
-              var categories = (settings.integrations[name].consentSettings || {}).categories || [];
-              if (!categories.every(consented)) delete settings.integrations[name];
+            var integrations = settings.integrations, name;
+            for (name in integrations) {
+              if (googleDestinations[name]) continue;
+              var categories = (integrations[name].consentSettings || {}).categories || [];
+              var consented = true;
+              for (var i = 0; i < categories.length; i++) consented = consented && purposes[categories[i]] === true;
+              if (!consented) delete integrations[name];
             }
-            settings.remotePlugins = (settings.remotePlugins || []).filter(function (p) { return settings.integrations[p.creationName]; });
+            settings.remotePlugins = (settings.remotePlugins || []).filter(function (p) { return integrations[p.creationName]; });
+            // Note what now runs in the browser (bundled classic destinations and Actions plugins),
+            // since only withdrawing consent from one of those needs a reload.
+            var inBrowser = {};
+            settings.remotePlugins.forEach(function (p) { inBrowser[p.creationName] = true; });
+            for (name in integrations) {
+              if (googleDestinations[name] || !(inBrowser[name] || integrations[name].bundlingStatus === "bundled")) continue;
+              ((integrations[name].consentSettings || {}).categories || []).forEach(function (c) { browserCategories[c] = true; });
+            }
             return settings;
           } });
         });

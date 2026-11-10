@@ -8,7 +8,7 @@ const path = require('path');
 // then segment-consent.html, which loads Segment once Ketch reports consent (the same
 // snippet as on sftptogo.com/free-trial and the Auth0 login page).
 const KETCH_TAG =
-  '<script>!function(){window.semaphore=window.semaphore||[],window.ketch=function(){window.semaphore.push(arguments)};var e=document.createElement("script");e.type="text/javascript",e.src="https://global.ketchcdn.com/web/v3/config/crazy_ant_labs/website_smart_tag/boot.js",e.defer=e.async=!0,document.getElementsByTagName("head")[0].appendChild(e)}();</script>';
+  '<script>!function(){window.semaphore=window.semaphore||[],window.ketch=function(){window.semaphore.push(arguments)};var e=document.createElement("script");e.type="text/javascript",e.src="https://global.ketchcdn.com/web/v3/config/crazy_ant_labs/sftp_to_go/boot.js",e.defer=e.async=!0,document.getElementsByTagName("head")[0].appendChild(e)}();</script>';
 
 module.exports = function segmentConsent(context, { writeKey }) {
   const segmentConsentTag = fs
