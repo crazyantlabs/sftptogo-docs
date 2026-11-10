@@ -4,7 +4,7 @@ title: 'Connecting to remote servers and storage'
 sidebar_position: 2
 ---
 
-Connections are the servers and storage your [automations](./automations) can copy files to and from, such as a partner's SFTP server, a bucket in your own cloud account or a WebDAV server. Set one up once under **Settings → Automations → Connections**, test it there, and reference it from automation actions by name. The credentials are entered once and never have to be put into an automation.
+Connections are the servers and storage your [automations](./automations) copy files to, such as a partner's SFTP server, a bucket in your own cloud account or a WebDAV server. Set one up once under **Settings → Automations → Connections**, test it there, and reference it from automation actions by name. The credentials are entered once and never have to be put into an automation.
 
 :::info
 Connections are only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
@@ -139,7 +139,7 @@ Use the menu next to a connection to:
 * **Disable**: take the connection out of service without deleting it. Any automation action that uses it fails until it is enabled again; the connection and its credentials are kept.
 * **Delete**: remove the connection. Any automation action that references it will fail when it next runs, so update those actions first.
 
-When automations use a connection, the list also shows what the last use found: **Failing**, with the reason, when the credentials were rejected, the host couldn't be reached, its certificate couldn't be verified, or the host key changed. Fix the cause, test, and enable the connection again if it was disabled. The warning clears the next time an automation uses the connection successfully.
+When automations use a connection, the list also shows what the last use found: **Failing**, with the reason, when the credentials were rejected, the host couldn't be reached, its certificate couldn't be verified, or the host key changed. Fix the cause, test, and enable the connection again if it was disabled. Then check the automations that use it: one that failed ten times in a row was [paused](./automations#when-an-automation-fails) as well, and stays paused until you click **Resume**. The warning clears the next time an automation uses the connection successfully.
 
 ## Security
 
