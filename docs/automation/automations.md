@@ -313,15 +313,31 @@ When the automation runs on a schedule there is no file event to describe, so th
 
 ## Allowing our IP addresses
 
-If a server or endpoint an automation reaches only accepts traffic from known addresses, add ours to its allowlist. Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions, and everything that reaches a [connection](./connections) (copying or moving files to or from it, and testing it), always arrive from one of these addresses:
+If a server or endpoint an automation reaches only accepts traffic from known addresses, add ours to its allowlist.
 
-* `3.215.222.67`
-* `44.218.45.54`
-* `52.22.213.13`
+* Everything that reaches a [connection](./connections) (copying or moving files to or from it, and testing it) comes from the addresses of the region your storage is in. Files sent to or fetched from a connection never leave that region.
+* Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions come from the Virginia, US East addresses, whatever region your storage is in.
 
-Add all of them, not just one. Any given request may arrive from any address in the list, and which one it is varies from one execution to the next. Allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
+Adding every address in the table always works, and is what **View IP addresses** under **Settings → Automations → Connections** in the dashboard suggests. To keep the allowlist shorter, add all the addresses of your storage's region for a connection's server, and all the Virginia, US East addresses for a webhook, Slack or Microsoft Teams endpoint.
 
-Files sent to or fetched from a connection never leave the region your storage is in.
+| Region | Addresses |
+| --- | --- |
+| Virginia, US East | `3.215.222.67`, `44.218.45.54`, `52.22.213.13` |
+| Ohio, US East | `18.226.36.245`, `18.226.194.230` |
+| California, US West | `13.56.242.205`, `54.241.92.19` |
+| Oregon, US West | `184.35.156.137`, `44.240.139.149` |
+| Montreal, Canada | `15.222.100.88`, `16.54.90.190` |
+| São Paulo, Brazil | `54.207.99.255`, `54.207.77.175` |
+| Dublin, Ireland | `52.19.116.158`, `34.246.44.30` |
+| London, United Kingdom | `18.130.215.6`, `16.61.77.144` |
+| Frankfurt, Germany | `63.186.29.4`, `3.122.135.172` |
+| Tel Aviv, Israel | `16.164.184.104`, `16.164.55.145` |
+| Mumbai, India | `13.206.24.12`, `13.203.124.20` |
+| Singapore | `47.130.125.233`, `54.169.111.147` |
+| Sydney, Australia | `54.66.26.106`, `32.236.176.103` |
+| Tokyo, Japan | `35.75.31.44`, `54.64.178.141` |
+
+Never add just one address of a region. Any given request may arrive from any of that region's addresses, and which one it is varies from one execution to the next. Allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
 
 These addresses are stable, and we will give notice before they change.
 
