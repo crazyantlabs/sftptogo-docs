@@ -315,7 +315,7 @@ When the automation runs on a schedule there is no file event to describe, so th
 
 If a server or endpoint an automation reaches only accepts traffic from known addresses, add ours to its allowlist.
 
-* Everything that reaches a [connection](./connections) (copying or moving files to or from it, and testing it) comes from the addresses of the region your storage is in. Files sent to or fetched from a connection never leave that region.
+* Everything that reaches a [connection](./connections) (copying or moving files to or from it, and testing it) comes from the addresses of the region your storage is in. Files sent to or fetched from a connection are transferred from that region, and never leave it on the way.
 * Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions come from the Virginia, US East addresses, whatever region your storage is in.
 
 Adding every address in the table always works, and is what **View IP addresses** under **Settings → Automations → Connections** in the dashboard suggests. To keep the allowlist shorter, add all the addresses of your storage's region for a connection's server, and all the Virginia, US East addresses for a webhook, Slack or Microsoft Teams endpoint.
