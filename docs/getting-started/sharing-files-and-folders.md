@@ -35,6 +35,12 @@ Creating share links is only available in certain plans. Learn more about our pr
 3. To remove the share link, toggle the `Publish to web` button off and click `Stop sharing`.
 4. To modify the share link, adjust its properties and click `Save changes`.
 
+## Where share links can be opened from
+
+Your organization's [inbound network rules](../security/using-inbound-network-rules.md) decide which IP addresses can open share links. A link opens when the visitor's IP address matches an enabled organization rule with **All protocols**, **Web portal** or **Share links**; otherwise the visitor can't open it. Credential rules don't affect share links.
+
+If you've restricted your rules to your own IP addresses, add a **Share links** rule for the addresses your recipients use, or for `0.0.0.0/0` to let anyone with the link open it. A **Share links** rule doesn't allow SFTP, FTPS or web portal sign-ins.
+
 ## How to Customize Share Links
 
 Share links are created using your default domain. You can change this by following [these instructions](../getting-started/organization-settings#domains).

@@ -78,9 +78,9 @@ To remove an SSH key from a user, click the X next to the key and confirm deleti
 
 ### Editing inbound network rules for users
 
-Inbound network rules specify which IP addresses can connect to your storage. These rules can be set for the entire organization (applies to all users) or for individual users, at the credentials level. When a user attempts to connect, the system checks a combined list of both the organization-wide and credentials-specific rules. If the IP address is on either list, the connection is allowed.
+Inbound network rules specify which IP addresses can connect to your storage over SFTP or FTPS and sign in to the web portal. These rules can be set for the entire organization (applies to all users) or for individual users, at the credentials level. When a user attempts to connect, the system checks a combined list of both the organization-wide and credentials-specific rules. If the IP address is on either list, the connection is allowed.
 
-By default, the organization inbound network rules contain a single rule allowing access from any IP address to any endpoint or protocol (SFTP, FTPS or Web Portal). To restrict access, you will have to remove this rule or edit it to use a restrictive CIDR (Classless Inter-Domain Routing - an IP address range).
+By default, the organization inbound network rules contain a single rule allowing access from any IP address with all protocols (SFTP, FTPS, web portal and share links). To restrict access, you will have to remove this rule or edit it to use a restrictive CIDR (Classless Inter-Domain Routing - an IP address range).
 
 :::note
 Editing inbound network rules is only available within certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
@@ -88,12 +88,14 @@ Editing inbound network rules is only available within certain plans. Read more 
 
 To add user-level inbound network rules, please complete the following steps:
 1. Under the specific user, click **Add inbound rule**.
-2. Select the protocols to which you want to allow access to.
+2. Select the protocol you want to allow access with: **All protocols**, **SFTP**, **FTPS** or **Web portal**.
 3. Enter the CIDR or IP range you want to allow access from.
 4. Optionally add a description to help you identify the rules later.
 5. Click **Add inbound rule**.
 
 To edit, disable, or delete a rule, click the menu button (...) next to the rule and select the action you'd like to perform.
+
+Credential rules never affect share links, not even with **All protocols**. Where share links can be opened from is decided by the [organization's rules](organization-settings.md#inbound-network-rules) only. Read more in [Using inbound network rules](../security/using-inbound-network-rules.md).
 
 
 ### <a name="email">Associating credentials with email addresses</a>
