@@ -29,6 +29,8 @@ When a user connects over SFTP or FTPS, or signs in to the web portal, the conne
 
 When someone opens a share link, only the organization's rules count. The link opens if the visitor's IP address matches an enabled organization rule with **All protocols**, **Web portal** or **Share links**. Credential rules never affect share links. If no rule matches, the visitor can't open the link.
 
+If your organization has no enabled rules, no share link opens from any address. SFTP, FTPS and web portal sign-ins are then allowed only from addresses that a user's own credential rules allow.
+
 :::warning
 If you restrict your organization's rules to your own IP addresses, people you send share links to from anywhere else can't open them. Add a **Share links** rule for the addresses they use, or for any address, as shown below.
 :::
