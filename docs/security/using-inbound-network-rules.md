@@ -46,4 +46,4 @@ Users connecting over SFTP or FTPS from any other address are refused, unless th
 
 ## Testing an IP address
 
-To check whether an IP address is allowed with a given protocol, including **Share links**, click **Test IP address** above the organization's inbound network rules, select the protocol, and enter the IP address.
+To check whether an IP address is allowed with a given protocol, including **Share links**, expand the organization's **Inbound rules**, click **Test IP address** next to **Add inbound rule**, select the protocol, and enter the IP address.
