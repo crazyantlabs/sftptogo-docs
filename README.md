@@ -44,7 +44,7 @@ Like `yarn start`, it reads `URL`, `BASE_PATH`, `SEGMENT_WRITE_KEY` and the `ALG
 The API reference at `/docs/api/` is generated from the bundled OpenAPI spec of the Management API. To update it:
 
 1. Bundle the spec in the api repo (`npm run openapi-bundle`) and copy the bundle over `static/openapi/management.yaml`.
-2. Regenerate the pages:
+2. Regenerate the pages (this needs the same environment as `yarn build`):
 
    ```
    $ yarn gen-api-docs
