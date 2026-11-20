@@ -52,7 +52,42 @@ const config = {
       
     ]
   ],
+  themes: ['docusaurus-theme-openapi-docs'],
   plugins: [
+    'docusaurus-plugin-sass',
+    // The API reference at /docs/api/: MDX generated into api/ from the spec in
+    // static/openapi/ by `yarn gen-api-docs`. A docs instance of its own, so the
+    // guides keep the standard page layout. Its folder sits outside docs/
+    // because the guides instance compiles every MDX file under docs/.
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'api',
+        path: 'api',
+        routeBasePath: 'api',
+        sidebarPath: require.resolve('./sidebarsApi.js'),
+        docItemComponent: '@theme/ApiItem',
+      },
+    ],
+    [
+      'docusaurus-plugin-openapi-docs',
+      {
+        id: 'openapi',
+        docsPluginId: 'api',
+        config: {
+          management: {
+            specPath: 'static/openapi/management.yaml',
+            outputDir: 'api',
+            // Trying requests from the docs comes later, with self-serve API keys.
+            hideSendButton: true,
+            sidebarOptions: {
+              groupPathsBy: 'tag',
+              categoryLinkSource: 'tag',
+            },
+          },
+        },
+      },
+    ],
     [
       'docusaurus-plugin-segment',
       {
@@ -167,6 +202,18 @@ const config = {
       prism: {
           theme: prismThemes.github,
           darkTheme: prismThemes.dracula,
+          additionalLanguages: ['bash'],
+      },
+      // API reference pages: code sample languages, and never store a token
+      // typed into the request panel in the browser.
+      languageTabs: [
+        { highlight: 'bash', language: 'curl', logoClass: 'curl' },
+        { highlight: 'javascript', language: 'nodejs', logoClass: 'nodejs' },
+        { highlight: 'python', language: 'python', logoClass: 'python' },
+        { highlight: 'go', language: 'go', logoClass: 'go' },
+      ],
+      api: {
+        authPersistence: false,
       },
       docs: {
         sidebar: {
