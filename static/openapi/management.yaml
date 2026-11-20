@@ -1,0 +1,2446 @@
+openapi: 3.1.0
+info:
+  title: SFTP To Go Management API
+  version: '2026-07-31'
+  summary: Manage credentials, share links, automations, domains and logs in your SFTP To Go organization.
+  description: |
+    The SFTP To Go Management API lets you script everything you would otherwise do in the
+    dashboard: issue and rotate credentials, create share links, build automations that react to
+    file activity, attach custom domains, and pull audit logs.
+
+    ## What this API does not do
+
+    **It does not transfer files.** Files move over SFTP, FTPS or the S3-compatible endpoint, using
+    the credentials you create here. There is no upload or download operation in this reference —
+    that is by design, not an omission.
+
+    ## Base URL and organization scope
+
+    Almost every path is scoped to an organization:
+
+    ```
+    https://api.sftptogo.com/organizations/{organizationId}/...
+    ```
+
+    Your API key is bound to a single organization, and a request whose `organizationId` does not
+    match the key's organization is rejected.
+
+    The API itself runs in one region. The region you chose for your storage is a property of your
+    organization, returned on the organization object — it does not change which host you call.
+
+    ## Conventions
+
+    * Request and response bodies are JSON.
+    * Timestamps are Unix epoch milliseconds unless a field says otherwise.
+    * Successful responses return the object itself, with no wrapper envelope.
+    * List endpoints are cursor-paginated. See the Pagination guide.
+    * Errors share one shape. See the Errors guide.
+  contact:
+    name: SFTP To Go Support
+    url: https://sftptogo.com/contact
+    email: support@sftptogo.com
+  termsOfService: https://sftptogo.com/terms-of-service
+servers:
+  - url: https://api.sftptogo.com
+    description: Production
+security:
+  - apiKey: []
+tags:
+  - name: Credentials
+    description: |
+      Credentials are the SFTP, FTPS and S3 logins your users and systems connect with. The API
+      calls this resource `users`; the product calls them credentials, and this reference follows
+      the product.
+  - name: SSH keys
+    description: Public keys attached to a credential, for key-based SFTP authentication.
+  - name: S3 credentials
+    description: S3-compatible access keys attached to a credential.
+  - name: Share links
+    description: |
+      Links that give someone access to a folder through the web portal, without an SFTP client.
+      The API calls this resource `portal-links`.
+  - name: Automations
+    description: |
+      Rules that run when something happens to your files — notify a system, forward a file,
+      encrypt or decrypt it. Automations replace webhooks; an existing webhook can be converted
+      into the equivalent automation, keeping its signing secret so receivers do not notice.
+  - name: Automation runs
+    description: |
+      The execution history of an automation: what triggered it, what each action did, and whether
+      it succeeded. Individual runs can be replayed.
+  - name: PGP keys
+    description: Keys used by automations that encrypt or decrypt files.
+  - name: Audit logs
+    description: A record of who did what, across both the dashboard and file activity.
+  - name: Audit log streaming
+    description: Continuous delivery of audit log events to your own SIEM or log platform.
+  - name: Malware scans
+    description: Results of malware scanning on uploaded files, and the actions you can take on them.
+  - name: Custom domains
+    description: Your own hostnames for the SFTP service and the web portal.
+  - name: Organization
+    description: Your organization's settings, plan, usage metrics and members.
+  - name: Team members
+    description: |
+      People with dashboard access to your organization, and their roles. The API calls this
+      resource `memberships`.
+paths:
+  /organizations/{organizationId}/users:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+    get:
+      operationId: ListCredentials
+      summary: List credentials
+      tags:
+        - Credentials
+      description: |
+        Returns the organization's credentials, newest first, one page at a time.
+
+        Pass `limit` and follow the `next` link in the `Link` header for the following page. Without
+        `limit`, a page holds up to 2,000 credentials, which today returns most organizations' whole
+        list in one response; that default may be lowered.
+
+        **Each credential in the response includes its password in clear text**, along with a
+        ready-made connection string. That is deliberate: we store passwords so the dashboard can
+        display and rotate them. It does mean this response is as sensitive as a password file, so
+        avoid logging it and never pass it to an untrusted client.
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Before'
+      responses:
+        '200':
+          description: One page of the organization's credentials, newest first.
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+            X-Total-Count:
+              $ref: '#/components/headers/XTotalCount'
+            X-Total-Count-Exact:
+              $ref: '#/components/headers/XTotalCountExact'
+          content:
+            application/json:
+              schema:
+                type: array
+                description: The credentials on this page.
+                items:
+                  $ref: '#/components/schemas/Credential'
+              examples:
+                default:
+                  summary: Two credentials
+                  value:
+                    - Id: 7c2e9a4f1b6d3e8a0c5f2b7d9e1a4c
+                      OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
+                      UserName: partner-acme
+                      Alias: partner-acme
+                      State: active
+                      Host: example.sftptogo.com
+                      HomeDirectory: /home/partner-acme
+                      ChrootDirectory: /
+                      HomeDirectoryDetails:
+                        - Entry: /inbound
+                          Target: /partners/acme/inbound
+                          Type: DIRECTORY
+                          Permission: write-only
+                        - Entry: /outbound
+                          Target: /partners/acme/outbound
+                          Type: DIRECTORY
+                          Permission: read-only
+                      SupportedProtocols:
+                        - SFTP
+                        - FTPS
+                        - WEB_PORTAL
+                      EmailVerified: false
+                      IsDefault: false
+                      SshPublicKeysCount: 0
+                      Settings:
+                        Security:
+                          MFA:
+                            Required: false
+                            Factors: []
+                        Network:
+                          InboundRules: []
+                      LastLogin: null
+                      LoginsCount: 0
+                      Password: q8w3e5r7t9y2u4i6o1p0a3s5d7f9g2
+                      PasswordCreatedAt: '2026-08-14T10:05:00.000Z'
+                      URI: sftp://partner-acme:q8w3e5r7t9y2u4i6o1p0a3s5d7f9g2@example.sftptogo.com
+                      CreatedAt: 1786701900000
+                      UpdatedAt: 1786701900000
+                    - Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
+                      OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
+                      UserName: data-warehouse-prod
+                      State: active
+                      Alias: Data warehouse (production)
+                      Host: example.sftptogo.com
+                      Permission: read-write
+                      HomeDirectory: /exports/warehouse
+                      ChrootDirectory: /
+                      SshPublicKeysCount: 1
+                      Email: data-team@example.com
+                      EmailVerified: true
+                      IsDefault: false
+                      Settings:
+                        Security:
+                          MFA:
+                            Required: true
+                            Factors:
+                              - Id: 0f6a3c2e-8b1d-4e7a-9c5f-2d4b6e8a1c3f
+                                Type: totp
+                                Description: Authenticator app
+                                CodeLength: 6
+                                IsPrimary: true
+                                Protocols:
+                                  - WEB_PORTAL
+                                LastAuthAt: 1785337200000
+                                CreatedAt: 1781280000000
+                                UpdatedAt: 1785337200000
+                        Network:
+                          InboundRules:
+                            - Id: 9b2e4d6f-1a3c-4e5b-8d7f-0c2a4e6b8d1f
+                              Protocol: SFTP
+                              State: enabled
+                              Action: allow
+                              Source: 203.0.113.0/24
+                              Description: Warehouse egress range
+                      LastLogin:
+                        Id: 4c1e9b7a-2f0d-4f6e-9a51-7d3b2c8e1f60
+                        Timestamp: 1785340800000
+                        IpAddress: 203.0.113.0
+                        OriginalIpAddress: 203.0.113.24
+                        Geo:
+                          city: Springfield
+                          region: Illinois
+                          country: United States
+                          countryCode: US
+                          loc: 39.7817,-89.6501
+                        UserAgent:
+                          userAgent: SSH-2.0-OpenSSH_9.6
+                          ua:
+                            family: Other
+                            major: null
+                            minor: null
+                            patch: null
+                          os:
+                            family: Other
+                            major: null
+                            minor: null
+                            patch: null
+                            patchMinor: null
+                          device:
+                            family: Other
+                            brand: null
+                            model: null
+                      LoginsCount: 412
+                      ExpiresAt: null
+                      CreatedAt: 1780675200000
+                      UpdatedAt: 1785340800000
+                      Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
+                      PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
+                      URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+                      SupportedProtocols:
+                        - SFTP
+                        - FTPS
+                        - WEB_PORTAL
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: CreateCredential
+      summary: Create a credential
+      tags:
+        - Credentials
+      description: |
+        Creates a login for SFTP, FTPS, the web portal and the S3-compatible endpoint.
+
+        Everything is optional. With an empty body you get a generated name, a generated password that
+        satisfies your organization's password policy, a home directory of `/home/{UserName}`, and
+        `Permission: none`: connectable, but able to see nothing. In practice you almost always want to
+        set `Permission`, or give the credential virtual folders with `HomeDirectoryDetails`.
+
+        The response includes the password. You can read it again later with the get or list
+        endpoints, since we store it, but capture it now if you are handing it to someone.
+
+        Counts against your plan's credential limit.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCredentialRequest'
+            examples:
+              minimal:
+                summary: Let us choose everything
+                value: {}
+              typical:
+                summary: A named credential for a specific system
+                value:
+                  UserName: data-warehouse-prod
+                  Alias: Data warehouse (production)
+                  Permission: read-write
+                  HomeDirectory: /exports/warehouse
+                  Email: data-team@example.com
+              virtualFolders:
+                summary: A partner who drops files in one folder and collects from another
+                value:
+                  UserName: partner-acme
+                  HomeDirectoryDetails:
+                    - Entry: /inbound
+                      Target: /partners/acme/inbound
+                      Permission: write-only
+                    - Entry: /outbound
+                      Target: /partners/acme/outbound
+                      Permission: read-only
+              expiring:
+                summary: A drop box that stops working on a date
+                value:
+                  UserName: contractor-q3
+                  Permission: write-only
+                  HomeDirectory: /contractors/q3
+                  ChrootDirectory: /contractors/q3
+                  ExpiresAt: 1793318400
+      responses:
+        '201':
+          description: The credential was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+              examples:
+                default:
+                  summary: A newly created credential
+                  value:
+                    Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
+                    OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
+                    UserName: data-warehouse-prod
+                    Alias: Data warehouse (production)
+                    State: active
+                    Permission: read-write
+                    Host: example.sftptogo.com
+                    HomeDirectory: /exports/warehouse
+                    ChrootDirectory: /
+                    SupportedProtocols:
+                      - SFTP
+                      - FTPS
+                      - WEB_PORTAL
+                    Email: data-team@example.com
+                    EmailVerified: false
+                    IsDefault: false
+                    SshPublicKeysCount: 0
+                    Settings:
+                      Security:
+                        MFA:
+                          Required: false
+                          Factors: []
+                      Network:
+                        InboundRules: []
+                    Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
+                    URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+                    CreatedAt: 1780675200000
+                    UpdatedAt: 1780675200000
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: |
+            Either creating this credential would exceed the number your plan allows (delete one you no
+            longer need, or upgrade), or your organization is still being set up and cannot take new
+            credentials yet (retry in a few minutes). The `message` says which.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                limit:
+                  summary: The plan's credential limit is reached
+                  value:
+                    id: forbidden
+                    message: You have reached the maximum number of users (25).
+                notReady:
+                  summary: The organization is still being set up
+                  value:
+                    id: forbidden
+                    message: Organization is not in active state. Please try again in a few minutes.
+        '422':
+          description: |
+            The login name is taken. Names are unique across the whole service, so this can happen with
+            a name you have never used. Pick another and retry.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                default:
+                  value:
+                    id: unprocessable_entity
+                    message: Unfortunately, the username is not available. Please choose another one.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /organizations/{organizationId}/users/check-name:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+    post:
+      operationId: CheckCredentialName
+      summary: Check a login name
+      tags:
+        - Credentials
+      description: |
+        Reports whether a login name is already taken.
+
+        Names are unique across the whole service rather than within your organization, so a name can be
+        unavailable even though you have never used it. Call this before creating or renaming a
+        credential to avoid either.
+
+        A small set of reserved names — `admin`, `root`, `support` and similar — always report as
+        taken. Note that the two cases fail differently when you go on to use the name: one already in
+        use returns `422`, whereas a reserved one is rejected by validation with `400`.
+
+        It is a `POST` because the name travels in the body rather than the URL, which keeps it out of
+        logs and browser history. Nothing is created.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: The name to check.
+              required:
+                - UserName
+              properties:
+                UserName:
+                  type: string
+                  description: The login name to test. Compared exactly as sent.
+            examples:
+              default:
+                value:
+                  UserName: data-warehouse-prod
+      responses:
+        '200':
+          description: Whether the name is taken.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: The result of the check.
+                required:
+                  - exists
+                properties:
+                  exists:
+                    type: boolean
+                    description: |
+                      `true` when the name is unavailable, whether it is already in use or reserved.
+                      `false` when you can use it.
+              examples:
+                available:
+                  summary: The name is free
+                  value:
+                    exists: false
+                taken:
+                  summary: The name is taken or reserved
+                  value:
+                    exists: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: No `UserName` was sent, or it was empty.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                default:
+                  value:
+                    id: invalid_params
+                    message: Username is invalid.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /organizations/{organizationId}/users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+      - $ref: '#/components/parameters/CredentialId'
+    get:
+      operationId: GetCredential
+      summary: Retrieve a credential
+      tags:
+        - Credentials
+      description: |
+        Returns one credential, including its current password in clear text, a ready-made connection
+        string and the SSH public keys attached to it. Handle the response as a secret.
+
+        Use `PasswordCreatedAt` to find credentials that are due for rotation.
+      responses:
+        '200':
+          description: The credential, with its SSH public keys.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+              examples:
+                default:
+                  summary: A credential that has been in use
+                  value:
+                    Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
+                    OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
+                    UserName: data-warehouse-prod
+                    State: active
+                    Alias: Data warehouse (production)
+                    Host: example.sftptogo.com
+                    Permission: read-write
+                    HomeDirectory: /exports/warehouse
+                    ChrootDirectory: /
+                    SshPublicKeysCount: 1
+                    Email: data-team@example.com
+                    EmailVerified: true
+                    IsDefault: false
+                    Settings:
+                      Security:
+                        MFA:
+                          Required: true
+                          Factors:
+                            - Id: 0f6a3c2e-8b1d-4e7a-9c5f-2d4b6e8a1c3f
+                              Type: totp
+                              Description: Authenticator app
+                              CodeLength: 6
+                              IsPrimary: true
+                              Protocols:
+                                - WEB_PORTAL
+                              LastAuthAt: 1785337200000
+                              CreatedAt: 1781280000000
+                              UpdatedAt: 1785337200000
+                      Network:
+                        InboundRules:
+                          - Id: 9b2e4d6f-1a3c-4e5b-8d7f-0c2a4e6b8d1f
+                            Protocol: SFTP
+                            State: enabled
+                            Action: allow
+                            Source: 203.0.113.0/24
+                            Description: Warehouse egress range
+                    LastLogin:
+                      Id: 4c1e9b7a-2f0d-4f6e-9a51-7d3b2c8e1f60
+                      Timestamp: 1785340800000
+                      IpAddress: 203.0.113.0
+                      OriginalIpAddress: 203.0.113.24
+                      Geo:
+                        city: Springfield
+                        region: Illinois
+                        country: United States
+                        countryCode: US
+                        loc: 39.7817,-89.6501
+                      UserAgent:
+                        userAgent: SSH-2.0-OpenSSH_9.6
+                        ua:
+                          family: Other
+                          major: null
+                          minor: null
+                          patch: null
+                        os:
+                          family: Other
+                          major: null
+                          minor: null
+                          patch: null
+                          patchMinor: null
+                        device:
+                          family: Other
+                          brand: null
+                          model: null
+                    LoginsCount: 412
+                    ExpiresAt: null
+                    CreatedAt: 1780675200000
+                    UpdatedAt: 1785340800000
+                    Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
+                    PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
+                    URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+                    SupportedProtocols:
+                      - SFTP
+                      - FTPS
+                      - WEB_PORTAL
+                    SshPublicKeys:
+                      - Id: 5d8b2f1e-7c4a-4b9e-a3d6-1f0e2c4b6a8d
+                        UserId: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
+                        OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
+                        SshPublicKeyBody: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHBN+0rGaeBVxyjmUTVCgZ5JUF2Z/Ok28SDwv7BoZvOW warehouse-loader
+                        Type: ed25519
+                        Curve: curve25519
+                        Size: 256
+                        Comment: warehouse-loader
+                        Fingerprint: SHA256:5r1oJ2WbB0Qp1oLxk9v3hVt5JqTq8yQ6m3xYw0bK7ZA
+                        CreatedAt: 1780761600000
+                        UpdatedAt: 1780761600000
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      operationId: UpdateCredential
+      summary: Update a credential
+      tags:
+        - Credentials
+      description: |
+        Changes one or more properties. Send only what you want to change: omitted fields are left
+        alone and are not validated.
+
+        Three fields reset rather than clear when you send an empty string: `Alias` returns to the
+        login name, `HomeDirectory` to `/home/{UserName}`, and `ChrootDirectory` to `/`.
+
+        Inbound rules take effect only if your plan includes them. On a plan without them, a change to
+        `Settings.Network.InboundRules` is skipped without an error, and the rest of the update still
+        applies.
+
+        Changes take effect on the next connection; sessions already open are not interrupted. To
+        change the password, use the password-rotation endpoint instead.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCredentialRequest'
+            examples:
+              permission:
+                summary: Reduce access to read-only
+                value:
+                  Permission: read-only
+              virtualFolders:
+                summary: Switch to virtual folders
+                value:
+                  HomeDirectoryDetails:
+                    - Entry: /inbound
+                      Target: /partners/acme/inbound
+                      Permission: write-only
+                    - Entry: /outbound
+                      Target: /partners/acme/outbound
+                      Permission: read-only
+              homeDirectory:
+                summary: Go back to a home directory
+                value:
+                  HomeDirectoryDetails: []
+                  Permission: read-write
+              expiry:
+                summary: Remove the expiry date
+                value:
+                  ExpiresAt: null
+              network:
+                summary: Allow connections from one more range
+                value:
+                  Settings:
+                    Network:
+                      InboundRules:
+                        - Id: 9b2e4d6f-1a3c-4e5b-8d7f-0c2a4e6b8d1f
+                          Protocol: SFTP
+                          State: enabled
+                          Action: allow
+                          Source: 203.0.113.0/24
+                          Description: Warehouse egress range
+      responses:
+        '200':
+          description: The updated credential.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+              examples:
+                default:
+                  $ref: '#/components/examples/Credential'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: The update would give the credential more than 250 inbound rules.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                default:
+                  value:
+                    id: forbidden
+                    message: You have reached the maximum number of inbound rules per credential (250).
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: |
+            The new login name is taken, across the whole service rather than just your organization.
+            Nothing was changed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                default:
+                  value:
+                    id: unprocessable_entity
+                    message: Unfortunately, the user name is not available. Please choose another one.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: DeleteCredential
+      summary: Delete a credential
+      tags:
+        - Credentials
+      description: |
+        Permanently deletes the credential and releases its login name for reuse.
+
+        **Files are not deleted.** They stay in your storage and remain reachable through other
+        credentials with the right permissions.
+
+        The organization's default credential cannot be deleted. This cannot be undone: to stop access
+        while keeping the credential, deactivate it instead.
+      responses:
+        '200':
+          description: |
+            The deleted credential, as it was immediately before deletion, so you can record what was
+            removed. Unlike the other credential responses, it does not include the password or the
+            connection string.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+              examples:
+                default:
+                  summary: A deleted credential
+                  value:
+                    Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
+                    OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
+                    UserName: data-warehouse-prod
+                    State: active
+                    Alias: Data warehouse (production)
+                    Host: example.sftptogo.com
+                    Permission: read-write
+                    HomeDirectory: /exports/warehouse
+                    ChrootDirectory: /
+                    SshPublicKeysCount: 1
+                    Email: data-team@example.com
+                    EmailVerified: true
+                    IsDefault: false
+                    Settings:
+                      Security:
+                        MFA:
+                          Required: true
+                          Factors:
+                            - Id: 0f6a3c2e-8b1d-4e7a-9c5f-2d4b6e8a1c3f
+                              Type: totp
+                              Description: Authenticator app
+                              CodeLength: 6
+                              IsPrimary: true
+                              Protocols:
+                                - WEB_PORTAL
+                              LastAuthAt: 1785337200000
+                              CreatedAt: 1781280000000
+                              UpdatedAt: 1785337200000
+                      Network:
+                        InboundRules:
+                          - Id: 9b2e4d6f-1a3c-4e5b-8d7f-0c2a4e6b8d1f
+                            Protocol: SFTP
+                            State: enabled
+                            Action: allow
+                            Source: 203.0.113.0/24
+                            Description: Warehouse egress range
+                    LastLogin:
+                      Id: 4c1e9b7a-2f0d-4f6e-9a51-7d3b2c8e1f60
+                      Timestamp: 1785340800000
+                      IpAddress: 203.0.113.0
+                      OriginalIpAddress: 203.0.113.24
+                      Geo:
+                        city: Springfield
+                        region: Illinois
+                        country: United States
+                        countryCode: US
+                        loc: 39.7817,-89.6501
+                      UserAgent:
+                        userAgent: SSH-2.0-OpenSSH_9.6
+                        ua:
+                          family: Other
+                          major: null
+                          minor: null
+                          patch: null
+                        os:
+                          family: Other
+                          major: null
+                          minor: null
+                          patch: null
+                          patchMinor: null
+                        device:
+                          family: Other
+                          brand: null
+                          model: null
+                    LoginsCount: 412
+                    ExpiresAt: null
+                    CreatedAt: 1780675200000
+                    UpdatedAt: 1785340800000
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: This is the organization's default credential, which cannot be deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                default:
+                  value:
+                    id: forbidden
+                    message: You cannot delete a default credential.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /organizations/{organizationId}/users/{userId}/activate:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+      - $ref: '#/components/parameters/CredentialId'
+    put:
+      operationId: ActivateCredential
+      summary: Activate a credential
+      tags:
+        - Credentials
+      description: |
+        Puts a deactivated credential back into service. Its password, keys, home directory and network
+        rules are unchanged, so connections work again immediately.
+
+        Activating an already-active credential succeeds and changes nothing.
+      responses:
+        '200':
+          description: The credential, now active.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+              examples:
+                default:
+                  summary: The credential after the change
+                  value:
+                    Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
+                    OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
+                    UserName: data-warehouse-prod
+                    State: active
+                    Alias: Data warehouse (production)
+                    Host: example.sftptogo.com
+                    Permission: read-write
+                    HomeDirectory: /exports/warehouse
+                    ChrootDirectory: /
+                    SshPublicKeysCount: 1
+                    Email: data-team@example.com
+                    IsDefault: false
+                    Settings:
+                      Security:
+                        MFA:
+                          Required: true
+                          Factors:
+                            - Id: 0f6a3c2e-8b1d-4e7a-9c5f-2d4b6e8a1c3f
+                              Type: totp
+                              Description: Authenticator app
+                              CodeLength: 6
+                              IsPrimary: true
+                              Protocols:
+                                - WEB_PORTAL
+                              LastAuthAt: 1785337200000
+                              CreatedAt: 1781280000000
+                              UpdatedAt: 1785337200000
+                      Network:
+                        InboundRules:
+                          - Id: 9b2e4d6f-1a3c-4e5b-8d7f-0c2a4e6b8d1f
+                            Protocol: SFTP
+                            State: enabled
+                            Action: allow
+                            Source: 203.0.113.0/24
+                            Description: Warehouse egress range
+                    LastLogin:
+                      Id: 4c1e9b7a-2f0d-4f6e-9a51-7d3b2c8e1f60
+                      Timestamp: 1785340800000
+                      IpAddress: 203.0.113.0
+                      OriginalIpAddress: 203.0.113.24
+                      Geo:
+                        city: Springfield
+                        region: Illinois
+                        country: United States
+                        countryCode: US
+                        loc: 39.7817,-89.6501
+                      UserAgent:
+                        userAgent: SSH-2.0-OpenSSH_9.6
+                        ua:
+                          family: Other
+                          major: null
+                          minor: null
+                          patch: null
+                        os:
+                          family: Other
+                          major: null
+                          minor: null
+                          patch: null
+                          patchMinor: null
+                        device:
+                          family: Other
+                          brand: null
+                          model: null
+                    LoginsCount: 412
+                    ExpiresAt: null
+                    CreatedAt: 1780675200000
+                    UpdatedAt: 1785340800000
+                    Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
+                    PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
+                    URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /organizations/{organizationId}/users/{userId}/deactivate:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+      - $ref: '#/components/parameters/CredentialId'
+    put:
+      operationId: DeactivateCredential
+      summary: Deactivate a credential
+      tags:
+        - Credentials
+      description: |
+        Stops the credential connecting, without deleting anything. The password, SSH keys, home
+        directory and network rules are all kept, so activating it again restores access exactly as it
+        was.
+
+        This is the reversible way to cut off access — reach for it rather than delete when you are
+        responding to a suspected leak, or retiring an integration you might bring back.
+      responses:
+        '200':
+          description: The credential, now inactive.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+              examples:
+                default:
+                  summary: The credential after the change
+                  value:
+                    Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
+                    OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
+                    UserName: data-warehouse-prod
+                    State: active
+                    Alias: Data warehouse (production)
+                    Host: example.sftptogo.com
+                    Permission: read-write
+                    HomeDirectory: /exports/warehouse
+                    ChrootDirectory: /
+                    SshPublicKeysCount: 1
+                    Email: data-team@example.com
+                    EmailVerified: true
+                    IsDefault: false
+                    Settings:
+                      Security:
+                        MFA:
+                          Required: true
+                          Factors:
+                            - Id: 0f6a3c2e-8b1d-4e7a-9c5f-2d4b6e8a1c3f
+                              Type: totp
+                              Description: Authenticator app
+                              CodeLength: 6
+                              IsPrimary: true
+                              Protocols:
+                                - WEB_PORTAL
+                              LastAuthAt: 1785337200000
+                              CreatedAt: 1781280000000
+                              UpdatedAt: 1785337200000
+                      Network:
+                        InboundRules:
+                          - Id: 9b2e4d6f-1a3c-4e5b-8d7f-0c2a4e6b8d1f
+                            Protocol: SFTP
+                            State: enabled
+                            Action: allow
+                            Source: 203.0.113.0/24
+                            Description: Warehouse egress range
+                    LastLogin:
+                      Id: 4c1e9b7a-2f0d-4f6e-9a51-7d3b2c8e1f60
+                      Timestamp: 1785340800000
+                      IpAddress: 203.0.113.0
+                      OriginalIpAddress: 203.0.113.24
+                      Geo:
+                        city: Springfield
+                        region: Illinois
+                        country: United States
+                        countryCode: US
+                        loc: 39.7817,-89.6501
+                      UserAgent:
+                        userAgent: SSH-2.0-OpenSSH_9.6
+                        ua:
+                          family: Other
+                          major: null
+                          minor: null
+                          patch: null
+                        os:
+                          family: Other
+                          major: null
+                          minor: null
+                          patch: null
+                          patchMinor: null
+                        device:
+                          family: Other
+                          brand: null
+                          model: null
+                    LoginsCount: 412
+                    ExpiresAt: null
+                    CreatedAt: 1780675200000
+                    UpdatedAt: 1785340800000
+                    Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
+                    PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
+                    URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /organizations/{organizationId}/users/{userId}/credential-rotations:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+      - $ref: '#/components/parameters/CredentialId'
+    post:
+      operationId: RotateCredentialPassword
+      summary: Rotate or set a password
+      tags:
+        - Credentials
+      description: |
+        Replaces the credential's password.
+
+        Send an empty body and we generate one that satisfies your organization's password policy. Send
+        a `Password` and it is used instead, provided it meets that policy.
+
+        The change is immediate: the old password stops working at once, and anything still using it
+        will fail to connect. Open sessions are not interrupted.
+
+        **The new password is not in the response** — this endpoint returns only a confirmation. Read it
+        back with the get endpoint, which returns the current password along with the rest of the
+        credential.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              description: An empty body generates a password for you.
+              properties:
+                Password:
+                  type: string
+                  description: |
+                    The password to set. Must satisfy your organization's password policy, which
+                    governs its length, the kinds of characters it needs and whether it may appear in
+                    a known data breach (by default: at least 30 characters, including a number and a
+                    lowercase letter, not found in a breach), and at most 64 characters. Omit it to have one
+                    generated.
+            examples:
+              generated:
+                summary: Generate a new password
+                value: {}
+              chosen:
+                summary: Set a specific password
+                value:
+                  Password: vq7pl2mxr9tz4wka8ne3ub6yc5jd1hgs
+      responses:
+        '200':
+          description: The password was changed.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: A confirmation. The new password is not included.
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation that the password was set.
+              examples:
+                default:
+                  value:
+                    message: Password set.
+        '400':
+          description: |
+            The supplied password does not meet your organization's password policy. `errors.Password`
+            says which rule it failed; `errors.IsPwned` is marked invalid when the password appears in a
+            known data breach and the policy forbids that.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                default:
+                  value:
+                    id: invalid_request_body
+                    message: Invalid request body.
+                    errors:
+                      isValid: false
+                      Password:
+                        isInvalid: true
+                        message: Unfortunately, password can't be shorter than 30 characters and it must include a number and a lowercase letter.
+                      IsPwned:
+                        isInvalid: false
+                        message: ''
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /organizations/{organizationId}/users/{userId}/email-verifications:
+    parameters:
+      - $ref: '#/components/parameters/OrganizationId'
+      - $ref: '#/components/parameters/CredentialId'
+    post:
+      operationId: SendCredentialEmailVerification
+      summary: Send an email verification
+      tags:
+        - Credentials
+      description: |
+        Emails the credential's address a link confirming it belongs to them.
+
+        The credential must already have an `Email`. Verification matters for credentials that use the
+        web portal — it is how someone recovers their own password without you being involved. A
+        machine-to-machine credential with no address does not need it.
+
+        `EmailVerified` flips to `true` only when the recipient follows the link; there is no way to set
+        it directly.
+
+        Calling this again sends a fresh link, so it also serves as a resend — but repeat sends to the
+        same address are rate limited, and an immediate retry returns `429`. Wait a few minutes.
+
+        It works whether or not the address is already verified.
+      responses:
+        '200':
+          description: The email was sent.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: A confirmation.
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation that the email was sent.
+              examples:
+                default:
+                  value:
+                    message: Email verification sent.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          description: |
+            A verification was sent to this address too recently. Wait a few minutes before trying
+            again.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                default:
+                  value:
+                    id: too_many_requests
+                    message: Too many requests. Please try again later.
+        '500':
+          description: |
+            The email could not be sent. This is also what you get when the credential has no email
+            address at all, so check that before retrying.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                default:
+                  value:
+                    id: internal_server_error
+                    message: Unable to send email verification email.
+components:
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Authenticate every request with your API key in the `Authorization` header:
+
+        ```
+        Authorization: Bearer $SFTPTOGO_API_KEY
+        ```
+
+        A key is bound to one organization and carries that organization's full access, so treat it
+        like a password: keep it in a secret store, never in client-side code or a public repository.
+
+        Keys cannot reach account-level endpoints — anything that identifies a signed-in person
+        rather than an organization. Those are available only to a dashboard session.
+  parameters:
+    OrganizationId:
+      name: organizationId
+      in: path
+      required: true
+      description: |
+        The organization the request applies to. Your API key is bound to one organization; requests for
+        any other organization are rejected. You can find the id in the dashboard, or on the organization
+        object returned by this API.
+      schema:
+        type: string
+        format: uuid
+      examples:
+        default:
+          value: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
+    After:
+      name: after
+      in: query
+      required: false
+      description: |
+        Return the page of results that follows this cursor.
+
+        Cursors are opaque — do not construct, parse or store them. Take the value from the `next` link in
+        the `Link` response header of the previous page. Sending both `after` and `before` is not
+        supported; `before` wins.
+      schema:
+        type: string
+      examples:
+        default:
+          value: eyJJZCI6IjZiMWYwZDJlLTRhM2MtNGY4Yi05ZTBhLTJjN2Q1YjhlMWYzNCJ9
+    Before:
+      name: before
+      in: query
+      required: false
+      description: |
+        Return the page of results that precedes this cursor.
+
+        Cursors are opaque — take the value from the `prev` link in the `Link` response header rather than
+        building one yourself.
+      schema:
+        type: string
+      examples:
+        default:
+          value: eyJJZCI6IjJhOWM0ZTdiLTExMGQtNGE2Zi04YzNlLTdkMWI0ZjJhOWMwZSJ9
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: |
+        How many items to return in one page, from 1 to 100. A number outside that range is clamped to
+        it rather than rejected.
+
+        When `limit` is missing or is not a number, a page holds up to 2,000 items, which for most lists
+        means everything. This default may be lowered, so pass `limit` and follow the `Link` header.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+      examples:
+        default:
+          value: 50
+    CredentialId:
+      name: userId
+      in: path
+      required: true
+      description: |
+        The credential's `Id` — the value we generated, not the login name. The path segment is `userId`
+        because the API calls this resource `users`.
+      schema:
+        type: string
+      examples:
+        default:
+          value: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
+  headers:
+    Link:
+      description: |
+        Pagination links, in the RFC 8288 format. Present on list endpoints.
+
+        Contains a `next` link while more results follow, and a `prev` link while earlier results exist,
+        so an empty header means a single page. Follow these URLs as given rather than assembling your
+        own: they already carry your filters, the page size and the cursor.
+      required: true
+      schema:
+        type: string
+      examples:
+        default:
+          value: <https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users?limit=50&after=eyJJZCI6IjNmOWExYzdlIn0&offset=50>; rel="next"
+    XTotalCount:
+      description: |
+        The total number of items matching the request, across all pages, not the number in this
+        response. Check `X-Total-Count-Exact` before showing it as a final count: on a long list it can
+        be a lower bound.
+      required: true
+      schema:
+        type: integer
+      examples:
+        default:
+          value: 1284
+    XTotalCountExact:
+      description: |
+        Whether `X-Total-Count` is exact. Counting a long list is cut short to keep the response fast;
+        when that happens this is `false` and `X-Total-Count` is a lower bound, still larger than the
+        number of items you have paged through so far. It is always `true` on the last page.
+      required: true
+      schema:
+        type: boolean
+      examples:
+        default:
+          value: true
+  schemas:
+    Error:
+      type: object
+      title: Error
+      description: |
+        Every error response from the API uses this shape. Match on `id`, which is stable, rather than on
+        `message`, which is written for humans and may be reworded.
+      required:
+        - id
+        - message
+      properties:
+        id:
+          type: string
+          description: |
+            A stable, machine-readable code for the error, such as `invalid_request_body`, `not_found`
+            or `internal_server_error`.
+          examples:
+            - not_found
+        message:
+          type: string
+          description: A human-readable explanation, safe to log but not intended for end users verbatim.
+          examples:
+            - User not found.
+        errors:
+          description: |
+            Which fields of the request were rejected and why. Present only on `400` responses, in one of
+            two forms: an object keyed by field name, from the checks every request goes through, or a
+            list of fields, from the checks that need your organization's own state, such as whether two
+            virtual folders overlap. Handle both.
+          oneOf:
+            - $ref: '#/components/schemas/ValidationError'
+            - type: array
+              description: The fields that were rejected.
+              items:
+                $ref: '#/components/schemas/FieldError'
+    ValidationError:
+      type: object
+      title: ValidationError
+      description: |
+        Field-level detail, present only on `400` responses caused by a malformed request body.
+
+        Each field the endpoint validates appears as its own property, keyed by the field name exactly as
+        it was sent; nested fields use dotted paths such as `Settings.Network`. Fields that passed are
+        listed too, carrying `isInvalid: false` and an empty message — so find the failures by filtering
+        on `isInvalid` rather than assuming only failures are present.
+      properties:
+        isValid:
+          type: boolean
+          description: Always `false` when this object is returned.
+          examples:
+            - false
+      additionalProperties:
+        type: object
+        description: The outcome for one field of the request body.
+        properties:
+          isInvalid:
+            type: boolean
+            description: Whether this field failed validation.
+          message:
+            type: string
+            description: Why the field was rejected. Empty when the field passed.
+      examples:
+        - isValid: false
+          HasActions:
+            isInvalid: true
+            message: You must include at least one action.
+          Alias:
+            isInvalid: false
+            message: ''
+    UnauthorizedError:
+      type: object
+      title: UnauthorizedError
+      description: |
+        The body of a `401`. It has two sources, and they do not return quite the same thing.
+
+        When authentication itself fails, the request is rejected at the edge and never reaches the
+        endpoint, so the body carries only `message`. When an endpoint rejects an already-authenticated
+        request, you get the standard error object including `id`. Treat `id` as optional on this status
+        and on this status only.
+      required:
+        - message
+      properties:
+        id:
+          type: string
+          description: |
+            A stable, machine-readable code. Absent when the request was rejected before reaching the
+            endpoint.
+          examples:
+            - unauthorized
+        message:
+          type: string
+          description: A human-readable explanation of why the request was not authenticated.
+          examples:
+            - Unauthorized
+    VirtualFolder:
+      type: object
+      title: VirtualFolder
+      description: |
+        One entry in a credential's virtual folders: a path the credential sees, mapped to a real
+        location in your storage, with its own permission.
+      required:
+        - Entry
+        - Target
+        - Permission
+      properties:
+        Entry:
+          type: string
+          description: |
+            The path the credential sees, such as `/inbound`. Must start with a forward slash and must not
+            end with one, unless it is the root `/`, which must then be the only entry. Entries cannot
+            share a path or contain one another, and cannot contain a variable such as `${...}`.
+          maxLength: 1024
+          examples:
+            - /inbound
+        Target:
+          type: string
+          description: |
+            The real location in your storage that the entry shows, as a path from the root of your
+            bucket. Must start with a forward slash and must not end with one. Two entries may show the
+            same location only if they give it the same permission.
+          maxLength: 1024
+          examples:
+            - /partners/acme/inbound
+        Type:
+          type: string
+          description: |
+            Whether the entry is a folder or a single file. Defaults to `DIRECTORY`. A `FILE` entry
+            cannot be the root `/`.
+          enum:
+            - DIRECTORY
+            - FILE
+          default: DIRECTORY
+        Permission:
+          type: string
+          description: |
+            What the credential may do inside this entry. The same levels as a credential's `Permission`,
+            applied to this entry alone; `none` keeps the entry listed but denies everything in it.
+          enum:
+            - none
+            - read-only
+            - write-only
+            - read-write-no-delete
+            - read-write
+            - full
+    SshPublicKey:
+      type: object
+      title: SshPublicKey
+      description: A public key attached to a credential, for key-based SFTP sign-in.
+      properties:
+        Id:
+          type: string
+          format: uuid
+          description: Unique identifier for the key.
+        UserId:
+          type: string
+          description: The `Id` of the credential the key is attached to.
+        OrganizationId:
+          type: string
+          format: uuid
+          description: The organization the key belongs to.
+        SshPublicKeyBody:
+          type: string
+          description: The public key, in OpenSSH format.
+          examples:
+            - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHBN+0rGaeBVxyjmUTVCgZ5JUF2Z/Ok28SDwv7BoZvOW laptop
+        Type:
+          type: string
+          description: The key algorithm.
+          enum:
+            - rsa
+            - ecdsa
+            - ed25519
+        Curve:
+          type: string
+          description: The elliptic curve, for `ecdsa` and `ed25519` keys.
+          examples:
+            - curve25519
+        Size:
+          type: integer
+          description: The key size, in bits.
+          examples:
+            - 256
+        Comment:
+          type: string
+          description: The comment at the end of the key, often the owner's name or machine.
+          examples:
+            - laptop
+        Fingerprint:
+          type: string
+          description: The key's SHA-256 fingerprint, as `ssh-keygen -l` shows it.
+          examples:
+            - SHA256:5r1oJ2WbB0Qp1oLxk9v3hVt5JqTq8yQ6m3xYw0bK7ZA
+        CreatedAt:
+          type: integer
+          description: When the key was attached, in Unix epoch milliseconds.
+        UpdatedAt:
+          type: integer
+          description: When the key last changed, in Unix epoch milliseconds.
+    MfaFactor:
+      type: object
+      title: MfaFactor
+      description: |
+        A second factor the person using this credential has enrolled for web portal sign-in. Factors
+        are enrolled by that person in the portal, not through this API.
+      properties:
+        Id:
+          type: string
+          format: uuid
+          description: Unique identifier for the factor.
+        Type:
+          type: string
+          description: |
+            The kind of factor: `totp` for an authenticator app, or `email` for a code sent to the
+            credential's email address.
+          enum:
+            - totp
+            - email
+        Description:
+          type:
+            - string
+            - 'null'
+          description: A label the person gave the factor when enrolling it.
+        CodeLength:
+          type: integer
+          description: How many digits the one-time codes for this factor have.
+          examples:
+            - 6
+        IsPrimary:
+          type: boolean
+          description: Whether this factor is offered first at sign-in.
+        Protocols:
+          type: array
+          description: Where the factor is asked for. Always the web portal.
+          items:
+            type: string
+            description: A protocol the factor applies to.
+            enum:
+              - WEB_PORTAL
+        LastAuthAt:
+          type:
+            - integer
+            - 'null'
+          description: When the factor was last used to sign in, in Unix epoch milliseconds, or `null`.
+        CreatedAt:
+          type: integer
+          description: When the factor was enrolled, in Unix epoch milliseconds.
+        UpdatedAt:
+          type: integer
+          description: When the factor last changed, in Unix epoch milliseconds.
+    InboundRule:
+      type: object
+      title: InboundRule
+      description: |
+        One network rule that allows connections to a credential from an address or range.
+
+        A connection is accepted when **any** enabled `allow` rule matches its protocol and source
+        address, counting your organization's rules and the credential's own together. So a credential's
+        rules can only add to what the organization already allows, never restrict it. New organizations
+        start with one organization rule that allows every address; tighten that rule before credential
+        rules make a difference.
+      required:
+        - Protocol
+        - State
+        - Action
+        - Source
+      properties:
+        Id:
+          type: string
+          description: |
+            An identifier for the rule, unique within the credential. You choose it; the dashboard uses a
+            UUID.
+          examples:
+            - 9b2e4d6f-1a3c-4e5b-8d7f-0c2a4e6b8d1f
+        Protocol:
+          type: string
+          description: |
+            Which connections the rule applies to: `*` for every protocol, or one of `SFTP`, `FTPS` or
+            `WEB_PORTAL`. Values are case-sensitive.
+          enum:
+            - '*'
+            - SFTP
+            - FTPS
+            - WEB_PORTAL
+        State:
+          type: string
+          description: Whether the rule is in effect. A `disabled` rule is kept but never matches.
+          enum:
+            - enabled
+            - disabled
+        Action:
+          type: string
+          description: |
+            What a matching connection is allowed to do. Only `allow` rules are evaluated, so `allow` is
+            the only value with an effect.
+          enum:
+            - allow
+        Source:
+          type: string
+          description: |
+            Where the connection comes from: a single IPv4 or IPv6 address, or a CIDR range such as
+            `203.0.113.0/24`.
+          examples:
+            - 203.0.113.0/24
+        Description:
+          type:
+            - string
+            - 'null'
+          description: A note explaining why the rule exists. Shown in the dashboard.
+          examples:
+            - Warehouse egress range
+    CredentialSettings:
+      type: object
+      title: CredentialSettings
+      description: Per-credential security and network settings.
+      properties:
+        Security:
+          type: object
+          description: How the person using this credential proves who they are in the web portal.
+          properties:
+            MFA:
+              type: object
+              description: |
+                Multi-factor authentication for web portal sign-in. It does not apply to SFTP, FTPS or S3
+                connections, which authenticate with a password or key.
+              properties:
+                Required:
+                  type: boolean
+                  description: Whether the person must enrol and use a second factor to sign in to the portal.
+                Factors:
+                  type: array
+                  description: The second factors enrolled for this credential. Empty until one is added.
+                  items:
+                    $ref: '#/components/schemas/MfaFactor'
+        Network:
+          type: object
+          description: Where this credential may connect from, in addition to your organization's own rules.
+          properties:
+            InboundRules:
+              type: array
+              description: |
+                Rules that allow connections to this credential, on top of your organization's rules. See
+                the inbound rule object for how they combine. Empty by default.
+              maxItems: 250
+              items:
+                $ref: '#/components/schemas/InboundRule'
+    LastLogin:
+      type: object
+      title: LastLogin
+      description: The most recent time this credential connected, and from where.
+      properties:
+        Id:
+          type: string
+          description: The identifier of the audit log event that recorded the login.
+        Timestamp:
+          type: integer
+          description: When the login happened, in Unix epoch milliseconds.
+          examples:
+            - 1785340800000
+        IpAddress:
+          type:
+            - string
+            - 'null'
+          description: |
+            The address the connection came from, anonymized: an IPv4 address keeps its first three
+            parts and an IPv6 address its first 48 bits, with the rest zeroed.
+          examples:
+            - 203.0.113.0
+        OriginalIpAddress:
+          type:
+            - string
+            - 'null'
+          description: The full address the connection came from.
+          examples:
+            - 203.0.113.24
+        Geo:
+          description: |
+            Where that address is, approximately, or `null` when it could not be located. Location is
+            looked up from the address, so a connection through a VPN or proxy shows the proxy.
+          oneOf:
+            - type: 'null'
+              description: The address could not be located.
+            - type: object
+              description: The approximate location of the address.
+              properties:
+                city:
+                  type: string
+                  description: The city name.
+                  examples:
+                    - Springfield
+                region:
+                  type: string
+                  description: The region or state.
+                  examples:
+                    - Illinois
+                country:
+                  type: string
+                  description: The country name.
+                  examples:
+                    - United States
+                countryCode:
+                  type: string
+                  description: The two-letter ISO country code.
+                  examples:
+                    - US
+                loc:
+                  type: string
+                  description: Latitude and longitude, comma-separated.
+                  examples:
+                    - 39.7817,-89.6501
+        UserAgent:
+          description: |
+            The connecting client as it identified itself, parsed into the client, its operating system
+            and its device, or `null` when it sent nothing. Parts that cannot be recognised are `Other`
+            or `null`.
+          oneOf:
+            - type: 'null'
+              description: The client did not identify itself.
+            - type: object
+              description: The client, parsed.
+              properties:
+                userAgent:
+                  type: string
+                  description: The raw identification string the client sent.
+                  examples:
+                    - SSH-2.0-OpenSSH_9.6
+                ua:
+                  type: object
+                  description: The client application.
+                  properties:
+                    family:
+                      type: string
+                      description: The application's name, or `Other`.
+                      examples:
+                        - Safari
+                    major:
+                      type:
+                        - string
+                        - 'null'
+                      description: The major version.
+                    minor:
+                      type:
+                        - string
+                        - 'null'
+                      description: The minor version.
+                    patch:
+                      type:
+                        - string
+                        - 'null'
+                      description: The patch version.
+                os:
+                  type: object
+                  description: The operating system.
+                  properties:
+                    family:
+                      type: string
+                      description: The operating system's name, or `Other`.
+                      examples:
+                        - Mac OS X
+                    major:
+                      type:
+                        - string
+                        - 'null'
+                      description: The major version.
+                    minor:
+                      type:
+                        - string
+                        - 'null'
+                      description: The minor version.
+                    patch:
+                      type:
+                        - string
+                        - 'null'
+                      description: The patch version.
+                    patchMinor:
+                      type:
+                        - string
+                        - 'null'
+                      description: The version part after the patch, when there is one.
+                device:
+                  type: object
+                  description: The device.
+                  properties:
+                    family:
+                      type: string
+                      description: The kind of device, or `Other`.
+                      examples:
+                        - Mac
+                    brand:
+                      type:
+                        - string
+                        - 'null'
+                      description: The device maker.
+                    model:
+                      type:
+                        - string
+                        - 'null'
+                      description: The device model.
+    Credential:
+      type: object
+      title: Credential
+      description: |
+        A login your users and systems connect with, over SFTP, FTPS, the web portal or the
+        S3-compatible endpoint. The API calls this resource `users`; the product calls them credentials.
+
+        A credential carries its own password, file access, permission and network rules, so each system
+        you integrate with can have its own, and revoking one leaves the others working.
+
+        Its file access takes one of two forms. With a **home directory**, `Permission` applies
+        everywhere the credential can reach, from `ChrootDirectory` down. With **virtual folders**
+        (`HomeDirectoryDetails`), the credential sees only the folders listed there, each with its own
+        permission, and `Permission` is absent.
+
+        Credentials created before a field existed may not have it, so treat everything not marked
+        required as optional.
+      required:
+        - Id
+        - OrganizationId
+        - UserName
+        - State
+        - CreatedAt
+      properties:
+        Id:
+          type: string
+          description: |
+            Unique identifier for the credential. Generated by us and used in the URL of every
+            credential-scoped request. It is not the login name, although it is used as one when you do
+            not choose a `UserName`.
+          examples:
+            - 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
+        OrganizationId:
+          type: string
+          format: uuid
+          description: The organization this credential belongs to.
+        UserName:
+          type: string
+          description: |
+            The name used to log in. Must be unique across the whole service, not just your
+            organization, so a name may be taken even though you have never used it. Check first with
+            the name-check endpoint.
+          minLength: 5
+          maxLength: 100
+          examples:
+            - data-warehouse-prod
+        Alias:
+          type: string
+          description: |
+            A label for humans, shown in the dashboard. Defaults to `UserName`. Setting it to an empty
+            string resets it to `UserName` rather than clearing it.
+          maxLength: 80
+          examples:
+            - Data warehouse (production)
+        State:
+          type: string
+          description: |
+            Whether the credential can currently connect. `inactive` blocks sign-in while keeping
+            everything else intact; `suspended` is applied by us, typically for billing.
+          enum:
+            - active
+            - inactive
+            - suspended
+        Permission:
+          type: string
+          description: |
+            What this credential may do with files, everywhere under its chroot directory. Absent when
+            the credential uses virtual folders, which carry a permission each.
+
+            - `none`: can connect, but sees nothing. The default.
+            - `read-only`: download and list.
+            - `write-only`: upload only; folders can be listed, files cannot be read. Useful as a drop box.
+            - `read-write-no-delete`: download and upload, but never delete or overwrite.
+            - `read-write`: download, upload and delete.
+            - `full`: read-write, plus sharing files from the web portal.
+          enum:
+            - none
+            - read-only
+            - write-only
+            - read-write-no-delete
+            - read-write
+            - full
+        Host:
+          type: string
+          description: The hostname this credential connects to. Reflects your custom domain when you have one.
+          examples:
+            - example.sftptogo.com
+        HomeDirectory:
+          type: string
+          description: |
+            The directory the credential lands in after connecting. Defaults to `/home/{UserName}`. Must
+            start with a forward slash and must not end with one.
+          maxLength: 1024
+          examples:
+            - /home/data-warehouse-prod
+        ChrootDirectory:
+          type: string
+          description: |
+            The highest directory the credential can reach: it cannot navigate above this, so it never
+            sees other credentials' files. Defaults to `/`. Ignored while the credential uses virtual
+            folders.
+          examples:
+            - /
+        HomeDirectoryDetails:
+          type: array
+          description: |
+            Virtual folders: the folders this credential sees, each mapped to a real location in your
+            storage with its own permission. Absent when the credential uses a home directory instead.
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/VirtualFolder'
+        SupportedProtocols:
+          type: array
+          description: |
+            How this credential can sign in. Normally `SFTP`, `FTPS` and `WEB_PORTAL`. A credential whose
+            virtual folders are too many or too deep to describe to the SFTP and FTPS service can sign in
+            only to the web portal, and lists `WEB_PORTAL` alone; shorten or remove folders to restore
+            the others. Absent on credentials created before this was tracked, which can use all three.
+          items:
+            type: string
+            description: A way the credential can sign in.
+            enum:
+              - SFTP
+              - FTPS
+              - WEB_PORTAL
+        Email:
+          type:
+            - string
+            - 'null'
+          format: email
+          description: |
+            Where web portal invitations and password resets are sent. Optional: a credential used only
+            by a machine does not need one.
+        EmailVerified:
+          type: boolean
+          description: |
+            Whether the address has been confirmed. Set when the recipient follows the link from the
+            email-verification endpoint; you cannot set it directly.
+        IsDefault:
+          type: boolean
+          description: |
+            Whether this is the organization's default credential, created with the organization itself.
+            The default credential cannot be deleted, and always uses a home directory.
+        SshPublicKeysCount:
+          type: integer
+          description: How many SSH public keys are attached, for key-based SFTP sign-in.
+        SshPublicKeys:
+          type: array
+          description: The SSH public keys attached to the credential. Returned only when retrieving one credential.
+          items:
+            $ref: '#/components/schemas/SshPublicKey'
+        Settings:
+          $ref: '#/components/schemas/CredentialSettings'
+        ExpiresAt:
+          type:
+            - integer
+            - 'null'
+          description: |
+            When access stops working, in **Unix epoch seconds**, or `null` or absent if it never expires.
+          examples:
+            - 1793318400
+        LastLogin:
+          description: |
+            The most recent sign-in, or `null` if the credential has never been used. Not returned when a
+            credential is first created.
+          oneOf:
+            - type: 'null'
+              description: The credential has never been used.
+            - $ref: '#/components/schemas/LastLogin'
+        LoginsCount:
+          type: integer
+          description: How many times this credential has signed in. Not returned when it is first created.
+        Password:
+          type: string
+          description: |
+            The current password, in plain text.
+
+            Unusually for an API, this is returned on every read: we hold passwords so that they can be
+            shown in the dashboard and rotated for you. Treat any response containing a credential as a
+            secret: do not log it, cache it, or send it to a browser you do not control.
+        PasswordCreatedAt:
+          type: string
+          format: date-time
+          description: |
+            When the current password was set, as an ISO 8601 timestamp. Use it to find credentials due
+            for rotation. Not returned when a credential is created.
+          examples:
+            - '2026-07-02T09:30:00.000Z'
+        URI:
+          type: string
+          description: |
+            A ready-to-use connection string combining the login name, password and host. Contains the
+            password in clear text, so it carries the same handling rules.
+          examples:
+            - sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+        CreatedAt:
+          type: integer
+          description: When the credential was created, in Unix epoch milliseconds.
+        UpdatedAt:
+          type: integer
+          description: When the credential was last changed, in Unix epoch milliseconds.
+    FieldError:
+      type: object
+      title: FieldError
+      description: One field that was rejected, and why.
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          description: The name of the field, as it was sent.
+          examples:
+            - HomeDirectoryDetails
+        message:
+          type: string
+          description: Why the field was rejected, written for a person.
+          examples:
+            - Unfortunately, two virtual folders can't share the same path.
+    CreateCredentialRequest:
+      type: object
+      title: CreateCredentialRequest
+      description: |
+        Every field is optional. Posting an empty body creates a working credential with a generated
+        name, a generated password and no file access: safe, but not useful until you set `Permission`
+        or `HomeDirectoryDetails`.
+      properties:
+        UserName:
+          type: string
+          description: |
+            The name used to log in. Generated for you when omitted; the generated name is the
+            credential's `Id`.
+
+            Two ways it can be refused, and they differ: a name that is already in use returns `422`,
+            while a reserved name (`admin`, `root`, `support` and similar) is rejected by validation with
+            `400`. The name-check endpoint reports both as taken, so check there first if the name
+            matters to you.
+          minLength: 5
+          maxLength: 100
+          pattern: ^(?![-.@])[a-zA-Z0-9-_.@]*$
+          examples:
+            - data-warehouse-prod
+        Alias:
+          type: string
+          description: A label for humans, shown in the dashboard. Defaults to the login name.
+          maxLength: 80
+          examples:
+            - Data warehouse (production)
+        Permission:
+          type: string
+          description: |
+            What this credential may do with files under its home and chroot directories. Defaults to
+            `none`, meaning it can connect but sees nothing. Ignored when you send
+            `HomeDirectoryDetails`, whose folders carry their own permission.
+          enum:
+            - none
+            - read-only
+            - write-only
+            - read-write-no-delete
+            - read-write
+            - full
+          default: none
+        Password:
+          type: string
+          description: |
+            A password of your choosing. It must satisfy your organization's password policy, which
+            governs its length, the kinds of characters it needs and whether it may appear in a known
+            data breach. The default policy asks for at least 30 characters, including a number and a
+            lowercase letter, not found in a breach. No password may be longer than 64 characters. A password that fails is rejected with `400`. Omit
+            it and we generate one that passes, which is the better option.
+        HomeDirectory:
+          type: string
+          description: |
+            Where the credential lands after connecting. Defaults to `/home/{UserName}`. Must start with
+            a forward slash, must not end with one, and cannot contain a variable such as `${...}`.
+          maxLength: 1024
+          examples:
+            - /exports/warehouse
+        ChrootDirectory:
+          type: string
+          description: |
+            The highest directory this credential can reach. Defaults to `/`. Set it to the home
+            directory to confine the credential to its own folder.
+        HomeDirectoryDetails:
+          type: array
+          description: |
+            Virtual folders, instead of a home directory: the folders the credential sees, each mapped to
+            a real location in your storage with its own permission. Up to 50.
+
+            Each folder must be describable on its own to the web portal, so a very long `Target` can be
+            rejected with `400`. Many or deep folders together may be too much for SFTP and FTPS; such a
+            credential is still created, but can sign in only to the web portal, and its
+            `SupportedProtocols` says so.
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/VirtualFolder'
+        Email:
+          type: string
+          format: email
+          description: |
+            Where web portal invitations and password resets are sent. Leave it out for
+            machine-to-machine credentials. The address starts unverified; see the email-verification
+            endpoint.
+        State:
+          type: string
+          description: |
+            Set to `inactive` to create the credential without enabling it. Anything else is treated as
+            `active`.
+          enum:
+            - active
+            - inactive
+          default: active
+        ExpiresAt:
+          type: integer
+          description: |
+            When access should stop working, in **Unix epoch seconds**. Must be after the end of today
+            and no more than a year away. Omit for a credential that does not expire.
+          examples:
+            - 1793318400
+    CredentialSettingsInput:
+      type: object
+      title: CredentialSettingsInput
+      description: |
+        The settings you can change. Each part you send is merged into the current settings; within it,
+        a list you send replaces the stored list.
+      properties:
+        Security:
+          type: object
+          description: Web portal sign-in requirements.
+          properties:
+            MFA:
+              type: object
+              description: Multi-factor authentication for web portal sign-in.
+              properties:
+                Required:
+                  type: boolean
+                  description: |
+                    Require the person using this credential to enrol and use a second factor at their
+                    next portal sign-in.
+        Network:
+          type: object
+          description: Where this credential may connect from.
+          properties:
+            InboundRules:
+              type: array
+              description: |
+                The credential's complete list of inbound rules, replacing the current list. Up to 250.
+
+                Takes effect only if your plan includes inbound rules. On a plan without them the list is
+                left unchanged and the request still succeeds, so read the credential back if it matters.
+              maxItems: 250
+              items:
+                $ref: '#/components/schemas/InboundRule'
+    UpdateCredentialRequest:
+      type: object
+      title: UpdateCredentialRequest
+      description: |
+        Send only the fields you want to change; anything you leave out is untouched, and omitted fields
+        are not validated.
+
+        To change the password, use the password-rotation endpoint rather than this one.
+      properties:
+        UserName:
+          type: string
+          description: |
+            Rename the login. The old name is released and the new one must be free across the whole
+            service.
+
+            A name already in use returns `422`; a reserved name is rejected by validation with `400`.
+            Either way nothing changes. A credential that already holds a reserved name is exempt from
+            that check, so its other fields can still be updated.
+          minLength: 5
+          maxLength: 100
+          pattern: ^(?![-.@])[a-zA-Z0-9-_.@]*$
+        Alias:
+          type: string
+          description: |
+            The label shown in the dashboard. Sending an empty string resets it to the login name rather
+            than clearing it.
+          maxLength: 80
+        Permission:
+          type: string
+          description: |
+            What this credential may do with files under its home and chroot directories. Ignored on the
+            organization's default credential, and on a credential that has, or is being given, virtual
+            folders.
+          enum:
+            - none
+            - read-only
+            - write-only
+            - read-write-no-delete
+            - read-write
+            - full
+        HomeDirectory:
+          type: string
+          description: |
+            Where the credential lands after connecting. Sending an empty string resets it to
+            `/home/{UserName}`. Must start with a forward slash, must not end with one, and cannot
+            contain a variable such as `${...}`.
+          maxLength: 1024
+        ChrootDirectory:
+          type: string
+          description: The highest directory this credential can reach. Sending an empty string resets it to `/`.
+        HomeDirectoryDetails:
+          type:
+            - array
+            - 'null'
+          description: |
+            Replace the credential's virtual folders with this list, up to 50. The credential's
+            `Permission` is removed, since each folder carries its own.
+
+            Send an empty list or `null` to go back to a home directory. The credential then needs a
+            `Permission` again: send one in the same request, or the request is rejected with `400`
+            unless it already has one.
+
+            The organization's default credential cannot use virtual folders.
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/VirtualFolder'
+        Email:
+          type:
+            - string
+            - 'null'
+          format: email
+          description: |
+            Where web portal invitations and password resets are sent. Changing it clears the verified
+            flag until the new address is confirmed. Send an empty string to remove it.
+        State:
+          type: string
+          description: |
+            Whether the credential can connect. Prefer the activate and deactivate endpoints, which say
+            what they do at the call site.
+          enum:
+            - active
+            - inactive
+        ExpiresAt:
+          type:
+            - integer
+            - 'null'
+          description: |
+            When access should stop working, in **Unix epoch seconds**, or `null` to remove the expiry.
+            Must be after the end of today and no more than a year away.
+        Settings:
+          $ref: '#/components/schemas/CredentialSettingsInput'
+  responses:
+    BadRequest:
+      description: |
+        The request body failed validation.
+
+        The `errors` object names each field that was rejected and why. This is a client-side problem:
+        fix the payload rather than retrying.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            default:
+              value:
+                id: bad_request
+                message: Invalid request body.
+                errors:
+                  isValid: false
+                  HasSelectedTopic:
+                    isInvalid: true
+                    message: You must include at least one topic.
+    Unauthorized:
+      description: |
+        The request was not authenticated.
+
+        Usually the `Authorization` header is missing or malformed, the key has been revoked, or the key
+        belongs to a different organization than the one in the path. It is also returned when the
+        organization is not in an active state.
+
+        Note the two body shapes. When authentication fails, the request never reaches a handler and the
+        gateway returns a bare `message`. When a handler rejects a request for its own reasons, you get
+        the standard error object with an `id`. Code defensively for both.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+          examples:
+            gateway:
+              summary: Rejected before reaching the endpoint
+              value:
+                message: Unauthorized
+            handler:
+              summary: Rejected by the endpoint
+              value:
+                id: unauthorized
+                message: Unauthorized.
+    PaymentRequired:
+      description: |
+        Your plan does not include this feature.
+
+        This is a plan limitation, not an authentication or permission problem — the same request would
+        succeed on a plan that includes the feature. Retrying will not help; the account needs an upgrade.
+        Each operation that can return this lists the feature it requires.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            default:
+              value:
+                id: payment_required
+                message: Unfortunately, your current plan is ineligible to use Automations. To use this feature, please upgrade.
+    Forbidden:
+      description: |
+        The request was authenticated but not allowed.
+
+        Two very different situations produce this status. Either the caller may not perform this action,
+        or the action would exceed a limit on your plan — for example creating one more automation than
+        the plan allows. The `message` distinguishes them.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            limit:
+              summary: A plan limit would be exceeded
+              value:
+                id: forbidden
+                message: You have reached the maximum number of automations (25).
+            denied:
+              summary: The action is not permitted
+              value:
+                id: forbidden
+                message: Forbidden.
+    NotFound:
+      description: |
+        No such object, or it does not belong to this organization.
+
+        The API does not distinguish between the two, so that an object's existence in another
+        organization cannot be probed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            default:
+              value:
+                id: not_found
+                message: Automation not found.
+    UnprocessableEntity:
+      description: |
+        The request was well formed but conflicts with the current state.
+
+        The common case is a uniqueness clash, such as a credential login name already taken. Login
+        names are unique across the whole service, not just your organization. Change the conflicting
+        value and retry.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            default:
+              value:
+                id: unprocessable_entity
+                message: Unfortunately, this username is already taken.
+    TooManyRequests:
+      description: |
+        Too many requests in too short a window.
+
+        Back off and retry with exponential delay. We do not publish a fixed rate limit; see the Rate
+        limits guide for what to expect.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            default:
+              value:
+                id: too_many_requests
+                message: Too many requests. Please try again later.
+    InternalServerError:
+      description: |
+        Something failed on our side.
+
+        The request may or may not have taken effect, so re-read the object before retrying a write.
+        Retrying a read is always safe. If it persists, contact support with the approximate time of the
+        request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            default:
+              value:
+                id: internal_server_error
+                message: Unable to create Automation.
+  examples:
+    Credential:
+      summary: A credential that has been in use
+      value:
+        Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
+        OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
+        UserName: data-warehouse-prod
+        State: active
+        Alias: Data warehouse (production)
+        Host: example.sftptogo.com
+        Permission: read-write
+        HomeDirectory: /exports/warehouse
+        ChrootDirectory: /
+        SshPublicKeysCount: 1
+        Email: data-team@example.com
+        EmailVerified: true
+        IsDefault: false
+        Settings:
+          Security:
+            MFA:
+              Required: true
+              Factors:
+                - Id: 0f6a3c2e-8b1d-4e7a-9c5f-2d4b6e8a1c3f
+                  Type: totp
+                  Description: Authenticator app
+                  CodeLength: 6
+                  IsPrimary: true
+                  Protocols:
+                    - WEB_PORTAL
+                  LastAuthAt: 1785337200000
+                  CreatedAt: 1781280000000
+                  UpdatedAt: 1785337200000
+          Network:
+            InboundRules:
+              - Id: 9b2e4d6f-1a3c-4e5b-8d7f-0c2a4e6b8d1f
+                Protocol: SFTP
+                State: enabled
+                Action: allow
+                Source: 203.0.113.0/24
+                Description: Warehouse egress range
+        LastLogin:
+          Id: 4c1e9b7a-2f0d-4f6e-9a51-7d3b2c8e1f60
+          Timestamp: 1785340800000
+          IpAddress: 203.0.113.0
+          OriginalIpAddress: 203.0.113.24
+          Geo:
+            city: Springfield
+            region: Illinois
+            country: United States
+            countryCode: US
+            loc: 39.7817,-89.6501
+          UserAgent:
+            userAgent: SSH-2.0-OpenSSH_9.6
+            ua:
+              family: Other
+              major: null
+              minor: null
+              patch: null
+            os:
+              family: Other
+              major: null
+              minor: null
+              patch: null
+              patchMinor: null
+            device:
+              family: Other
+              brand: null
+              model: null
+        LoginsCount: 412
+        ExpiresAt: null
+        CreatedAt: 1780675200000
+        UpdatedAt: 1785340800000
+        Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
+        PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
+        URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+        SupportedProtocols:
+          - SFTP
+          - FTPS
+          - WEB_PORTAL
