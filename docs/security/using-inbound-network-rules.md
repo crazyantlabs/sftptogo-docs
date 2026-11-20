@@ -42,7 +42,7 @@ To let your users connect over SFTP and FTPS only from your office and your part
 3. Add a rule with **Share links** for `0.0.0.0/0`, which matches any IP address.
 4. Delete or disable the default rule that allows any IP address with all protocols.
 
-Users connecting over SFTP or FTPS from any other address are refused, while share links open from anywhere. With **All protocols**, the same addresses can also sign in to the web portal. With **SFTP** and **FTPS** rules only, add a **Web portal** rule for the addresses that should be able to sign in.
+Users connecting over SFTP or FTPS from any other address are refused, unless their own credential rules allow that address, while share links open from anywhere. With **All protocols**, the same addresses can also sign in to the web portal. With **SFTP** and **FTPS** rules only, add a **Web portal** rule for the addresses that should be able to sign in.
 
 ## Testing an IP address
 

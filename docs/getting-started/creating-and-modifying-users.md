@@ -82,7 +82,7 @@ Inbound network rules specify which IP addresses can connect to your storage ove
 
 By default, the organization inbound network rules contain a single rule allowing access from any IP address with all protocols (SFTP, FTPS, web portal and share links). To restrict access, you will have to remove this rule or edit it to use a restrictive CIDR (Classless Inter-Domain Routing - an IP address range).
 
-:::note
+:::info
 Editing inbound network rules is only available within certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
 :::
 
