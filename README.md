@@ -37,6 +37,21 @@ $ yarn build
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
+Like `yarn start`, it reads `URL`, `BASE_PATH`, `SEGMENT_WRITE_KEY` and the `ALGOLIASEARCH_*` variables from the environment or a `.env` file (see `.env.example`). Any non-empty value works locally; CI builds with `URL=https://sftptogo.com`, `BASE_PATH=docs/` and placeholders for the rest.
+
+### API reference
+
+The API reference at `/docs/api/` is generated from the bundled OpenAPI spec of the Management API. To update it:
+
+1. Bundle the spec in the api repo (`npm run openapi-bundle`) and copy the bundle over `static/openapi/management.yaml`.
+2. Regenerate the pages:
+
+   ```
+   $ yarn gen-api-docs
+   ```
+
+3. Commit the spec together with the regenerated files in `api/`. Never edit the generated files by hand: fix the spec instead.
+
 ### Deployment
 
 This site is deployed when merged to upstream main branch using GitHub actions.

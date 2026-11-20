@@ -10,3 +10,10 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 99
+    groups:
+      # The theme renders the MDX the plugin generates: update them together,
+      # then regenerate with `yarn gen-api-docs`.
+      openapi-docs:
+        patterns:
+          - docusaurus-plugin-openapi-docs
+          - docusaurus-theme-openapi-docs
