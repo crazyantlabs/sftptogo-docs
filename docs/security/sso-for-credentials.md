@@ -163,7 +163,7 @@ You can't disable SSO for credentials while it is your organization's only sign-
 
 When a person who uses linked credentials leaves, disable or delete them at your identity provider, then [remove SSO from their credentials](#removing-sso). Removing SSO ends their SSO access and revokes their short-lived passwords at once. Also check these two things:
 
-- **SSH keys.** Under SSO only, SSH keys added to linked credentials keep working over SFTP until you remove SSO from the credentials or delete the key. Disabling the person at your identity provider doesn't stop a key.
+- **SSH keys.** While **Password** and **SSH public key** are turned off (as under [SSO only](#sso-only)), SSH keys added to linked credentials keep working over SFTP until you remove SSO from the credentials or delete the key. Disabling the person at your identity provider doesn't stop a key.
 - **Share links.** Share links the person created keep working. Turning SSO off and removing SSO from the credentials don't end them. Delete them from your organization's **Share links** tab. Refer to [Sharing files and folders](../getting-started/sharing-files-and-folders.md).
 
 ## Audit log events {#audit-log-events}
