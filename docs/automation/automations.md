@@ -29,7 +29,9 @@ In the dialog that opens, fill out the following:
   * `File downloaded` — someone asked to download a file. This is raised when the download starts, so it also covers previewing or printing a file in the web portal, and a download that is cancelled part-way. Opening the same file twice raises it twice.
   * `File deleted` — a file or folder was deleted.
   * `File infected` — malware scanning found a file to be infected. Available when malware scanning is enabled.
-* `Filter` (optional) — for an event trigger, only run the automation when the triggering event matches your rules. Filter on the file `Path`, its `Type`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches` — for example, only files whose path starts with `/incoming/`, or only files ending with `.csv`.
+* `Filter` (optional) — for an event trigger, only run the automation when the triggering event matches your rules. Filter on the file `Path`, its `Type`, the `Actor ID`, or the `Actor Type`, using operators such as `Starts with`, `Ends with`, `Contains` or `Matches`. For example, only files whose path starts with `incoming/`, or only files ending with `.csv`.
+
+  A path never starts with `/`: the path of a file at `/incoming/report.csv` is `incoming/report.csv`, so write `Starts with` `incoming/`. A rule written as `Starts with` `/incoming/` matches nothing, and the form won't accept one.
 
   `Type` is either `File` or `Folder`, and is worth adding whenever the actions only make sense for files. Creating a folder raises a `File created` event of its own, so an automation that copies or encrypts what triggered it will otherwise run against the folder as well. A rule of `Type` `is` `File` excludes that.
 * `Schedule` — for a schedule trigger, when and how often to run. See [Running on a schedule](#running-on-a-schedule).
@@ -90,8 +92,8 @@ As with every other schedule, the editor describes the expression in words and l
 
 | Action | Description | Available for |
 |--|--|--|
-| Copy file or folder | Copies the file to a destination path, leaving the original in place | File created, File downloaded |
-| Move file or folder | Copies the file to a destination path and deletes the original | File created, File downloaded |
+| Copy file or folder | Copies the file or folder to a destination path in your storage, to a [connection](./connections), or from a connection into your storage, leaving the original in place | File created, File downloaded, On a schedule |
+| Move file or folder | Copies the file or folder to a destination path in your storage, to a connection, or from a connection into your storage, and deletes the original | File created, File downloaded, On a schedule |
 | Rename file or folder | Renames the file in place. The new name must not contain `/` | File created, File downloaded |
 | Delete file or folder | Deletes the file | File created, File downloaded |
 | Create file or folder | Creates an empty file, or a folder | Any trigger |
@@ -102,6 +104,10 @@ As with every other schedule, the editor describes the expression in words and l
 | Send Microsoft Teams message | Posts a message describing the trigger to a Microsoft Teams incoming webhook | File created, File downloaded, File deleted |
 | Send email | Emails a notification describing the trigger to an address you choose | File created, File downloaded, File deleted |
 | Delay | Pauses the automation at this step before continuing to the next action | Any trigger |
+
+Every path an action takes, whether a destination, a custom source, or a path to create, must start with `/`, in your storage and on a connection alike. That holds when the path begins with a variable or an expression: write `/{{file.parent_folder}}/processed/`, not `{{file.parent_folder}}/processed/`. The [path variables](#variables) carry no leading `/` of their own, so the one at the start is always yours to write.
+
+On a [connection](./connections), the leading `/` stands for the connection's remote path, so `/archive/` is the `archive` folder inside it. When the connection has no remote path, `/` is the top folder of the server, or the top of the bucket. A path without the leading `/` is refused when you save the automation.
 
 **Copy**, **Move**, **Rename** and the **PGP** actions fail if the file they are told to work on doesn't exist — nothing is copied and the execution stops, rather than reporting success for work it didn't do. **Delete** is the exception: it succeeds when the path is already gone, since that is the state it was asked to produce. Turn on **Allow failure** on any of the others if a missing file should be tolerated.
 
@@ -124,6 +130,33 @@ Because it doesn't act on the triggering file, this action has no source to choo
 
 Turning off **Overwrite existing files** makes the action fail rather than replace a file that's already there. It has no effect when creating a folder — writing a folder that already exists changes nothing.
 
+### Copy or move to a connection
+
+A **Copy file or folder** or **Move file or folder** action can go to a [connection](./connections) instead of a path in your storage: pick it in the **Destination connection** list, or choose **+ New connection** to set one up without leaving the automation. Left on **Your storage**, the action copies or moves within your storage. A copy leaves the original in your storage. A move deletes it, each file only once its copy has been confirmed. After a copy, a later action set to work on the previous action's file works on the original, since the copy is on the remote and not in your storage. Since a move leaves nothing behind, no later action in the automation can work on the file.
+
+* `Connection`: one of your enabled connections, or a new one.
+* `Destination path` (optional): where the file or folder lands on the remote. It must start with `/`, which stands for the connection's remote path. Specify a folder (for example, `/archive/`) to keep the original name, or a full path (for example, `/archive/{{file.name}}`) to set a custom name. Leave it blank to keep the name at the connection's remote path. Variables and expressions are supported.
+* `Overwrite existing files`: turn it off to have the action fail rather than replace a file that is already there. For a folder, files already on the remote are skipped instead.
+
+A folder is transferred with everything under it, several files at a time, and lands as a folder of the same name at the destination. A transfer carries up to 10,000 files and 4 GB in all.
+
+A transfer can take as long as fifteen minutes, which covers several gigabytes on an ordinary link. One that stops making progress for more than a minute is stopped early and reported as stalled, rather than left to run out the clock. In the execution history a transfer shows the connection it used, the path the file or folder landed at there, and for a folder the number of files and the bytes transferred. The transfer arrives at the remote from the [addresses we publish](#allowing-our-ip-addresses).
+
+If the remote refuses the credentials, can't be reached, or presents a changed SFTP host key, the failure counts against the connection, and after ten in a row the connection is disabled and every automation using it fails until it is tested and enabled again. A changed host key disables it at once. The same failures count against each automation that ran into them, so an automation that failed ten times in a row is [paused](#when-an-automation-fails) too. Enabling the connection doesn't resume it: check the automations that use the connection, and click **Resume** on any that were paused.
+
+### Copy or move from a connection
+
+A **Copy file or folder** or **Move file or folder** action can also bring files in from a [connection](./connections): set the source to **Custom…** and pick the connection in the **Source connection** list. This is how you collect what a partner leaves for you, for example every night on a schedule. A copy leaves the files where they are on the remote. A move deletes each file there once it has arrived in your storage, so the next run does not collect it again; the folders on the remote stay as they are.
+
+* `Connection`: one of your enabled connections, or a new one.
+* `Path`: the file or folder to bring in. It must start with `/`, which stands for the connection's remote path (for example, `/outgoing/report.csv`), and a folder ends with `/`. Variables and expressions are supported.
+* `Destination path`: where it lands in your storage. Give a folder (for example, `/incoming/`) to keep its name, or a full path to rename a file. It must start with `/`. Variables and expressions are supported.
+* `Overwrite existing files`: turn it off to have the action fail rather than replace a file already in your storage. For a folder, files already in your storage are skipped instead.
+
+A later action set to work on the previous action's file works on what was brought in, so you can, for example, collect an encrypted file and then decrypt it with a **PGP decrypt** action. An empty remote folder is not a failure: the action succeeds and reports that there was nothing to fetch. A remote path that does not exist fails the action, without counting against the connection.
+
+Files brought in this way don't start other automations, in the same way that files an automation writes never do. The same limits apply as when sending to a connection: up to 10,000 files and 4 GB in all, and fifteen minutes per run.
+
 ### Delay
 
 A **Delay** action pauses the automation at that step, then continues with the next action. Set an amount and a unit — seconds, minutes, hours or days — up to a maximum of 7 days.
@@ -140,11 +173,11 @@ The file actions (copy, move, rename, delete) after the first **default to opera
 
 The notification actions (webhook, Slack, Microsoft Teams and email) after the first **default to describing the previous action's result**, but can be switched to the **triggering event**. This lets you announce what a step did — for example, encrypt a file and then notify about the encrypted file, or delete a file and notify that it was removed. When set to the previous action, the notification is sent in the same format as any other file event: a **`file.created`** event for the file the step produced (copy, move, rename, PGP encrypt/decrypt), or a **`file.deleted`** event for the file a delete removed.
 
-By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files only — folder operations always overwrite.
+By default, the file-writing actions (copy, move, rename, and PGP encrypt/decrypt) **overwrite** any file already at the destination. Turn off **Overwrite existing files** on an action to have it fail instead when the destination file already exists. This applies to single files in your storage; the copy, move, rename and PGP actions always overwrite when given a folder. Copying or moving to or from a connection is different: with the setting off, a folder transfer skips the files that already exist on the remote.
 
 ### PGP encrypt and decrypt
 
-The PGP actions encrypt or decrypt a single file using a key from your [encryption keys](../security/encryption-keys) (**Settings → Security → Encryption keys**). The key is referenced by selection — no key material is stored on the automation.
+The PGP actions encrypt or decrypt a single file using a key from your [encryption keys](../security/encryption-keys) (**Settings → Automations → Encryption keys**). The key is referenced by selection — no key material is stored on the automation.
 
 * `PGP key` — the key to use. For **PGP encrypt**, pick a key that can encrypt (any public or private key). For **PGP decrypt**, pick the private key the file was encrypted to — a file can only be decrypted with a private key it was encrypted to (you must be one of its recipients). The **+ New key** option lets you import a key without leaving the builder.
 * `Destination path` (optional) — where to write the result. By default, **encrypt** appends a `.pgp` extension to the source path, and **decrypt** removes a trailing `.pgp`, `.gpg` or `.asc` extension. To keep that default name but write it somewhere else, give a **folder** (e.g. `/decrypted/`) — the file keeps the extension-stripped name. For a custom name, give a full path; `{{file.basename}}` is the source name without its last extension, so `/decrypted/{{file.basename}}` also drops the `.pgp`.
@@ -280,13 +313,31 @@ When the automation runs on a schedule there is no file event to describe, so th
 
 ## Allowing our IP addresses
 
-If the endpoint an automation sends to only accepts traffic from known addresses, add ours to its allowlist. Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions always arrive from one of these addresses:
+If a server or endpoint an automation reaches only accepts traffic from known addresses, add ours to its allowlist.
 
-* `3.215.222.67`
-* `44.218.45.54`
-* `52.22.213.13`
+* Everything that reaches a [connection](./connections) (copying or moving files to or from it, and testing it) comes from the addresses of the region your storage is in. Files sent to or fetched from a connection are transferred from that region, directly to or from the server, without passing through any of our other regions.
+* Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions come from the Virginia, US East addresses, whatever region your storage is in.
 
-Add all of them, not just one. Any given request may arrive from any address in the list, and which one it is varies from one execution to the next — allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
+Adding every address in the table always works, and is what **View IP addresses** under **Settings → Automations → Connections** in the dashboard suggests. To keep the allowlist shorter, add all the addresses of your storage's region for a connection's server, and all the Virginia, US East addresses for a webhook, Slack or Microsoft Teams endpoint.
+
+| Region | Addresses |
+| --- | --- |
+| Virginia, US East | `3.215.222.67`, `44.218.45.54`, `52.22.213.13` |
+| Ohio, US East | `18.226.36.245`, `18.226.194.230` |
+| California, US West | `13.56.242.205`, `54.241.92.19` |
+| Oregon, US West | `184.35.156.137`, `44.240.139.149` |
+| Montreal, Canada | `15.222.100.88`, `16.54.90.190` |
+| São Paulo, Brazil | `54.207.99.255`, `54.207.77.175` |
+| Dublin, Ireland | `52.19.116.158`, `34.246.44.30` |
+| London, United Kingdom | `18.130.215.6`, `16.61.77.144` |
+| Frankfurt, Germany | `63.186.29.4`, `3.122.135.172` |
+| Tel Aviv, Israel | `16.164.184.104`, `16.164.55.145` |
+| Mumbai, India | `13.206.24.12`, `13.203.124.20` |
+| Singapore | `47.130.125.233`, `54.169.111.147` |
+| Sydney, Australia | `54.66.26.106`, `32.236.176.103` |
+| Tokyo, Japan | `35.75.31.44`, `54.64.178.141` |
+
+Never add just one address of a region. Any given request may arrive from any of that region's addresses, and which one it is varies from one execution to the next. Allowlisting only the address you happened to see first will appear to work and then fail later, seemingly at random.
 
 These addresses are stable, and we will give notice before they change.
 
