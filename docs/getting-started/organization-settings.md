@@ -17,6 +17,8 @@ SFTP To Go allows several authentication methods, which are ways to identify the
 
 * Public key authentication - identification based on username and a cryptographic system that uses pairs of keys. To use it, add a public SSH key to each one of the credentials. This form of authentication is only supported by the SFTP protocol.
 
+* Single Sign-On (SSO) - identification through your organization's identity provider, used to sign in to the web portal. See [Single Sign-On for credentials](#single-sign-on-for-credentials).
+
 
 ### Multi-factor Authentication
 
@@ -33,6 +35,34 @@ Choose which factors users can use to verify their identity when connecting to t
 ### Password policy
 
 Set your organization's password policy for credentials. This will not change existing passwords, but changes to passwords (either ones generated automatically or manually) must adhere to the organization's current password policy.
+
+### Single Sign-On for credentials
+
+Let the people who use your web portal and file transfers sign in with your organization's identity provider. This is separate from [team SSO](#sso), which controls sign-in to the SFTP To Go dashboard.
+
+SFTP To Go supports Google Workspace, Microsoft ADFS, Microsoft Entra, Okta, OpenID, and custom SAML identity providers.
+
+To set it up, turn on Single Sign-On for credentials and follow the on-screen steps to connect your provider.
+
+#### Linking credentials to an identity provider user
+
+Each set of credentials has its own home directory and permissions, so you choose which set of credentials a person receives. For every set of credentials you want to move to SSO, generate a sign-in link and send it to the person. The first time they open it and sign in with your identity provider, their credentials are linked, and from then on they sign in with SSO. A person who uses more than one set of credentials receives a separate link for each.
+
+Linking clears the password on a set of credentials. The person signs in to the web portal with SSO. For SFTP and FTPS, they generate a password from their user settings after signing in. That password is shown once and has an expiration time, so it must be copied right away, and signing in again with SSO produces a new one. They can add an SSH key instead.
+
+#### Requiring SSO
+
+To require SSO, set Single Sign-On as the only authentication method. Password and Magic Code sign-in are then turned off for your credentials, and only linked credentials can connect. Credentials that are not yet linked cannot sign in until you link them, so link your credentials before you require SSO.
+
+You can also set how long a set of credentials may go without signing in through your identity provider before it has to sign in again to keep its SFTP and FTPS access.
+
+#### Removing SSO from a set of credentials
+
+You can unlink a set of credentials at any time. It becomes a standard set of credentials again with a fresh password, so it can sign in with a password once more.
+
+:::info
+Using SSO is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
+:::
 
 ### Sharing policy
 
