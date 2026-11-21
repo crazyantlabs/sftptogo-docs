@@ -1,7 +1,7 @@
 ---
 id: sftp-to-go-management-api
 title: "SFTP To Go Management API"
-description: "The SFTP To Go Management API lets you script everything you would otherwise do in the"
+description: "The SFTP To Go Management API lets you script what you would otherwise do in the dashboard. This reference documents credentials: creating, updating, rotating and removing the logins your users and systems connect with. More of the dashboard is added here as it is documented."
 sidebar_label: Introduction
 sidebar_position: 0
 hide_title: true
@@ -29,38 +29,26 @@ import Export from "@theme/ApiExplorer/Export";
 
 
 
-The SFTP To Go Management API lets you script everything you would otherwise do in the
-dashboard: issue and rotate credentials, create share links, build automations that react to
-file activity, attach custom domains, and pull audit logs.
+The SFTP To Go Management API lets you script what you would otherwise do in the dashboard. This reference documents credentials: creating, updating, rotating and removing the logins your users and systems connect with. More of the dashboard is added here as it is documented.
 
 ## What this API does not do
 
-**It does not transfer files.** Files move over SFTP, FTPS or the S3-compatible endpoint, using
-the credentials you create here. There is no upload or download operation in this reference —
-that is by design, not an omission.
+**It does not transfer files.** Files move over SFTP, FTPS or the S3-compatible endpoint, using the credentials you create here. There is no upload or download operation in this reference: that is by design, not an omission.
 
 ## Base URL and organization scope
 
-Almost every path is scoped to an organization:
+Almost every path is scoped to an organization: `https://api.sftptogo.com/organizations/{organizationId}/...`
 
-```
-https://api.sftptogo.com/organizations/{organizationId}/...
-```
+Your API key is bound to a single organization, and a request whose `organizationId` does not match the key's organization is rejected.
 
-Your API key is bound to a single organization, and a request whose `organizationId` does not
-match the key's organization is rejected.
-
-The API itself runs in one region. The region you chose for your storage is a property of your
-organization, returned on the organization object — it does not change which host you call.
+The API itself runs in one region. The region you chose for your storage is a property of your organization and does not change which host you call.
 
 ## Conventions
 
-* Request and response bodies are JSON.
+* Request and response bodies are JSON. Successful responses return the object itself, with no wrapper envelope.
 * Timestamps are Unix epoch milliseconds unless a field says otherwise.
-* Successful responses return the object itself, with no wrapper envelope.
-* List endpoints are cursor-paginated. See the Pagination guide.
-* Errors share one shape. See the Errors guide.
-
+* List endpoints return one page at a time. Pass `limit`, and follow the `next` link in the `Link` response header for the following page. `X-Total-Count` gives the total, and `X-Total-Count-Exact` says whether it is exact or a lower bound.
+* Every error has the same shape: a stable `id` to match on, a `message` for people, and, on a `400`, an `errors` object or list naming the fields that were rejected.
 
 <div
   style={{"marginBottom":"2rem"}}

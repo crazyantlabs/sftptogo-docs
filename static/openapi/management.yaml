@@ -2,39 +2,28 @@ openapi: 3.1.0
 info:
   title: SFTP To Go Management API
   version: '2026-07-31'
-  summary: Manage credentials, share links, automations, domains and logs in your SFTP To Go organization.
-  description: |
-    The SFTP To Go Management API lets you script everything you would otherwise do in the
-    dashboard: issue and rotate credentials, create share links, build automations that react to
-    file activity, attach custom domains, and pull audit logs.
+  summary: Manage your SFTP To Go organization's configuration, starting with credentials.
+  description: |-
+    The SFTP To Go Management API lets you script what you would otherwise do in the dashboard. This reference documents credentials: creating, updating, rotating and removing the logins your users and systems connect with. More of the dashboard is added here as it is documented.
 
     ## What this API does not do
 
-    **It does not transfer files.** Files move over SFTP, FTPS or the S3-compatible endpoint, using
-    the credentials you create here. There is no upload or download operation in this reference —
-    that is by design, not an omission.
+    **It does not transfer files.** Files move over SFTP, FTPS or the S3-compatible endpoint, using the credentials you create here. There is no upload or download operation in this reference: that is by design, not an omission.
 
     ## Base URL and organization scope
 
-    Almost every path is scoped to an organization:
+    Almost every path is scoped to an organization: `https://api.sftptogo.com/organizations/{organizationId}/...`
 
-    ```
-    https://api.sftptogo.com/organizations/{organizationId}/...
-    ```
+    Your API key is bound to a single organization, and a request whose `organizationId` does not match the key's organization is rejected.
 
-    Your API key is bound to a single organization, and a request whose `organizationId` does not
-    match the key's organization is rejected.
-
-    The API itself runs in one region. The region you chose for your storage is a property of your
-    organization, returned on the organization object — it does not change which host you call.
+    The API itself runs in one region. The region you chose for your storage is a property of your organization and does not change which host you call.
 
     ## Conventions
 
-    * Request and response bodies are JSON.
+    * Request and response bodies are JSON. Successful responses return the object itself, with no wrapper envelope.
     * Timestamps are Unix epoch milliseconds unless a field says otherwise.
-    * Successful responses return the object itself, with no wrapper envelope.
-    * List endpoints are cursor-paginated. See the Pagination guide.
-    * Errors share one shape. See the Errors guide.
+    * List endpoints return one page at a time. Pass `limit`, and follow the `next` link in the `Link` response header for the following page. `X-Total-Count` gives the total, and `X-Total-Count-Exact` says whether it is exact or a lower bound.
+    * Every error has the same shape: a stable `id` to match on, a `message` for people, and, on a `400`, an `errors` object or list naming the fields that were rejected.
   contact:
     name: SFTP To Go Support
     url: https://sftptogo.com/contact
@@ -245,7 +234,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/CredentialInternalServerError'
     post:
       operationId: CreateCredential
       summary: Create a credential
@@ -263,6 +252,8 @@ paths:
         endpoints, since we store it, but capture it now if you are handing it to someone.
 
         Counts against your plan's credential limit.
+      x-plan:
+        limit: credentials
       requestBody:
         required: false
         content:
@@ -340,7 +331,7 @@ paths:
                     CreatedAt: 1780675200000
                     UpdatedAt: 1780675200000
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/CredentialBadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -377,7 +368,7 @@ paths:
                     id: unprocessable_entity
                     message: Unfortunately, the username is not available. Please choose another one.
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/CredentialInternalServerError'
   /organizations/{organizationId}/users/check-name:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
@@ -455,7 +446,7 @@ paths:
                     id: invalid_params
                     message: Username is invalid.
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/CredentialInternalServerError'
   /organizations/{organizationId}/users/{userId}:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
@@ -571,9 +562,9 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: '#/components/responses/CredentialNotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/CredentialInternalServerError'
     patch:
       operationId: UpdateCredential
       summary: Update a credential
@@ -592,6 +583,9 @@ paths:
 
         Changes take effect on the next connection; sessions already open are not interrupted. To
         change the password, use the password-rotation endpoint instead.
+      x-plan:
+        feature: inbound-rules
+        appliesTo: Settings.Network.InboundRules
       requestBody:
         required: true
         content:
@@ -645,7 +639,7 @@ paths:
                 default:
                   $ref: '#/components/examples/Credential'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/CredentialBadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -660,7 +654,7 @@ paths:
                     id: forbidden
                     message: You have reached the maximum number of inbound rules per credential (250).
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: '#/components/responses/CredentialNotFound'
         '422':
           description: |
             The new login name is taken, across the whole service rather than just your organization.
@@ -675,7 +669,7 @@ paths:
                     id: unprocessable_entity
                     message: Unfortunately, the user name is not available. Please choose another one.
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/CredentialInternalServerError'
     delete:
       operationId: DeleteCredential
       summary: Delete a credential
@@ -785,9 +779,20 @@ paths:
                     id: forbidden
                     message: You cannot delete a default credential.
         '404':
-          $ref: '#/components/responses/NotFound'
+          description: |
+            No such credential, or it belongs to another organization. The API does not distinguish
+            between the two.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                default:
+                  value:
+                    id: not_found
+                    message: Credential not found.
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/CredentialInternalServerError'
   /organizations/{organizationId}/users/{userId}/activate:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
@@ -886,9 +891,9 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: '#/components/responses/CredentialNotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/CredentialInternalServerError'
   /organizations/{organizationId}/users/{userId}/deactivate:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
@@ -919,7 +924,7 @@ paths:
                     Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
                     OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
                     UserName: data-warehouse-prod
-                    State: active
+                    State: inactive
                     Alias: Data warehouse (production)
                     Host: example.sftptogo.com
                     Permission: read-write
@@ -990,9 +995,9 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: '#/components/responses/CredentialNotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/CredentialInternalServerError'
   /organizations/{organizationId}/users/{userId}/credential-rotations:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
@@ -1079,9 +1084,9 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: '#/components/responses/CredentialNotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/CredentialInternalServerError'
   /organizations/{organizationId}/users/{userId}/email-verifications:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
@@ -1124,7 +1129,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: '#/components/responses/CredentialNotFound'
         '429':
           description: |
             A verification was sent to this address too recently. Wait a few minutes before trying
@@ -1198,7 +1203,7 @@ components:
         type: string
       examples:
         default:
-          value: eyJJZCI6IjZiMWYwZDJlLTRhM2MtNGY4Yi05ZTBhLTJjN2Q1YjhlMWYzNCJ9
+          value: eyJJZCI6IjdjMmU5YTRmMWI2ZDNlOGEwYzVmMmI3ZDllMWE0YyIsIk9yZ2FuaXphdGlvbklkIjoiNmIxZjBkMmUtNGEzYy00ZjhiLTllMGEtMmM3ZDViOGUxZjM0IiwiQ3JlYXRlZEF0IjoxNzg2NzAxOTAwMDAwfQ==
     Before:
       name: before
       in: query
@@ -1212,7 +1217,7 @@ components:
         type: string
       examples:
         default:
-          value: eyJJZCI6IjJhOWM0ZTdiLTExMGQtNGE2Zi04YzNlLTdkMWI0ZjJhOWMwZSJ9
+          value: eyJJZCI6IjNmOWExYzdlNWIyZDRhNmY4ZTBjMWIzZDVmN2E5YyIsIk9yZ2FuaXphdGlvbklkIjoiNmIxZjBkMmUtNGEzYy00ZjhiLTllMGEtMmM3ZDViOGUxZjM0IiwiQ3JlYXRlZEF0IjoxNzgwNjc1MjAwMDAwfQ==
     Limit:
       name: limit
       in: query
@@ -1249,13 +1254,13 @@ components:
 
         Contains a `next` link while more results follow, and a `prev` link while earlier results exist,
         so an empty header means a single page. Follow these URLs as given rather than assembling your
-        own: they already carry your filters, the page size and the cursor.
+        own: they already carry your filters, the page size, the cursor and the position (`offset`).
       required: true
       schema:
         type: string
       examples:
         default:
-          value: <https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users?limit=50&after=eyJJZCI6IjNmOWExYzdlIn0&offset=50>; rel="next"
+          value: <https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users?limit=50&after=eyJJZCI6IjdjMmU5YTRmMWI2ZDNlOGEwYzVmMmI3ZDllMWE0YyIsIk9yZ2FuaXphdGlvbklkIjoiNmIxZjBkMmUtNGEzYy00ZjhiLTllMGEtMmM3ZDViOGUxZjM0IiwiQ3JlYXRlZEF0IjoxNzg2NzAxOTAwMDAwfQ%3D%3D&offset=50>; rel=next
     XTotalCount:
       description: |
         The total number of items matching the request, across all pages, not the number in this
@@ -1833,11 +1838,10 @@ components:
           type: string
           description: |
             Whether the credential can currently connect. `inactive` blocks sign-in while keeping
-            everything else intact; `suspended` is applied by us, typically for billing.
+            everything else intact. A credential also becomes `inactive` when it expires.
           enum:
             - active
             - inactive
-            - suspended
         Permission:
           type: string
           description: |
@@ -1847,7 +1851,8 @@ components:
             - `none`: can connect, but sees nothing. The default.
             - `read-only`: download and list.
             - `write-only`: upload only; folders can be listed, files cannot be read. Useful as a drop box.
-            - `read-write-no-delete`: download and upload, but never delete or overwrite.
+            - `read-write-no-delete`: download and upload, including replacing an existing file, but
+              never delete or rename.
             - `read-write`: download, upload and delete.
             - `full`: read-write, plus sharing files from the web portal.
           enum:
@@ -1934,6 +1939,10 @@ components:
             - 'null'
           description: |
             When access stops working, in **Unix epoch seconds**, or `null` or absent if it never expires.
+
+            Once that time passes (checked every few minutes) the credential becomes `inactive` and
+            `ExpiresAt` returns to `null`, so an expired credential reads like a deactivated one with no
+            expiry. Activating it again restores access with no expiry.
           examples:
             - 1793318400
         LastLogin:
@@ -2091,7 +2100,8 @@ components:
           type: integer
           description: |
             When access should stop working, in **Unix epoch seconds**. Must be after the end of today
-            and no more than a year away. Omit for a credential that does not expire.
+            and no more than a year away. Omit for a credential that does not expire. When the time
+            passes, the credential becomes `inactive` and its `ExpiresAt` returns to `null`.
           examples:
             - 1793318400
     CredentialSettingsInput:
@@ -2216,7 +2226,8 @@ components:
             - 'null'
           description: |
             When access should stop working, in **Unix epoch seconds**, or `null` to remove the expiry.
-            Must be after the end of today and no more than a year away.
+            Must be after the end of today and no more than a year away. When the time passes, the
+            credential becomes `inactive` and its `ExpiresAt` returns to `null`.
         Settings:
           $ref: '#/components/schemas/CredentialSettingsInput'
   responses:
@@ -2338,8 +2349,7 @@ components:
       description: |
         Too many requests in too short a window.
 
-        Back off and retry with exponential delay. We do not publish a fixed rate limit; see the Rate
-        limits guide for what to expect.
+        Back off and retry with exponential delay. We do not publish a fixed rate limit.
       content:
         application/json:
           schema:
@@ -2365,6 +2375,71 @@ components:
               value:
                 id: internal_server_error
                 message: Unable to create Automation.
+    CredentialInternalServerError:
+      description: |
+        Something failed on our side.
+
+        The request may or may not have taken effect, so read the credential back before retrying a
+        change. Retrying a read is always safe. If it persists, contact support with the approximate time
+        of the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            default:
+              summary: For example, when retrieving a credential
+              value:
+                id: internal_server_error
+                message: Unable to get User.
+    CredentialBadRequest:
+      description: |
+        The request body failed validation. Nothing was changed.
+
+        `errors` says which fields were rejected and why, in one of two forms: an object keyed by field
+        name, or a list of fields. Handle both. This is a problem with the request: fix it rather than
+        retrying.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            fields:
+              summary: A field failed the checks every request goes through
+              value:
+                id: invalid_request_body
+                message: Invalid request body.
+                errors:
+                  isValid: false
+                  UserName:
+                    isInvalid: true
+                    message: Unfortunately, username can't be shorter than 5 characters.
+                  Alias:
+                    isInvalid: false
+                    message: ''
+            virtualFolders:
+              summary: A virtual folder was rejected
+              value:
+                id: invalid_request_body
+                message: Invalid request body.
+                errors:
+                  - field: HomeDirectoryDetails
+                    message: Unfortunately, two virtual folders can't share the same path.
+    CredentialNotFound:
+      description: |
+        No such credential, or it belongs to another organization.
+
+        The API does not distinguish between the two, so that a credential's existence in another
+        organization cannot be probed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            default:
+              value:
+                id: not_found
+                message: User not found.
   examples:
     Credential:
       summary: A credential that has been in use
