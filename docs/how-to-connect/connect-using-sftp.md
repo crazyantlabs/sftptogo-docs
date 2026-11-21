@@ -9,6 +9,10 @@ To connect to your SFTP To Go storage using the SFTP protocol, follow these gene
 2. In the credentials list, expand the credentials you'd like to use.
 3. Copy the host, username, and the password (unless you're using public key authentication) to your SFTP client of choice. Make sure you use the default SFTP port (22) in your connection.
 
+:::note
+If you sign in to the web portal with [Single Sign-On for credentials](../security/sso-for-credentials.md), use a [short-lived password](connect-web-portal.md#short-lived-passwords) generated in the web portal instead of the credentials' password.
+:::
+
 :::info 
 The SFTP endpoint is also available on the alternative ports 2222 and 22000. 
 

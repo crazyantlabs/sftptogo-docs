@@ -9,6 +9,10 @@ To connect to your SFTP To Go storage using the FTPS protocol, follow these gene
 2. In the credentials list, expand the credentials you'd like to use.
 3. Copy the host, username, and the password to your SFTP client of choice. Make sure you use the default FTPS port (21) in your connection.
 
+:::note
+If you sign in to the web portal with [Single Sign-On for credentials](../security/sso-for-credentials.md), use a [short-lived password](connect-web-portal.md#short-lived-passwords) generated in the web portal instead of the credentials' password.
+:::
+
 :::info 
 For FTPS endpoint, only Explicit and Passive modes are supported. Implicit mode is not supported.
 :::
