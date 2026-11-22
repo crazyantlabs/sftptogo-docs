@@ -36,5 +36,5 @@ This is the documentation site for [SFTP To Go](https://sftptogo.com), built wit
 - Wrap UI element names in bold (e.g., click **Add domain**)
 - Use backticks for code, CLI commands, and file paths
 - Keep instructions concise and action-oriented (imperative mood: "Click", "Enter", "Select")
-- Write guides as `.md`. Use `.mdx` only when a page needs a component, such as tabs (`import Tabs from '@theme/Tabs'` and `import TabItem from '@theme/TabItem'`, with a `groupId` so the reader's choice carries across pages). The `.mdx` files in `api/` are generated, not hand-written: fix their content in the spec, then regenerate
+- Write guides as `.md`. Use `.mdx` only when a page needs a component, such as tabs (`import Tabs from '@theme/Tabs'` and `import TabItem from '@theme/TabItem'`, with a `groupId` so the reader's choice carries across pages). The `.mdx` files in `api/` are generated, except the hand-written `authentication.mdx`: fix generated content in the spec, then regenerate
 - On API reference pages, a plan requirement comes from the spec: an operation's `x-plan` extension (`feature`, optionally with `appliesTo`, and/or `limit`) becomes the same `:::info` box with the pricing link that guides use
