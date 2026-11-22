@@ -93,6 +93,8 @@ To link the credentials to someone else after the link was used, remove SSO from
 2. On the credentials row, open the **...** menu and select **Remove SSO**.
 3. Click **Yes, remove SSO**.
 
+   ![The Remove SSO from these credentials dialog, noting that the credentials keep their password and their short-lived passwords stop working at once](../../static/img/sso-credentials-remove-dialog.png)
+
 After you remove SSO:
 
 - the person's identity no longer signs in to these credentials;
@@ -164,6 +166,8 @@ There are two ways to turn SSO off.
 1. Open your organization's **Settings** tab and go to **Security**. In **Authentication methods**, click **Expand**.
 2. In the SSO status panel, click **Disable**.
 3. Click **Yes, disable SSO**.
+
+   ![The Disable SSO for credentials dialog, noting that SSO sessions end, short-lived passwords stop working and every credential's SSO link is cleared](../../static/img/sso-credentials-disable-dialog.png)
 
 Disabling SSO for credentials:
 
