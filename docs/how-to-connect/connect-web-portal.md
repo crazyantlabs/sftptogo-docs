@@ -50,16 +50,45 @@ Each item includes a menu button (...) for actions such as:
 
 ### Searching, sorting and filtering
 
-With advanced search enabled, the file browser adds a search bar, a file type filter, and sortable columns:
+When your organization turns on [advanced search](../getting-started/organization-settings#advanced-search), the file browser adds a search box, filters and sortable columns.
 
-* **Search**: Type in the search bar and press Enter to find files and folders. A search covers the folder you are in and all of its subfolders; while a search is active, a **Folder** control appears — switch it to **Anywhere** to run the same search across all of your accessible folders. Filters used without a search term only narrow the current folder's listing. Clearing the search returns you to browsing the folder. Every word you type must appear in the name, in any order, so "annual report" finds `2026_annual-report.pdf`. Matches are case-insensitive and work in any language. Each result shows the folder it lives in, and clicking a result takes you right to it. When nothing matches your exact text, close matches are shown instead, so a small typo still finds the file you're after. Navigating to another folder leaves the search. Press `/` or `Cmd+K` to jump to the search bar.
-* **Filter by type**: Use the type dropdown to narrow the list to folders, documents, pictures, archives, spreadsheets, and more.
-* **Sort**: Click the name, type, size, or modified column headers to sort the list; click again to reverse the order. Folders are always listed before files.
+#### Searching
 
-Search, filters, and sorting also work in shared folder links, scoped to the shared folder.
+1. Click the **Search files by name...** box, or press `/` or `Cmd`+`K` (`Ctrl`+`K` on Windows and Linux).
+2. Type part of a file or folder name and press `Enter`.
+
+The search covers the folder you are in and all of its subfolders, and the folder breadcrumbs change to **Search results**. Every word you type must appear in the name, in any order and regardless of case, so "annual report" finds `2026_Annual-Report.pdf`. When nothing matches exactly, the web portal shows close matches instead, so a small typo still finds the file.
+
+Each result shows the folder it is **in**. Click a result to open it, or click its folder to go to that folder. To go to a result's folder from its menu button (...), select **Go to parent folder**.
+
+To change where the search looks, use the **In:** control beside the search box:
+
+* **Anywhere**: every folder you can access.
+* **_folder_ and subfolders**: the current folder and everything under it (the default).
+* **_folder_ only**: the current folder, without its subfolders.
+
+To leave the search, clear the search box. Opening another folder also leaves the search; your browser's back button returns you to the results.
+
+#### Filtering
+
+Use the filters beside the search box to narrow the list. With a search, they narrow the search results; without one, they narrow the current folder only.
+
+* **Type**: select one or more types, such as **Folders**, **Documents**, **PDFs**, **Pictures**, **Spreadsheets** or **Other**.
+* **Modified**: select a quick range, from **Past 5 minutes** to **Past year**, or set a custom range with **On or after** and **On or before**, then click **Apply**.
+* **Size**: select a preset, from **Tiny** (under 100 KB) to **Massive** (over 1 GB), or set a custom range with **Greater than** and **Less than**, then click **Apply**.
+
+To clear a filter, click the × beside it.
+
+If nothing matches, click **Search anywhere** to search every folder you can access (offered unless the search already covers them), or **Clear search and filters** to go back to the folder.
+
+#### Sorting
+
+Click the **Name**, **Type**, **Size** or **Modified** column header to sort by it. Click the same header again to reverse the order, and a third time to return to the default order, by name. Folders are always listed before files.
+
+Search, filters and sorting also work in shared folder links, limited to the shared folder.
 
 :::note
-Search covers the files that existed when your organization's search index was created, plus every change since — new uploads typically appear in search results within seconds.
+New, changed and deleted files show up in search shortly after the change.
 :::
 
 :::info
