@@ -4,6 +4,7 @@
 require('dotenv').config();
 
 const path = require('path')
+const { createApiPageMDWithPlan } = require('./scripts/api-page-markdown');
 
 import { themes as prismThemes } from "prism-react-renderer";
 
@@ -80,6 +81,10 @@ const config = {
             outputDir: 'api',
             // Trying requests from the docs comes later, with self-serve API keys.
             hideSendButton: true,
+            // Adds a plan box, built from the spec's x-plan extension, to operation pages.
+            markdownGenerators: {
+              createApiPageMD: createApiPageMDWithPlan,
+            },
             sidebarOptions: {
               groupPathsBy: 'tag',
               categoryLinkSource: 'tag',
