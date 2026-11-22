@@ -29,7 +29,7 @@ Creating share links is only available in certain plans. Learn more about our pr
 10. Click `Close`.
 
 :::warning
-Share links open in the web portal, so your [inbound network rules](../security/using-inbound-network-rules.md) apply to them. If those rules don't allow the **Web portal** protocol from a recipient's IP address, the recipient gets an access denied error when opening the link. To let anyone with the link open it, keep a web portal rule for `0.0.0.0/0`.
+Share links open in the web portal, so your organization's [inbound network rules](../security/using-inbound-network-rules.md) apply to them. If no **Web portal** or **All protocols** rule allows a recipient's IP address, the recipient can't open the link. To let anyone with the link open it, keep a **Web portal** rule for `0.0.0.0/0`.
 :::
 
 ## How to Edit, Modify, or Remove a Share Link
