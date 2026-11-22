@@ -108,7 +108,7 @@ Here are some links to documentation on editing DNS records with popular domain 
 
 ### Inbound network rules
 
-Inbound network rules define IP address ranges from which a user can connect to your storage using the SFTP or FTPS protocols.
+Inbound network rules define IP address ranges from which a user can connect to your storage using SFTP, FTPS or the web portal. Share links open in the web portal, so the same rules decide who can open them.
 
 The organization level rules define the IP ranges from which any set of credentials can be used to login to your cloud storage.
 
@@ -123,6 +123,10 @@ To add a new inbound rule:
 4. Fill out the source IP address or CIDR for IP address range.
 5. Add an optional description.
 6. Click 'Add inbound rule'.
+
+:::warning
+If you use share links, keep a rule that allows the **Web portal** protocol (or **All protocols**) from the addresses of the people you share with. A rule set that allows only SFTP or FTPS blocks every share link, and recipients get an access denied error. To let anyone with the link open it, allow the web portal from `0.0.0.0/0`.
+:::
 
 You can also edit, disable, enable, and delete inbound network rules by clicking the menu button (...) on a specific network rule followed by the relevant menu item.
 

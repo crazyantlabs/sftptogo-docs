@@ -28,6 +28,10 @@ Creating share links is only available in certain plans. Learn more about our pr
 9. Click `Create public link`. A shareable link will appear at the top of the dialog. You can copy it, browse it, or generate a QR code for others to scan and access the link directly.
 10. Click `Close`.
 
+:::warning
+Share links open in the web portal, so your [inbound network rules](../security/using-inbound-network-rules.md) apply to them. If those rules don't allow the **Web portal** protocol from a recipient's IP address, the recipient gets an access denied error when opening the link. To let anyone with the link open it, keep a web portal rule for `0.0.0.0/0`.
+:::
+
 ## How to Edit, Modify, or Remove a Share Link
 
 1. Open the file browser (or the web portal).
