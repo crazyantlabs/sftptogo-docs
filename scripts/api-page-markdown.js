@@ -1,7 +1,8 @@
 // Page generator for the API reference (markdownGenerators.createApiPageMD in
 // docusaurus.config.js). It renders each operation page with the plugin's own
-// generator, adds a plan box when the operation has an `x-plan` extension, and
-// ends the page with a link to the Errors page.
+// generator, adds a plan box when the operation has an `x-plan` extension and a
+// pointer to Pagination on list operations, and ends the page with a link to
+// the Errors page.
 //
 // The box follows the guides' convention for plan-gated features: an `:::info`
 // admonition linking to the pricing page. It goes under the operation's
@@ -60,18 +61,24 @@ function planNotice(xPlan) {
 // error responses listed above it.
 const ERRORS_LINK = '\n\nSee [Errors](./errors.md) for the error body, the status codes and when to retry.\n';
 
+// A list operation (one that takes an `after` or `before` cursor) gets a line
+// under its description pointing at the Pagination page.
+const PAGINATION_NOTE = 'This list is paged: pass `limit` and follow the `Link` header. See [Pagination](./pagination.mdx).';
+
+function isPaged(parameters) {
+  return (parameters || []).some((p) => p && p.in === 'query' && (p.name === 'after' || p.name === 'before'));
+}
+
 function createApiPageMDWithPlan(pageData) {
   const xPlan = (pageData.api.extensions || []).find((extension) => extension.key === 'x-plan');
-  const page =
-    !xPlan || xPlan.value === undefined || xPlan.value === null
-      ? pageData
-      : {
-          ...pageData,
-          api: {
-            ...pageData.api,
-            description: [pageData.api.description, planNotice(xPlan.value)].filter(Boolean).join('\n\n'),
-          },
-        };
+  const hasPlan = Boolean(xPlan) && xPlan.value !== undefined && xPlan.value !== null;
+  const notes = [
+    isPaged(pageData.api.parameters) ? PAGINATION_NOTE : null,
+    hasPlan ? planNotice(xPlan.value) : null,
+  ].filter(Boolean);
+  const page = notes.length
+    ? { ...pageData, api: { ...pageData.api, description: [pageData.api.description, ...notes].filter(Boolean).join('\n\n') } }
+    : pageData;
   return createApiPageMD(page) + ERRORS_LINK;
 }
 

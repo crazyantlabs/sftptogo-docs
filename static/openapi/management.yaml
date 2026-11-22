@@ -222,7 +222,7 @@ paths:
                         - FTPS
                         - WEB_PORTAL
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CredentialsUnauthorized'
         '500':
           $ref: '#/components/responses/CredentialsInternalServerError'
     post:
@@ -321,7 +321,7 @@ paths:
         '400':
           $ref: '#/components/responses/CredentialsBadRequest'
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CredentialsUnauthorized'
         '403':
           description: |
             Your plan's limit on credentials is reached, or your organization is still being set up. The `message` says which. Delete credentials you no longer need or upgrade, or retry in a few minutes.
@@ -334,7 +334,7 @@ paths:
                   summary: The plan's limit on credentials is reached
                   value:
                     id: forbidden
-                    message: You have reached the maximum number of users (25).
+                    message: You have reached the maximum number of credentials (25).
                 notReady:
                   summary: The organization is still being set up
                   value:
@@ -411,7 +411,7 @@ paths:
                   value:
                     exists: true
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CredentialsUnauthorized'
         '422':
           description: No `UserName` was sent, or it was empty.
           content:
@@ -538,7 +538,7 @@ paths:
                         CreatedAt: 1780761600000
                         UpdatedAt: 1780761600000
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CredentialsUnauthorized'
         '404':
           $ref: '#/components/responses/CredentialsNotFound'
         '500':
@@ -618,7 +618,7 @@ paths:
         '400':
           $ref: '#/components/responses/CredentialsBadRequest'
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CredentialsUnauthorized'
         '403':
           description: The update would give the credentials more than 250 inbound rules.
           content:
@@ -629,7 +629,7 @@ paths:
                 default:
                   value:
                     id: forbidden
-                    message: You have reached the maximum number of inbound rules per credential (250).
+                    message: You have reached the maximum number of inbound rules for these credentials (250).
         '404':
           $ref: '#/components/responses/CredentialsNotFound'
         '422':
@@ -737,7 +737,7 @@ paths:
                     CreatedAt: 1780675200000
                     UpdatedAt: 1785340800000
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CredentialsUnauthorized'
         '403':
           description: These are the organization's default credentials, which can't be deleted.
           content:
@@ -748,18 +748,9 @@ paths:
                 default:
                   value:
                     id: forbidden
-                    message: You cannot delete a default credential.
+                    message: You cannot delete the default credentials.
         '404':
-          description: No such credentials, or they belong to another organization.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                default:
-                  value:
-                    id: not_found
-                    message: Credential not found.
+          $ref: '#/components/responses/CredentialsNotFound'
         '500':
           $ref: '#/components/responses/CredentialsInternalServerError'
   /organizations/{organizationId}/users/{userId}/activate:
@@ -858,7 +849,7 @@ paths:
                     PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
                     URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CredentialsUnauthorized'
         '404':
           $ref: '#/components/responses/CredentialsNotFound'
         '500':
@@ -961,7 +952,7 @@ paths:
                     PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
                     URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CredentialsUnauthorized'
         '404':
           $ref: '#/components/responses/CredentialsNotFound'
         '500':
@@ -1045,7 +1036,7 @@ paths:
                         isInvalid: false
                         message: ''
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CredentialsUnauthorized'
         '404':
           $ref: '#/components/responses/CredentialsNotFound'
         '500':
@@ -1084,7 +1075,7 @@ paths:
                   value:
                     message: Email verification sent.
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CredentialsUnauthorized'
         '404':
           $ref: '#/components/responses/CredentialsNotFound'
         '429':
@@ -1234,16 +1225,30 @@ components:
       properties:
         id:
           type: string
-          description: |
-            A stable, machine-readable code for the error, such as `invalid_request_body`, `not_found`
-            or `internal_server_error`.
+          description: A stable, machine-readable code for the error. Match on it to handle an error.
+          enum:
+            - invalid_request_body
+            - invalid_params
+            - forbidden
+            - not_found
+            - unprocessable_entity
+            - too_many_requests
+            - internal_server_error
+          x-enumDescriptions:
+            invalid_request_body: The request body failed validation. `errors` lists the rejected fields. Returned with `400`.
+            invalid_params: A required value is missing or empty. Returned with `422`.
+            forbidden: The request is authenticated but not allowed, for example because a plan limit is reached. Returned with `403`.
+            not_found: The object doesn't exist, or belongs to another organization. Returned with `404`.
+            unprocessable_entity: The request conflicts with the current state, for example a login name that's taken. Returned with `422`.
+            too_many_requests: The same action was requested too recently. Wait before retrying. Returned with `429`.
+            internal_server_error: Something failed on our side. Returned with `500`.
           examples:
             - not_found
         message:
           type: string
           description: A human-readable explanation, safe to log but not intended for end users verbatim.
           examples:
-            - User not found.
+            - Credentials not found.
         errors:
           description: |
             The fields that were rejected, and why. Present only on `400` responses, either as an object keyed by field name or as a list of fields. Handle both.
@@ -2094,26 +2099,6 @@ components:
         Settings:
           $ref: '#/components/schemas/CredentialsSettingsInput'
   responses:
-    BadRequest:
-      description: |
-        The request body failed validation.
-
-        The `errors` object names each field that was rejected and why. This is a client-side problem:
-        fix the payload rather than retrying.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            default:
-              value:
-                id: bad_request
-                message: Invalid request body.
-                errors:
-                  isValid: false
-                  HasSelectedTopic:
-                    isInvalid: true
-                    message: You must include at least one topic.
     Unauthorized:
       description: |
         The request isn't authenticated.
@@ -2137,22 +2122,6 @@ components:
               value:
                 id: unauthorized
                 message: Unauthorized.
-    PaymentRequired:
-      description: |
-        Your plan does not include this feature.
-
-        This is a plan limitation, not an authentication or permission problem — the same request would
-        succeed on a plan that includes the feature. Retrying will not help; the account needs an upgrade.
-        Each operation that can return this lists the feature it requires.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            default:
-              value:
-                id: payment_required
-                message: Unfortunately, your current plan is ineligible to use Automations. To use this feature, please upgrade.
     Forbidden:
       description: |
         The request was authenticated but not allowed.
@@ -2236,6 +2205,29 @@ components:
               value:
                 id: internal_server_error
                 message: Unable to create Automation.
+    CredentialsUnauthorized:
+      description: |
+        The request isn't authenticated.
+
+        The `Authorization` header is missing or malformed, the key is revoked, the key belongs to another organization than the one in the path, or the organization isn't active. The request is rejected before it reaches the endpoint, so the body has only `message`.
+      content:
+        application/json:
+          schema:
+            type: object
+            title: GatewayUnauthorizedError
+            description: The body of a `401` returned before the request reaches the endpoint.
+            required:
+              - message
+            properties:
+              message:
+                type: string
+                description: Why the request wasn't authenticated.
+                examples:
+                  - Unauthorized
+          examples:
+            default:
+              value:
+                message: Unauthorized
     CredentialsInternalServerError:
       description: |
         Something failed on our side.
@@ -2251,7 +2243,7 @@ components:
               summary: For example, when retrieving one set of credentials
               value:
                 id: internal_server_error
-                message: Unable to get User.
+                message: Unable to get credentials.
     CredentialsBadRequest:
       description: |
         The request body is invalid. Nothing was changed.
@@ -2295,7 +2287,7 @@ components:
             default:
               value:
                 id: not_found
-                message: User not found.
+                message: Credentials not found.
   examples:
     Credentials:
       summary: Credentials that have been in use

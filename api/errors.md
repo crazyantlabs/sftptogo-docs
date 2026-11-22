@@ -32,9 +32,9 @@ A `401` from a failed authentication is the one exception: its body has only a `
 | `401` | The request isn't authenticated: the API key is missing, wrong or revoked, or it can't reach this path. | Check the `Authorization` header, the key, and the organization ID in the path. |
 | `402` | Your plan doesn't include this feature. | Upgrade your plan, or don't use the feature. |
 | `403` | The request is authenticated and your plan includes the feature, but this request isn't allowed. | Read `message`: for example, you reached a limit, or the item can't be changed this way. |
-| `404` | The item doesn't exist in your organization. | Check the ID in the path. |
-| `422` | The request is well formed but can't be done, such as a login name that is already taken. | Change the request, such as choosing another name. |
-| `429` | Too many requests of this kind. | Wait, then retry. |
+| `404` | The object doesn't exist, or belongs to another organization. | Check the ID in the path. |
+| `422` | A required value is missing, or the request conflicts with the current state, such as a login name that's taken. | Fill in the value, or change the request, such as choosing another name. |
+| `429` | The same action was requested too recently. | Wait, then retry. |
 | `500` | Something went wrong on our side. | Retry later. If it keeps happening, contact our support team. |
 
 ### 401, 402 or 403?
@@ -47,16 +47,15 @@ A `401` from a failed authentication is the one exception: its body has only a `
 
 | `id` | Status | Description |
 | --- | --- | --- |
-| `invalid_request_body` | `400` | The request body failed validation. `errors` lists the fields. |
-| `bad_request` | `400` | The request is invalid. `message` says why. |
-| `unauthorized` | `401` | An endpoint rejected the request as not authorized. |
-| `payment_required` | `402` | Your plan doesn't include this feature. |
-| `forbidden` | `403` | The request isn't allowed. `message` says why. |
-| `not_found` | `404` | The item doesn't exist. |
-| `unprocessable_entity` | `422` | The request can't be done as sent, such as a login name that is already taken. |
-| `invalid_params` | `422` | A parameter's value is invalid, such as a login name that isn't allowed. |
-| `too_many_requests` | `429` | Too many requests of this kind in a short time. |
-| `internal_server_error` | `500` | Something went wrong on our side. |
+| `invalid_request_body` | `400` | The request body failed validation. `errors` lists the rejected fields. |
+| `invalid_params` | `422` | A required value is missing or empty. |
+| `forbidden` | `403` | The request is authenticated but not allowed, for example because a plan limit is reached. |
+| `not_found` | `404` | The object doesn't exist, or belongs to another organization. |
+| `unprocessable_entity` | `422` | The request conflicts with the current state, for example a login name that's taken. |
+| `too_many_requests` | `429` | The same action was requested too recently. Wait before retrying. |
+| `internal_server_error` | `500` | Something failed on our side. |
+
+A `401` has no `id`: it comes from authentication, with a body of just `{"message": "Unauthorized"}`.
 
 ## Validation errors
 
