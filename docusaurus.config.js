@@ -79,6 +79,8 @@ const config = {
           management: {
             specPath: 'static/openapi/management.yaml',
             outputDir: 'api',
+            // The introduction's template: the plugin's own, served at /docs/api/introduction.
+            infoTemplate: path.join(__dirname, 'scripts/api-info-page.mustache'),
             // Adds a plan box, built from the spec's x-plan extension, to operation pages.
             markdownGenerators: {
               createApiPageMD: createApiPageMDWithPlan,
@@ -96,7 +98,7 @@ const config = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        redirects: [{ from: '/api', to: '/api/sftp-to-go-management-api' }],
+        redirects: [{ from: '/api', to: '/api/introduction' }],
       },
     ],
     [
