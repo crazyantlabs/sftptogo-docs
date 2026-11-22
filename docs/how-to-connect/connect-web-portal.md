@@ -66,7 +66,7 @@ Search covers the files that existed when your organization's search index was c
 This feature is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
 :::
 
-### Bulk oprations
+### Bulk operations
 
 Selecting all or some files/folders in the items list displays the count of selected items above the list, along with a menu button (...). This allows bulk operations on the selected items:
 

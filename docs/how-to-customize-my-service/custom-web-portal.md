@@ -9,4 +9,4 @@ The web portal provides secure access and file management for you and your users
 Custom branding is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
 :::
 
-To set up custom domain with your web portal. Follow the instructions [here](../getting-started/organization-settings#domains).
+To set up a custom domain with your web portal, follow the instructions [here](../getting-started/organization-settings#domains).

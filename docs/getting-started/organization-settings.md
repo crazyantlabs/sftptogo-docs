@@ -42,6 +42,18 @@ Control how your users share files and folders with others. This will not change
 
 Use the audit logs to monitor access to your storage. The Audit logs dialog lets you browse through your organization's logs, filter them by Username, session ID or timestamp range. You can also export audit logs as files into your storage for long term storage or further processing.
 
+## Automations
+
+What your [automations](../automation/automations) reach for by name.
+
+### Connections
+
+Saved servers and storage that automations copy files to: a partner's SFTP server, a bucket in your own cloud account, a WebDAV server. Credentials are entered once and never shown again. See [Connections](../automation/connections).
+
+### Encryption keys
+
+PGP keys that automations encrypt and decrypt files with. See [Encryption keys](../security/encryption-keys).
+
 ## Network
 
 ### Domains
@@ -182,7 +194,7 @@ The access section lists the accounts that have access to an organization's mana
 To invite a new member to your organization, scroll down to the **Access** section and click **Invite team member**. Fill out the team member's name and email address and an invitation will be sent out for the new member to join your organization. After clicking the invitation link, the new member will be requested to create a password. Once logged in, the new member will be able to access the organization according to the assigned role.
 
 :::info
-If access to SFTP To go is managed by a partner (e.g. Heroku), use the partner's access management to add or remove team members.
+If access to SFTP To Go is managed by a partner (e.g. Heroku), use the partner's access management to add or remove team members.
 :::
 
 To remove a member from the organization, click the menu button (...) and then **Remove from team**.
