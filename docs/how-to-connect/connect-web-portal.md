@@ -39,6 +39,8 @@ If your administrator set the link for a specific email address, sign in to your
 
 1. Open your organization's portal login link, enter your username and click **Continue**.
 2. Under **Or sign in with** (or **Sign in with**, if your organization doesn't allow passwords), click **Single sign-on**.
+
+   ![The web portal sign-in card with a username, a password field and, under Or sign in with, the Single sign-on button](../../static/img/sso-credentials-portal-sign-in.png)
 3. Sign in with your identity provider. The web portal opens, signed in.
 
 If your organization's web portal uses a [custom domain](../how-to-customize-my-service/custom-web-portal.md), your browser passes through SFTP To Go's default web portal address on the way to your identity provider, and returns to your custom domain.
@@ -55,7 +57,13 @@ SFTP and FTPS clients can't sign in with SSO. When you sign in to the web portal
 4. Click **Generate**.
 5. Click **Copy** and paste the password into your SFTP or FTPS client. The password is shown once: "Copy this password now. For your security it is not shown again." Then click **Done**.
 
-Your short-lived passwords are listed under **Short-lived passwords**, with their name, the protocols they work for, when they were created and when they expire. Your organization sets how long they last and how many you can have active at once. When you are at the limit, a new password replaces your oldest one.
+   ![A generated short-lived password named Office desktop, with an example value, a Copy button and its expiry](../../static/img/sso-credentials-password-shown-once.png)
+
+Your short-lived passwords are listed under **Short-lived passwords**, with their name, the protocols they work for, when they were created and when they expire.
+
+![The Short-lived passwords list with three passwords for SFTP and FTPS, each with a Revoke link, and the Generate password button](../../static/img/sso-credentials-short-lived-list.png)
+
+ Your organization sets how long they last and how many you can have active at once. When you are at the limit, a new password replaces your oldest one.
 
 To stop a password before it expires, click **Revoke** next to it, then **Revoke**. Any client using that password stops connecting.
 

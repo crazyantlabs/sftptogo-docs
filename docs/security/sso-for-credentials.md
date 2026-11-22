@@ -39,6 +39,8 @@ Your organization's default credentials can't be linked. They are the only crede
 2. Turn on **Single Sign-On (SSO)**. A status panel appears under it: "SSO for credentials is **not configured**".
 3. Click **Set up**. The identity provider setup wizard opens in a new browser tab. Follow its steps to connect your identity provider.
 4. When the wizard is done, return to the settings. The status panel shows "SSO for credentials is **enabled**". If it still shows **in progress**, reload the page.
+
+   ![Authentication methods with Single Sign-On (SSO) turned on and the status panel showing SSO for credentials is enabled, with Disable and Manage buttons](../../static/img/sso-credentials-settings-enabled.png)
 5. Click **Save authentication methods**.
 
 The status panel shows where the setup stands:
@@ -59,9 +61,17 @@ To let a person sign in with SSO, generate a one-time link for their credentials
 
 1. Open your organization's **Credentials** tab.
 2. On the credentials row, open the **...** menu and select **Set up SSO**. The menu shows **Set up SSO** after **Single Sign-On (SSO)** is saved as an authentication method.
+
+   ![The credentials row menu with Set up SSO among Edit, Set password, Import SSH key and Deactivate](../../static/img/sso-credentials-menu-set-up.png)
+
 3. Optional: In **Expected email (optional)**, enter the person's email address at your identity provider. Only that identity can then use the link.
+
+   ![The Set up SSO for these credentials dialog with an expected email and the Generate link button](../../static/img/sso-credentials-set-up-dialog.png)
+
 4. Click **Generate link**.
 5. In **Share this one-time SSO link**, click **Copy** and send the link to the person. Then click **Done**.
+
+   ![The Share this one-time SSO link dialog showing an example link with a Copy button](../../static/img/sso-credentials-link-dialog.png)
 
 The link:
 
@@ -111,6 +121,8 @@ Only a web portal session signed in with SSO can generate short-lived passwords.
 2. In **Active passwords per credential**, enter how many short-lived passwords each set of credentials can have active at once, from 1 to 5. The default is 5.
 3. In **Lifetime**, enter how long each new password lasts, and choose a unit (days, hours, minutes or seconds). It can be from 1 minute to 7 days. The default is 1 hour.
 4. Click **Save short-lived password limits**.
+
+   ![The Short-lived passwords settings with Active passwords per credential set to 5 and Lifetime set to 1 hour](../../static/img/sso-credentials-short-lived-limits.png)
 
 When a set of credentials already has as many active passwords as the limit allows, a new password replaces the oldest one, which stops working.
 
@@ -174,7 +186,7 @@ If nobody else uses the credentials, you can deactivate them instead: on the cre
 
 If the credentials stay active, also check these:
 
-- **Their password.** Linked credentials keep their own password. If **Password** sign-in is turned on, give the credentials a new password, so the person can't sign in with the old one: in the credentials' details, click **reset** next to **Password**.
+- **Their password.** Linked credentials keep their own password. If **Password** sign-in is turned on, give the credentials a new password, so the person can't sign in with the old one: on the credentials row, open the **...** menu and select **Set password**.
 - **SSH keys.** While **Password** and **SSH public key** are turned off (as under [SSO only](#sso-only)), SSH keys added to linked credentials keep working over SFTP until you remove SSO from the credentials or delete the key. Disabling the person at your identity provider doesn't stop a key.
 
 Either way, check **share links**. Share links the person created keep working: turning SSO off and removing SSO from the credentials don't end them. Delete them from your organization's **Share links** tab. Refer to [Sharing files and folders](../getting-started/sharing-files-and-folders.md).
