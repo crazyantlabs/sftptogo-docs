@@ -10,7 +10,7 @@ To connect to your SFTP To Go storage using the FTPS protocol, follow these gene
 3. Copy the host, username, and the password to your SFTP client of choice. Make sure you use the default FTPS port (21) in your connection.
 
 :::note
-If you sign in to the web portal with [single sign-on (SSO)](../security/sso-for-credentials.md), you can connect with a [short-lived password](connect-web-portal.md#short-lived-passwords) generated in the web portal. If your organization doesn't allow password sign-in, use one instead of the credentials' password.
+If you sign in to the web portal with [single sign-on (SSO)](../security/sso-for-credentials.md), generate a [short-lived password](connect-web-portal.md#short-lived-passwords) in the web portal and use it with your username in place of a password. Short-lived passwords work even when your organization turns off password sign-in.
 :::
 
 :::info 

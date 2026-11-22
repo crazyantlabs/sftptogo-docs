@@ -18,6 +18,11 @@ SSO for credentials is only available with certain plans. Read more about our di
 - Only an organization owner can set up SSO for credentials, link credentials and turn SSO off.
 - SSO for credentials is available to organizations that subscribe to SFTP To Go directly. It isn't available to organizations subscribed through a marketplace add-on, such as the Heroku add-on.
 - On a plan without SSO for credentials, the **Single Sign-On (SSO)** authentication method is shown turned off and locked, with an upgrade prompt.
+- The identity provider connection for credentials is separate from the one [team SSO](../getting-started/organization-settings.md#sso) uses. You set it up on its own, even if you already use team SSO.
+
+:::note
+Each set of credentials links to one identity at your identity provider, and an identity links to one set of credentials. If a person uses several sets of credentials, they need a different identity at your identity provider for each set.
+:::
 
 ## How it works
 
@@ -26,14 +31,14 @@ SSO for credentials is only available with certain plans. Read more about our di
 3. The person opens the link and signs in with your identity provider. Their identity is now linked to those credentials.
 4. From then on, they sign in to the web portal with **Single sign-on**. To connect an SFTP or FTPS client, they generate a short-lived password in the web portal.
 
-Each set of credentials links to one person's identity, and an identity links to one set of credentials. A person who uses several sets of credentials signs in to each with a different identity at your identity provider. Your organization's default credentials can't be linked.
+Your organization's default credentials can't be linked. They are the only credentials with [Amazon S3 access keys](../how-to-connect/connect-using-amazon-s3.md), so SSO doesn't change S3 access.
 
 ## Setting up SSO for credentials {#setting-up}
 
 1. Open your organization's **Settings** tab and go to **Security**. In **Authentication methods**, click **Expand**.
 2. Turn on **Single Sign-On (SSO)**. A status panel appears under it: "SSO for credentials is **not configured**".
 3. Click **Set up**. The identity provider setup wizard opens in a new browser tab. Follow its steps to connect your identity provider.
-4. When the wizard is done, return to the settings. The status panel shows "SSO for credentials is **enabled**".
+4. When the wizard is done, return to the settings. The status panel shows "SSO for credentials is **enabled**". If it still shows **in progress**, reload the page.
 5. Click **Save authentication methods**.
 
 The status panel shows where the setup stands:
@@ -95,7 +100,7 @@ A short-lived password:
 
 - works over SFTP and FTPS only, never to sign in to the web portal;
 - is shown once, when it is generated;
-- stops working when it expires, when the person revokes it, or when a new one replaces it at your [limit](#short-lived-password-limits). It also stops when you [remove SSO from the credentials](#removing-sso) or [turn SSO off](#turning-sso-off);
+- can no longer be used to connect when it expires, when the person revokes it, or when a new one replaces it at your [limit](#short-lived-password-limits). It also stops when you [remove SSO from the credentials](#removing-sso) or [turn SSO off](#turning-sso-off);
 - works even when the **Password** authentication method is turned off.
 
 Only a web portal session signed in with SSO can generate short-lived passwords. A session signed in with a password or a magic code doesn't show them.
@@ -124,7 +129,9 @@ To make SSO the only way to sign in, turn off every other authentication method 
 - **Linked credentials** sign in to the web portal with SSO only. Over SFTP and FTPS, they connect with short-lived passwords. Over SFTP, they can also use SSH keys already added to the credentials (refer to [When someone leaves](#when-someone-leaves)). Their own password doesn't work anywhere, and **Forgot password** in the web portal sends no email.
 - **Credentials that aren't linked** can't sign in at all, to the web portal or over SFTP and FTPS. Link them before you turn the other methods off.
 
-The SSH key rule applies whenever **Password** and **SSH public key** are both turned off and **Single Sign-On (SSO)** is on: SSH keys of linked credentials keep working over SFTP. The credentials' details show this under their SSH keys.
+:::warning
+SSO only also stops credentials that scripts and integrations use, unless they are linked. A linked set of credentials can keep connecting over SFTP with an SSH key, because SSH keys of linked credentials keep working whenever **Password** and **SSH public key** are both turned off and **Single Sign-On (SSO)** is on. The credentials' details show this under their SSH keys.
+:::
 
 ### Multi-factor authentication
 
@@ -149,7 +156,7 @@ There are two ways to turn SSO off.
 Disabling SSO for credentials:
 
 - turns off **Single Sign-On (SSO)** in your authentication methods;
-- ends every web portal session signed in with SSO;
+- ends every web portal session signed in with SSO at once;
 - revokes every short-lived password at once;
 - removes the SSO link from every set of credentials, including links not used yet.
 
@@ -161,10 +168,16 @@ You can't disable SSO for credentials while it is your organization's only sign-
 
 ## When someone leaves {#when-someone-leaves}
 
-When a person who uses linked credentials leaves, disable or delete them at your identity provider, then [remove SSO from their credentials](#removing-sso). Removing SSO ends their SSO access and revokes their short-lived passwords at once. Also check these two things:
+When a person who uses linked credentials leaves, disable or delete them at your identity provider, then [remove SSO from their credentials](#removing-sso). Disabling the person at your identity provider stops new SSO sign-ins only: their short-lived passwords, and a web portal tab they have open, keep working until you remove SSO from the credentials. Removing SSO revokes their short-lived passwords at once.
 
+If nobody else uses the credentials, you can deactivate them instead: on the credentials row, open the **...** menu and select **Deactivate**. Deactivated credentials can't sign in to the web portal or connect over SFTP and FTPS.
+
+If the credentials stay active, also check these:
+
+- **Their password.** Linked credentials keep their own password. If **Password** sign-in is turned on, give the credentials a new password, so the person can't sign in with the old one: in the credentials' details, click **reset** next to **Password**.
 - **SSH keys.** While **Password** and **SSH public key** are turned off (as under [SSO only](#sso-only)), SSH keys added to linked credentials keep working over SFTP until you remove SSO from the credentials or delete the key. Disabling the person at your identity provider doesn't stop a key.
-- **Share links.** Share links the person created keep working. Turning SSO off and removing SSO from the credentials don't end them. Delete them from your organization's **Share links** tab. Refer to [Sharing files and folders](../getting-started/sharing-files-and-folders.md).
+
+Either way, check **share links**. Share links the person created keep working: turning SSO off and removing SSO from the credentials don't end them. Delete them from your organization's **Share links** tab. Refer to [Sharing files and folders](../getting-started/sharing-files-and-folders.md).
 
 ## Audit log events {#audit-log-events}
 

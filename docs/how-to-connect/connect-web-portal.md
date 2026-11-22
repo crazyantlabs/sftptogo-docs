@@ -17,7 +17,7 @@ Alternatively, use a shortcut from your SFTP To Go dashboard to connect as any u
 :::
 
 :::note
-Credentials associated with email addresses can reset their passwords without contacting an administrator by initiating the "Forgot password" flow.
+Credentials associated with email addresses can reset their passwords without contacting an administrator by initiating the "Forgot password" flow, unless your organization allows only SSO sign-in.
 :::
 
 ## Signing in with SSO
@@ -33,7 +33,7 @@ Your administrator sends you a one-time SSO link for your credentials.
 
 The link works once and expires 24 hours after your administrator generated it. If it has expired or was already used, the page says so: ask your administrator for a new link.
 
-If your administrator set the link for a specific email address, sign in to your identity provider with that address. Otherwise, the page says "This SSO link is for a different account at your identity provider."
+If your administrator set the link for a specific email address, sign in to your identity provider with that address. If you sign in with a different address, the page says "This SSO link is for a different account at your identity provider."
 
 ### Every time after that
 

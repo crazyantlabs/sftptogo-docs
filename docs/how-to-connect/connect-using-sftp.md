@@ -10,7 +10,7 @@ To connect to your SFTP To Go storage using the SFTP protocol, follow these gene
 3. Copy the host, username, and the password (unless you're using public key authentication) to your SFTP client of choice. Make sure you use the default SFTP port (22) in your connection.
 
 :::note
-If you sign in to the web portal with [single sign-on (SSO)](../security/sso-for-credentials.md), you can connect with a [short-lived password](connect-web-portal.md#short-lived-passwords) generated in the web portal. If your organization doesn't allow password sign-in, use one instead of the credentials' password.
+If you sign in to the web portal with [single sign-on (SSO)](../security/sso-for-credentials.md), generate a [short-lived password](connect-web-portal.md#short-lived-passwords) in the web portal and use it with your username in place of a password. Short-lived passwords work even when your organization turns off password sign-in. You can also connect with an SSH key added to the credentials.
 :::
 
 :::info 
