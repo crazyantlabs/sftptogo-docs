@@ -8,7 +8,7 @@ The web portal enables users with SFTP To Go credentials to manage files in thei
 To access the web portal, first ensure it is enabled in your organization's [settings tab](../getting-started/organization-settings#web-portal).
 Then, log in using your organization's portal login link, which can be found in the settings tab:
 
-1. Enter a credentials username
+1. Enter a credentials username and click **Continue**.
 2. Enter a credentials password, or click **Email magic code** if the credentials are associated with an email address and the [Magic Code](../getting-started/organization-settings#authentication-methods) authentication method is enabled. If your organization uses SSO for credentials, click **Single sign-on** instead (refer to [Signing in with SSO](#signing-in-with-sso)).
 3. If MFA is enabled, use an extra factor in the authentication process.
 
@@ -22,7 +22,7 @@ Credentials associated with email addresses can reset their passwords without co
 
 ## Signing in with SSO
 
-If your organization uses [Single Sign-On for credentials](../security/sso-for-credentials.md), you sign in to the web portal with your organization's identity provider.
+If your organization uses [single sign-on (SSO) for credentials](../security/sso-for-credentials.md), you sign in to the web portal with your organization's identity provider.
 
 ### The first time: your SSO link
 

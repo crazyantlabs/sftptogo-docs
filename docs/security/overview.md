@@ -22,7 +22,7 @@ Public key authentication is available with SFTP. The supported algorithms are s
 
 MFA devices can be used with credentials when accessing the web portal.
 
-Credentials can also sign in to the web portal with your organization's identity provider (SSO). Over SFTP and FTPS, they then connect with short-lived passwords generated in the web portal, which expire automatically. Refer to [Single Sign-On for credentials](sso-for-credentials.md).
+Credentials can also sign in to the web portal with your organization's identity provider (SSO). Over SFTP and FTPS, they then connect with short-lived passwords generated in the web portal, which expire automatically. Refer to [Single sign-on (SSO) for credentials](sso-for-credentials.md).
 
 Authorization
 ---------

@@ -1,11 +1,11 @@
 ---
-sidebar_label: 'Single Sign-On for credentials'
-title: 'Single Sign-On for credentials'
+sidebar_label: 'Single sign-on for credentials'
+title: 'Single sign-on (SSO) for credentials'
 sidebar_position: 13
 description: 'Let the people who use your credentials sign in to the web portal with your identity provider, and connect SFTP and FTPS clients with short-lived passwords.'
 ---
 
-Single Sign-On (SSO) for credentials lets the people who use your SFTP To Go credentials sign in to the [web portal](../how-to-connect/connect-web-portal.md) with your organization's identity provider. From the web portal, they generate short-lived passwords to connect SFTP and FTPS clients.
+Single sign-on (SSO) for credentials lets the people who use your SFTP To Go credentials sign in to the [web portal](../how-to-connect/connect-web-portal.md) with your organization's identity provider. From the web portal, they generate short-lived passwords to connect SFTP and FTPS clients.
 
 SSO for credentials is for the people who transfer files: the web portal and SFTP and FTPS clients. It is separate from [team SSO](../getting-started/organization-settings.md#sso), which controls how your team members sign in to the SFTP To Go dashboard. You can use either one, or both.
 
@@ -95,7 +95,7 @@ A short-lived password:
 
 - works over SFTP and FTPS only, never to sign in to the web portal;
 - is shown once, when it is generated;
-- stops working when it expires, or when the person revokes it;
+- stops working when it expires, when the person revokes it, or when a new one replaces it at your [limit](#short-lived-password-limits). It also stops when you [remove SSO from the credentials](#removing-sso) or [turn SSO off](#turning-sso-off);
 - works even when the **Password** authentication method is turned off.
 
 Only a web portal session signed in with SSO can generate short-lived passwords. A session signed in with a password or a magic code doesn't show them.
@@ -121,16 +121,16 @@ Linking credentials doesn't take anything away. Linked credentials keep their ow
 
 To make SSO the only way to sign in, turn off every other authentication method and save, leaving only **Single Sign-On (SSO)**. Then:
 
-- **Linked credentials** sign in to the web portal with SSO only. Over SFTP and FTPS, they connect with short-lived passwords, or with SSH keys already added to the credentials (see [When someone leaves](#when-someone-leaves)). Their own password doesn't work anywhere, and **Forgot password** in the web portal sends no email.
+- **Linked credentials** sign in to the web portal with SSO only. Over SFTP and FTPS, they connect with short-lived passwords. Over SFTP, they can also use SSH keys already added to the credentials (refer to [When someone leaves](#when-someone-leaves)). Their own password doesn't work anywhere, and **Forgot password** in the web portal sends no email.
 - **Credentials that aren't linked** can't sign in at all, to the web portal or over SFTP and FTPS. Link them before you turn the other methods off.
 
 The SSH key rule applies whenever **Password** and **SSH public key** are both turned off and **Single Sign-On (SSO)** is on: SSH keys of linked credentials keep working over SFTP. The credentials' details show this under their SSH keys.
 
 ### Multi-factor authentication
 
-When a person signs in with SSO, your identity provider is in charge of multi-factor authentication. Set it up there. SFTP To Go doesn't ask for its own one-time code on an SSO sign-in.
+When a person signs in to the web portal with SSO, your identity provider is in charge of multi-factor authentication: set it up there. SFTP To Go doesn't ask for its own one-time code on an SSO sign-in, even when your organization's [multi-factor authentication](../getting-started/organization-settings.md#multi-factor-authentication) settings require it for the web portal.
 
-Over SFTP and FTPS, short-lived passwords and SSH keys aren't asked for a one-time code: the person already proved who they are when they signed in with SSO. A credentials' own password still is, if your organization's [multi-factor authentication](../getting-started/organization-settings.md#multi-factor-authentication) settings require it.
+Over SFTP and FTPS, short-lived passwords and SSH keys aren't asked for a one-time code.
 
 ### Inbound network rules
 
@@ -179,5 +179,7 @@ SSO for credentials adds these events to your [audit logs](audit-logs.md#event-t
 | `user.sso.removed` | An owner removes SSO from credentials. |
 | `user.issued-password-created` | A person generates a short-lived password. |
 | `user.issued-password-revoked` | A person revokes a short-lived password, or a new one replaces the oldest at your limit. |
+
+Short-lived passwords that end because you remove SSO from credentials, delete credentials or turn SSO off aren't recorded one by one: the owner's action is the event. `user.sso.removed` lists the short-lived passwords it ended, and `credentials-sso.disabled` counts the credentials unlinked and the short-lived passwords ended. Passwords that expire aren't recorded either: each one's expiry is in its `user.issued-password-created` event.
 
 The password itself is never recorded.

@@ -52,7 +52,7 @@ Every event carries a principal type identifying who or what caused it. Activity
 | Area | Types |
 |--|--|
 | File activity | `file.created`, `file.deleted`, `file.downloaded`, `file.access-denied` |
-| User access | `user.login`, `user.login-failed`, `user.logout`, `user.access-denied`, `user.access-expired`, `user.password-updated`, `user.password-reset-email-sent`, `user.issued-password-created` and `user.issued-password-revoked` (a short-lived password generated or revoked; refer to [Single Sign-On for credentials](sso-for-credentials.md#audit-log-events)). A `user.login` from an SSO sign-in has `Method` `sso` in its `Data` |
+| User access | `user.login`, `user.login-failed`, `user.logout`, `user.access-denied`, `user.access-expired`, `user.password-updated`, `user.password-reset-email-sent`, `user.issued-password-created` and `user.issued-password-revoked` (a short-lived password generated or revoked; refer to [Single sign-on (SSO) for credentials](sso-for-credentials.md#audit-log-events)). A `user.login` from an SSO sign-in has `Method` `sso` in its `Data` |
 | Share link access | `share-link.access`, `share-link.access-failed`, `share-link.access-expired`, `share-link.access-limit-reached`, `share-link.reported` |
 | Organization | `organization.updated` |
 | Team members | `organization.member.invited`, `organization.member.joined` (invitation accepted), `organization.member.role.updated`, `organization.member.removed`, `organization.member.left`. Member events include the affected member's name and email |
