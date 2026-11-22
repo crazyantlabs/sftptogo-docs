@@ -39,7 +39,7 @@ The SFTP To Go Management API lets you script what you would otherwise do in the
 
 Almost every path is scoped to an organization: `https://api.sftptogo.com/organizations/{organizationId}/...`
 
-Your API key is bound to a single organization, and a request whose `organizationId` does not match the key's organization is rejected.
+An API key works for one organization only. See [Authentication](https://sftptogo.com/docs/api/authentication) for how keys work.
 
 The API itself runs in one region. The region you chose for your storage is a property of your organization and does not change which host you call.
 
@@ -68,18 +68,7 @@ The API itself runs in one region. The region you chose for your storage is a pr
     >
       
       
-      Authenticate every request with your API key in the `Authorization` header:
-      
-      ```
-      Authorization: Bearer $SFTPTOGO_API_KEY
-      ```
-      
-      A key is bound to one organization and carries that organization's full access, so treat it
-      like a password: keep it in a secret store, never in client-side code or a public repository.
-      
-      Keys cannot reach account-level endpoints — anything that identifies a signed-in person
-      rather than an organization. Those are available only to a dashboard session.
-      
+      Send your API key as a bearer token in the Authorization header of every request. How to get a key, what it can reach and how to keep it safe are explained at https://sftptogo.com/docs/api/authentication.
       
       <div>
         <table>
@@ -95,12 +84,6 @@ The API itself runs in one region. The region you chose for your storage is a pr
                 HTTP Authorization Scheme:
               </th><td>
                 bearer
-              </td>
-            </tr><tr>
-              <th>
-                Bearer format:
-              </th><td>
-                JWT
               </td>
             </tr>
           </tbody>

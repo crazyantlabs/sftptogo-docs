@@ -14,7 +14,7 @@ info:
 
     Almost every path is scoped to an organization: `https://api.sftptogo.com/organizations/{organizationId}/...`
 
-    Your API key is bound to a single organization, and a request whose `organizationId` does not match the key's organization is rejected.
+    An API key works for one organization only. See [Authentication](https://sftptogo.com/docs/api/authentication) for how keys work.
 
     The API itself runs in one region. The region you chose for your storage is a property of your organization and does not change which host you call.
 
@@ -37,11 +37,11 @@ security:
 tags:
   - name: Credentials
     description: |
-      Credentials are the SFTP, FTPS and S3 logins your users and systems connect with. The API calls this resource `users`; the product calls them credentials, and this reference follows the product.
+      Credentials are the logins your users and systems use to connect over SFTP, FTPS, the web portal and the S3-compatible endpoint. The API calls this resource `users`.
   - name: SSH keys
-    description: Public keys attached to a credential, for key-based SFTP authentication.
+    description: Public keys attached to a set of credentials, for key-based SFTP authentication.
   - name: S3 credentials
-    description: S3-compatible access keys attached to a credential.
+    description: S3-compatible access keys attached to a set of credentials.
   - name: Share links
     description: |
       Links that give someone access to a folder through the web portal, without an SFTP client. The API calls this resource `portal-links`.
@@ -72,27 +72,24 @@ paths:
       - $ref: '#/components/parameters/OrganizationId'
     get:
       operationId: ListCredentials
-      summary: List credentials
+      summary: List all credentials
       tags:
         - Credentials
       description: |
-        Returns the organization's credentials, newest first, one page at a time.
+        Lists your organization's credentials, newest first.
 
-        Pass `limit` and follow the `next` link in the `Link` header for the following page. Without
-        `limit`, a page holds up to 2,000 credentials, which today returns most organizations' whole
-        list in one response; that default may be lowered.
+        Results are paged. Pass `limit` and follow the `next` link in the `Link` header to get the next
+        page. Without `limit`, a page holds up to 2,000 credentials; this default may be lowered.
 
-        **Each credential in the response includes its password in clear text**, along with a
-        ready-made connection string. That is deliberate: we store passwords so the dashboard can
-        display and rotate them. It does mean this response is as sensitive as a password file, so
-        avoid logging it and never pass it to an untrusted client.
+        Each set of credentials in the response includes its password in clear text and a connection
+        string. Don't log the response or pass it to an untrusted client.
       parameters:
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/After'
         - $ref: '#/components/parameters/Before'
       responses:
         '200':
-          description: One page of the organization's credentials, newest first.
+          description: Returns a page of credentials, newest first.
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -106,7 +103,7 @@ paths:
                 type: array
                 description: The credentials on this page.
                 items:
-                  $ref: '#/components/schemas/Credential'
+                  $ref: '#/components/schemas/Credentials'
               examples:
                 default:
                   summary: Two credentials
@@ -227,24 +224,22 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
-          $ref: '#/components/responses/CredentialInternalServerError'
+          $ref: '#/components/responses/CredentialsInternalServerError'
     post:
-      operationId: CreateCredential
-      summary: Create a credential
+      operationId: CreateCredentials
+      summary: Create credentials
       tags:
         - Credentials
       description: |
-        Creates a login for SFTP, FTPS, the web portal and the S3-compatible endpoint.
+        Creates credentials for SFTP, FTPS, the web portal and the S3-compatible endpoint.
 
-        Everything is optional. With an empty body you get a generated name, a generated password that
-        satisfies your organization's password policy, a home directory of `/home/{UserName}`, and
-        `Permission: none`: connectable, but able to see nothing. In practice you almost always want to
-        set `Permission`, or give the credential virtual folders with `HomeDirectoryDetails`.
+        Every field is optional. An empty body creates credentials with a generated name and password, a
+        home directory of `/home/{UserName}` and `Permission: none`: they can connect but can't see any
+        files. Set `Permission`, or give them virtual folders with `HomeDirectoryDetails`.
 
-        The response includes the password. You can read it again later with the get or list
-        endpoints, since we store it, but capture it now if you are handing it to someone.
+        The response includes the password. You can read it again later by retrieving the credentials.
 
-        Counts against your plan's credential limit.
+        Counts against your plan's limit on credentials.
       x-plan:
         limit: credentials
       requestBody:
@@ -252,13 +247,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateCredentialRequest'
+              $ref: '#/components/schemas/CreateCredentialsRequest'
             examples:
               minimal:
                 summary: Let us choose everything
                 value: {}
               typical:
-                summary: A named credential for a specific system
+                summary: Named credentials for a specific system
                 value:
                   UserName: data-warehouse-prod
                   Alias: Data warehouse (production)
@@ -286,14 +281,14 @@ paths:
                   ExpiresAt: 1793318400
       responses:
         '201':
-          description: The credential was created.
+          description: Returns the new credentials, including their password.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Credential'
+                $ref: '#/components/schemas/Credentials'
               examples:
                 default:
-                  summary: A newly created credential
+                  summary: Newly created credentials
                   value:
                     Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
                     OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
@@ -324,21 +319,19 @@ paths:
                     CreatedAt: 1780675200000
                     UpdatedAt: 1780675200000
         '400':
-          $ref: '#/components/responses/CredentialBadRequest'
+          $ref: '#/components/responses/CredentialsBadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           description: |
-            Either creating this credential would exceed the number your plan allows (delete one you no
-            longer need, or upgrade), or your organization is still being set up and cannot take new
-            credentials yet (retry in a few minutes). The `message` says which.
+            Your plan's limit on credentials is reached, or your organization is still being set up. The `message` says which. Delete credentials you no longer need or upgrade, or retry in a few minutes.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
               examples:
                 limit:
-                  summary: The plan's credential limit is reached
+                  summary: The plan's limit on credentials is reached
                   value:
                     id: forbidden
                     message: You have reached the maximum number of users (25).
@@ -349,8 +342,7 @@ paths:
                     message: Organization is not in active state. Please try again in a few minutes.
         '422':
           description: |
-            The login name is taken. Names are unique across the whole service, so this can happen with
-            a name you have never used. Pick another and retry.
+            The login name is taken. Names are unique across SFTP To Go, so a name you've never used can be taken.
           content:
             application/json:
               schema:
@@ -361,28 +353,23 @@ paths:
                     id: unprocessable_entity
                     message: Unfortunately, the username is not available. Please choose another one.
         '500':
-          $ref: '#/components/responses/CredentialInternalServerError'
+          $ref: '#/components/responses/CredentialsInternalServerError'
   /organizations/{organizationId}/users/check-name:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
     post:
-      operationId: CheckCredentialName
+      operationId: CheckCredentialsName
       summary: Check a login name
       tags:
         - Credentials
       description: |
-        Reports whether a login name is already taken.
+        Checks whether a login name is available.
 
-        Names are unique across the whole service rather than within your organization, so a name can be
-        unavailable even though you have never used it. Call this before creating or renaming a
-        credential to avoid either.
+        Login names are unique across SFTP To Go, not just your organization. Reserved names such as
+        `admin`, `root` and `support` are always reported as taken. If you use one anyway, a name in use
+        returns `422` and a reserved name returns `400`.
 
-        A small set of reserved names — `admin`, `root`, `support` and similar — always report as
-        taken. Note that the two cases fail differently when you go on to use the name: one already in
-        use returns `422`, whereas a reserved one is rejected by validation with `400`.
-
-        It is a `POST` because the name travels in the body rather than the URL, which keeps it out of
-        logs and browser history. Nothing is created.
+        This call creates nothing. It's a `POST` so that the name stays out of URLs and logs.
       requestBody:
         required: true
         content:
@@ -402,7 +389,7 @@ paths:
                   UserName: data-warehouse-prod
       responses:
         '200':
-          description: Whether the name is taken.
+          description: Returns whether the name is taken.
           content:
             application/json:
               schema:
@@ -413,9 +400,7 @@ paths:
                 properties:
                   exists:
                     type: boolean
-                    description: |
-                      `true` when the name is unavailable, whether it is already in use or reserved.
-                      `false` when you can use it.
+                    description: '`true` if the name is in use or reserved, `false` if you can use it.'
               examples:
                 available:
                   summary: The name is free
@@ -439,30 +424,31 @@ paths:
                     id: invalid_params
                     message: Username is invalid.
         '500':
-          $ref: '#/components/responses/CredentialInternalServerError'
+          $ref: '#/components/responses/CredentialsInternalServerError'
   /organizations/{organizationId}/users/{userId}:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
-      - $ref: '#/components/parameters/CredentialId'
+      - $ref: '#/components/parameters/CredentialsId'
     get:
-      operationId: GetCredential
-      summary: Retrieve a credential
+      operationId: GetCredentials
+      summary: Retrieve credentials
       tags:
         - Credentials
       description: |
-        Returns one credential, including its current password in clear text, a ready-made connection string and the SSH public keys attached to it. Handle the response as a secret.
+        Retrieves one set of credentials by its `Id`.
 
-        Use `PasswordCreatedAt` to find credentials that are due for rotation.
+        The response includes the current password in clear text, a connection string and the attached
+        SSH public keys, so treat it as a secret. `PasswordCreatedAt` shows when the password was set.
       responses:
         '200':
-          description: The credential, with its SSH public keys.
+          description: Returns the credentials, with their SSH public keys.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Credential'
+                $ref: '#/components/schemas/Credentials'
               examples:
                 default:
-                  summary: A credential that has been in use
+                  summary: Credentials that have been in use
                   value:
                     Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
                     OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
@@ -554,26 +540,26 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          $ref: '#/components/responses/CredentialNotFound'
+          $ref: '#/components/responses/CredentialsNotFound'
         '500':
-          $ref: '#/components/responses/CredentialInternalServerError'
+          $ref: '#/components/responses/CredentialsInternalServerError'
     patch:
-      operationId: UpdateCredential
-      summary: Update a credential
+      operationId: UpdateCredentials
+      summary: Update credentials
       tags:
         - Credentials
       description: |
-        Changes one or more properties. Send only what you want to change: omitted fields are left alone and are not validated.
+        Updates the properties of credentials.
 
-        Three fields reset rather than clear when you send an empty string: `Alias` returns to the
-        login name, `HomeDirectory` to `/home/{UserName}`, and `ChrootDirectory` to `/`.
+        Send only the fields you want to change. Fields you omit are left as they are and aren't
+        validated. An empty string resets `Alias` to the login name, `HomeDirectory` to
+        `/home/{UserName}` and `ChrootDirectory` to `/`.
 
-        Inbound rules take effect only if your plan includes them. On a plan without them, a change to
-        `Settings.Network.InboundRules` is skipped without an error, and the rest of the update still
-        applies.
+        Inbound rules require a plan that includes them. On other plans, changes to
+        `Settings.Network.InboundRules` are skipped without an error and the rest of the update applies.
 
-        Changes take effect on the next connection; sessions already open are not interrupted. To
-        change the password, use the password-rotation endpoint instead.
+        Changes apply to new connections; open sessions aren't interrupted. To change the password,
+        rotate it instead.
       x-plan:
         feature: inbound-rules
         appliesTo: Settings.Network.InboundRules
@@ -582,7 +568,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateCredentialRequest'
+              $ref: '#/components/schemas/UpdateCredentialsRequest'
             examples:
               permission:
                 summary: Reduce access to read-only
@@ -621,20 +607,20 @@ paths:
                           Description: Warehouse egress range
       responses:
         '200':
-          description: The updated credential.
+          description: Returns the updated credentials.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Credential'
+                $ref: '#/components/schemas/Credentials'
               examples:
                 default:
-                  $ref: '#/components/examples/Credential'
+                  $ref: '#/components/examples/Credentials'
         '400':
-          $ref: '#/components/responses/CredentialBadRequest'
+          $ref: '#/components/responses/CredentialsBadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          description: The update would give the credential more than 250 inbound rules.
+          description: The update would give the credentials more than 250 inbound rules.
           content:
             application/json:
               schema:
@@ -645,11 +631,9 @@ paths:
                     id: forbidden
                     message: You have reached the maximum number of inbound rules per credential (250).
         '404':
-          $ref: '#/components/responses/CredentialNotFound'
+          $ref: '#/components/responses/CredentialsNotFound'
         '422':
-          description: |
-            The new login name is taken, across the whole service rather than just your organization.
-            Nothing was changed.
+          description: The new login name is taken. Nothing was changed.
           content:
             application/json:
               schema:
@@ -660,33 +644,29 @@ paths:
                     id: unprocessable_entity
                     message: Unfortunately, the user name is not available. Please choose another one.
         '500':
-          $ref: '#/components/responses/CredentialInternalServerError'
+          $ref: '#/components/responses/CredentialsInternalServerError'
     delete:
-      operationId: DeleteCredential
-      summary: Delete a credential
+      operationId: DeleteCredentials
+      summary: Delete credentials
       tags:
         - Credentials
       description: |
-        Permanently deletes the credential and releases its login name for reuse.
+        Permanently deletes credentials and releases their login name for reuse.
 
-        **Files are not deleted.** They stay in your storage and remain reachable through other
-        credentials with the right permissions.
-
-        The organization's default credential cannot be deleted. This cannot be undone: to stop access
-        while keeping the credential, deactivate it instead.
+        This can't be undone. Files aren't deleted: they stay in your storage, reachable through other
+        credentials with access to them. You can't delete the organization's default credentials. To stop access but keep
+        the credentials, deactivate them instead.
       responses:
         '200':
           description: |
-            The deleted credential, as it was immediately before deletion, so you can record what was
-            removed. Unlike the other credential responses, it does not include the password or the
-            connection string.
+            Returns the deleted credentials as they were before deletion, without the password or the connection string.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Credential'
+                $ref: '#/components/schemas/Credentials'
               examples:
                 default:
-                  summary: A deleted credential
+                  summary: Deleted credentials
                   value:
                     Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
                     OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
@@ -759,7 +739,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          description: This is the organization's default credential, which cannot be deleted.
+          description: These are the organization's default credentials, which can't be deleted.
           content:
             application/json:
               schema:
@@ -770,9 +750,7 @@ paths:
                     id: forbidden
                     message: You cannot delete a default credential.
         '404':
-          description: |
-            No such credential, or it belongs to another organization. The API does not distinguish
-            between the two.
+          description: No such credentials, or they belong to another organization.
           content:
             application/json:
               schema:
@@ -783,30 +761,31 @@ paths:
                     id: not_found
                     message: Credential not found.
         '500':
-          $ref: '#/components/responses/CredentialInternalServerError'
+          $ref: '#/components/responses/CredentialsInternalServerError'
   /organizations/{organizationId}/users/{userId}/activate:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
-      - $ref: '#/components/parameters/CredentialId'
+      - $ref: '#/components/parameters/CredentialsId'
     put:
-      operationId: ActivateCredential
-      summary: Activate a credential
+      operationId: ActivateCredentials
+      summary: Activate credentials
       tags:
         - Credentials
       description: |
-        Puts a deactivated credential back into service. Its password, keys, home directory and network rules are unchanged, so connections work again immediately.
+        Activates deactivated credentials.
 
-        Activating an already-active credential succeeds and changes nothing.
+        Their password, keys, home directory and network rules are unchanged, so they can connect again
+        immediately. Activating credentials that are already active changes nothing.
       responses:
         '200':
-          description: The credential, now active.
+          description: Returns the credentials, now active.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Credential'
+                $ref: '#/components/schemas/Credentials'
               examples:
                 default:
-                  summary: The credential after the change
+                  summary: The credentials after the change
                   value:
                     Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
                     OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
@@ -881,33 +860,34 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          $ref: '#/components/responses/CredentialNotFound'
+          $ref: '#/components/responses/CredentialsNotFound'
         '500':
-          $ref: '#/components/responses/CredentialInternalServerError'
+          $ref: '#/components/responses/CredentialsInternalServerError'
   /organizations/{organizationId}/users/{userId}/deactivate:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
-      - $ref: '#/components/parameters/CredentialId'
+      - $ref: '#/components/parameters/CredentialsId'
     put:
-      operationId: DeactivateCredential
-      summary: Deactivate a credential
+      operationId: DeactivateCredentials
+      summary: Deactivate credentials
       tags:
         - Credentials
       description: |
-        Stops the credential connecting, without deleting anything. The password, SSH keys, home directory and network rules are all kept, so activating it again restores access exactly as it was.
+        Deactivates credentials so that they can't connect.
 
-        This is the reversible way to cut off access — reach for it rather than delete when you are
-        responding to a suspected leak, or retiring an integration you might bring back.
+        Nothing is deleted: the password, SSH keys, home directory and network rules are kept, and
+        activating the credentials restores access as it was. Deactivate rather than delete when you
+        respond to a suspected leak or pause an integration.
       responses:
         '200':
-          description: The credential, now inactive.
+          description: Returns the credentials, now inactive.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Credential'
+                $ref: '#/components/schemas/Credentials'
               examples:
                 default:
-                  summary: The credential after the change
+                  summary: The credentials after the change
                   value:
                     Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
                     OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
@@ -983,30 +963,26 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          $ref: '#/components/responses/CredentialNotFound'
+          $ref: '#/components/responses/CredentialsNotFound'
         '500':
-          $ref: '#/components/responses/CredentialInternalServerError'
+          $ref: '#/components/responses/CredentialsInternalServerError'
   /organizations/{organizationId}/users/{userId}/credential-rotations:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
-      - $ref: '#/components/parameters/CredentialId'
+      - $ref: '#/components/parameters/CredentialsId'
     post:
-      operationId: RotateCredentialPassword
+      operationId: RotateCredentialsPassword
       summary: Rotate or set a password
       tags:
         - Credentials
       description: |
-        Replaces the credential's password.
+        Replaces the password of credentials.
 
-        Send an empty body and we generate one that satisfies your organization's password policy. Send
-        a `Password` and it is used instead, provided it meets that policy.
+        Send an empty body to generate a password that meets your organization's password policy, or send
+        `Password` to set your own. The old password stops working immediately; open sessions aren't
+        interrupted.
 
-        The change is immediate: the old password stops working at once, and anything still using it
-        will fail to connect. Open sessions are not interrupted.
-
-        **The new password is not in the response** — this endpoint returns only a confirmation. Read it
-        back with the get endpoint, which returns the current password along with the rest of the
-        credential.
+        The response doesn't include the new password. Retrieve the credentials to read it.
       requestBody:
         required: false
         content:
@@ -1018,11 +994,12 @@ paths:
                 Password:
                   type: string
                   description: |
-                    The password to set. Must satisfy your organization's password policy, which
-                    governs its length, the kinds of characters it needs and whether it may appear in
-                    a known data breach (by default: at least 30 characters, including a number and a
-                    lowercase letter, not found in a breach), and at most 64 characters. Omit it to have one
-                    generated.
+                    The password to set. Omit it to have one generated.
+
+                    It must meet your organization's password policy, which sets its length, the kinds of
+                    characters it needs and whether it may appear in a known data breach. The default
+                    policy requires at least 30 characters, including a number and a lowercase letter, not
+                    found in a breach. The maximum is 64 characters.
             examples:
               generated:
                 summary: Generate a new password
@@ -1033,7 +1010,7 @@ paths:
                   Password: vq7pl2mxr9tz4wka8ne3ub6yc5jd1hgs
       responses:
         '200':
-          description: The password was changed.
+          description: Returns a confirmation. The new password isn't included.
           content:
             application/json:
               schema:
@@ -1049,9 +1026,7 @@ paths:
                     message: Password set.
         '400':
           description: |
-            The supplied password does not meet your organization's password policy. `errors.Password`
-            says which rule it failed; `errors.IsPwned` is marked invalid when the password appears in a
-            known data breach and the policy forbids that.
+            The password doesn't meet your organization's password policy. `errors.Password` names the rule it failed; `errors.IsPwned` is invalid when the password appears in a known data breach and your policy checks for that.
           content:
             application/json:
               schema:
@@ -1072,35 +1047,29 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          $ref: '#/components/responses/CredentialNotFound'
+          $ref: '#/components/responses/CredentialsNotFound'
         '500':
-          $ref: '#/components/responses/CredentialInternalServerError'
+          $ref: '#/components/responses/CredentialsInternalServerError'
   /organizations/{organizationId}/users/{userId}/email-verifications:
     parameters:
       - $ref: '#/components/parameters/OrganizationId'
-      - $ref: '#/components/parameters/CredentialId'
+      - $ref: '#/components/parameters/CredentialsId'
     post:
-      operationId: SendCredentialEmailVerification
-      summary: Send an email verification
+      operationId: SendCredentialsEmailVerification
+      summary: Send a verification email
       tags:
         - Credentials
       description: |
-        Emails the credential's address a link confirming it belongs to them.
+        Sends a verification link to the credentials' email address.
 
-        The credential must already have an `Email`. Verification matters for credentials that use the
-        web portal — it is how someone recovers their own password without you being involved. A
-        machine-to-machine credential with no address does not need it.
+        The credentials must have an `Email`. A verified address lets the person reset their own web
+        portal password. `EmailVerified` becomes `true` only when they follow the link.
 
-        `EmailVerified` flips to `true` only when the recipient follows the link; there is no way to set
-        it directly.
-
-        Calling this again sends a fresh link, so it also serves as a resend — but repeat sends to the
-        same address are rate limited, and an immediate retry returns `429`. Wait a few minutes.
-
-        It works whether or not the address is already verified.
+        Each call sends a new link, whether or not the address is already verified. Repeat sends to the
+        same address are rate limited: an immediate retry returns `429`, so wait a few minutes.
       responses:
         '200':
-          description: The email was sent.
+          description: Returns a confirmation that the email was sent.
           content:
             application/json:
               schema:
@@ -1117,11 +1086,10 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          $ref: '#/components/responses/CredentialNotFound'
+          $ref: '#/components/responses/CredentialsNotFound'
         '429':
           description: |
-            A verification was sent to this address too recently. Wait a few minutes before trying
-            again.
+            A verification was sent to this address too recently. Wait a few minutes before retrying.
           content:
             application/json:
               schema:
@@ -1133,8 +1101,7 @@ paths:
                     message: Too many requests. Please try again later.
         '500':
           description: |
-            The email could not be sent. This is also what you get when the credential has no email
-            address at all, so check that before retrying.
+            The email couldn't be sent. This is also the response when the credentials have no email address.
           content:
             application/json:
               schema:
@@ -1149,28 +1116,14 @@ components:
     apiKey:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: |
-        Authenticate every request with your API key in the `Authorization` header:
-
-        ```
-        Authorization: Bearer $SFTPTOGO_API_KEY
-        ```
-
-        A key is bound to one organization and carries that organization's full access, so treat it
-        like a password: keep it in a secret store, never in client-side code or a public repository.
-
-        Keys cannot reach account-level endpoints — anything that identifies a signed-in person
-        rather than an organization. Those are available only to a dashboard session.
+      description: Send your API key as a bearer token in the Authorization header of every request. How to get a key, what it can reach and how to keep it safe are explained at https://sftptogo.com/docs/api/authentication.
   parameters:
     OrganizationId:
       name: organizationId
       in: path
       required: true
       description: |
-        The organization the request applies to. Your API key is bound to one organization; requests for
-        any other organization are rejected. You can find the id in the dashboard, or on the organization
-        object returned by this API.
+        The organization the request applies to. Your API key works for one organization only. You can find its ID in the dashboard.
       schema:
         type: string
         format: uuid
@@ -1182,11 +1135,10 @@ components:
       in: query
       required: false
       description: |
-        Return the page of results that follows this cursor.
+        Returns the page that follows this cursor.
 
-        Cursors are opaque — do not construct, parse or store them. Take the value from the `next` link in
-        the `Link` response header of the previous page. Sending both `after` and `before` is not
-        supported; `before` wins.
+        Cursors are opaque: take the value from the `next` link in the `Link` header instead of building
+        one. If you send both `after` and `before`, `before` wins.
       schema:
         type: string
       examples:
@@ -1197,10 +1149,10 @@ components:
       in: query
       required: false
       description: |
-        Return the page of results that precedes this cursor.
+        Returns the page that precedes this cursor.
 
-        Cursors are opaque — take the value from the `prev` link in the `Link` response header rather than
-        building one yourself.
+        Cursors are opaque: take the value from the `prev` link in the `Link` header instead of building
+        one.
       schema:
         type: string
       examples:
@@ -1211,11 +1163,11 @@ components:
       in: query
       required: false
       description: |
-        How many items to return in one page, from 1 to 100. A number outside that range is clamped to
-        it rather than rejected.
+        The number of items per page, from 1 to 100. Values outside that range are clamped.
 
-        When `limit` is missing or is not a number, a page holds up to 2,000 items, which for most lists
-        means everything. This default may be lowered, so pass `limit` and follow the `Link` header.
+        Without `limit`, or with a value that isn't a number, a page holds up to 2,000 items, which for
+        most lists is everything. This default may be lowered, so pass `limit` and follow the `Link`
+        header.
       schema:
         type: integer
         minimum: 1
@@ -1223,13 +1175,12 @@ components:
       examples:
         default:
           value: 50
-    CredentialId:
+    CredentialsId:
       name: userId
       in: path
       required: true
       description: |
-        The credential's `Id` — the value we generated, not the login name. The path segment is `userId`
-        because the API calls this resource `users`.
+        The credentials' `Id`, not their login name. The path segment is `userId` because the API calls this resource `users`.
       schema:
         type: string
       examples:
@@ -1238,11 +1189,11 @@ components:
   headers:
     Link:
       description: |
-        Pagination links, in the RFC 8288 format. Present on list endpoints.
+        Pagination links, in RFC 8288 format.
 
-        Contains a `next` link while more results follow, and a `prev` link while earlier results exist,
-        so an empty header means a single page. Follow these URLs as given rather than assembling your
-        own: they already carry your filters, the page size, the cursor and the position (`offset`).
+        Has a `next` link while more results follow and a `prev` link while earlier results exist; an
+        empty header means a single page. Follow these URLs as given: they already carry your filters,
+        page size, cursor and position (`offset`).
       required: true
       schema:
         type: string
@@ -1251,9 +1202,7 @@ components:
           value: <https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users?limit=50&after=eyJJZCI6IjdjMmU5YTRmMWI2ZDNlOGEwYzVmMmI3ZDllMWE0YyIsIk9yZ2FuaXphdGlvbklkIjoiNmIxZjBkMmUtNGEzYy00ZjhiLTllMGEtMmM3ZDViOGUxZjM0IiwiQ3JlYXRlZEF0IjoxNzg2NzAxOTAwMDAwfQ%3D%3D&offset=50>; rel=next
     XTotalCount:
       description: |
-        The total number of items matching the request, across all pages, not the number in this
-        response. Check `X-Total-Count-Exact` before showing it as a final count: on a long list it can
-        be a lower bound.
+        The total number of matching items across all pages. On a long list it can be a lower bound; check `X-Total-Count-Exact`.
       required: true
       schema:
         type: integer
@@ -1262,9 +1211,11 @@ components:
           value: 1284
     XTotalCountExact:
       description: |
-        Whether `X-Total-Count` is exact. Counting a long list is cut short to keep the response fast;
-        when that happens this is `false` and `X-Total-Count` is a lower bound, still larger than the
-        number of items you have paged through so far. It is always `true` on the last page.
+        Whether `X-Total-Count` is exact.
+
+        Counting a long list stops early to keep the response fast. Then this is `false`, and
+        `X-Total-Count` is a lower bound that's still larger than the number of items you've paged
+        through. It's always `true` on the last page.
       required: true
       schema:
         type: boolean
@@ -1276,8 +1227,7 @@ components:
       type: object
       title: Error
       description: |
-        Every error response from the API uses this shape. Match on `id`, which is stable, rather than on
-        `message`, which is written for humans and may be reworded.
+        Every error response has this shape. Match on `id`, which is stable, not on `message`, which may change.
       required:
         - id
         - message
@@ -1296,10 +1246,7 @@ components:
             - User not found.
         errors:
           description: |
-            Which fields of the request were rejected and why. Present only on `400` responses, in one of
-            two forms: an object keyed by field name, from the checks every request goes through, or a
-            list of fields, from the checks that need your organization's own state, such as whether two
-            virtual folders overlap. Handle both.
+            The fields that were rejected, and why. Present only on `400` responses, either as an object keyed by field name or as a list of fields. Handle both.
           oneOf:
             - $ref: '#/components/schemas/ValidationError'
             - type: array
@@ -1310,12 +1257,11 @@ components:
       type: object
       title: ValidationError
       description: |
-        Field-level detail, present only on `400` responses caused by a malformed request body.
+        Field-level detail on a `400` caused by an invalid request body.
 
-        Each field the endpoint validates appears as its own property, keyed by the field name exactly as
-        it was sent; nested fields use dotted paths such as `Settings.Network`. Fields that passed are
-        listed too, carrying `isInvalid: false` and an empty message — so find the failures by filtering
-        on `isInvalid` rather than assuming only failures are present.
+        Each validated field appears as its own property, keyed by its name as sent; nested fields use
+        dotted paths such as `Settings.Network`. Fields that passed are listed too, with `isInvalid:
+        false`, so filter on `isInvalid` to find the failures.
       properties:
         isValid:
           type: boolean
@@ -1344,12 +1290,11 @@ components:
       type: object
       title: UnauthorizedError
       description: |
-        The body of a `401`. It has two sources, and they do not return quite the same thing.
+        The body of a `401`.
 
-        When authentication itself fails, the request is rejected at the edge and never reaches the
-        endpoint, so the body carries only `message`. When an endpoint rejects an already-authenticated
-        request, you get the standard error object including `id`. Treat `id` as optional on this status
-        and on this status only.
+        When authentication fails, the request is rejected before it reaches the endpoint and the body has
+        only `message`. When an endpoint rejects an authenticated request, the body is the standard error,
+        with `id`. So `id` is optional on this status only.
       required:
         - message
       properties:
@@ -1369,8 +1314,7 @@ components:
       type: object
       title: VirtualFolder
       description: |
-        One entry in a credential's virtual folders: a path the credential sees, mapped to a real
-        location in your storage, with its own permission.
+        One virtual folder: a path the credentials see, mapped to a location in your storage, with its own permission.
       required:
         - Entry
         - Target
@@ -1379,26 +1323,21 @@ components:
         Entry:
           type: string
           description: |
-            The path the credential sees, such as `/inbound`. Must start with a forward slash and must not
-            end with one, unless it is the root `/`, which must then be the only entry. Entries cannot
-            share a path or contain one another, and cannot contain a variable such as `${...}`.
+            The path the credentials see, such as `/inbound`. Must start with a slash and not end with one. The root `/` must be the only entry. Entries can't share a path, contain one another, or contain a variable such as `${...}`.
           maxLength: 1024
           examples:
             - /inbound
         Target:
           type: string
           description: |
-            The real location in your storage that the entry shows, as a path from the root of your
-            bucket. Must start with a forward slash and must not end with one. Two entries may show the
-            same location only if they give it the same permission.
+            The location in your storage, as a path from the root of your bucket. Must start with a slash and not end with one. Two entries can show the same location only with the same permission.
           maxLength: 1024
           examples:
             - /partners/acme/inbound
         Type:
           type: string
           description: |
-            Whether the entry is a folder or a single file. Defaults to `DIRECTORY`. A `FILE` entry
-            cannot be the root `/`.
+            Whether the entry is a folder or a single file. Defaults to `DIRECTORY`. A `FILE` entry can't be the root `/`.
           enum:
             - DIRECTORY
             - FILE
@@ -1406,8 +1345,7 @@ components:
         Permission:
           type: string
           description: |
-            What the credential may do inside this entry. The same levels as a credential's `Permission`,
-            applied to this entry alone; `none` keeps the entry listed but denies everything in it.
+            What the credentials can do inside this entry, with the same levels as `Permission` on the credentials. `none` keeps the entry listed but denies everything in it.
           enum:
             - none
             - read-only
@@ -1418,7 +1356,7 @@ components:
     SshPublicKey:
       type: object
       title: SshPublicKey
-      description: A public key attached to a credential, for key-based SFTP sign-in.
+      description: A public key attached to a set of credentials, for key-based SFTP sign-in.
       properties:
         Id:
           type: string
@@ -1426,7 +1364,7 @@ components:
           description: Unique identifier for the key.
         UserId:
           type: string
-          description: The `Id` of the credential the key is attached to.
+          description: The `Id` of the credentials the key is attached to.
         OrganizationId:
           type: string
           format: uuid
@@ -1473,8 +1411,7 @@ components:
       type: object
       title: MfaFactor
       description: |
-        A second factor the person using this credential has enrolled for web portal sign-in. Factors
-        are enrolled by that person in the portal, not through this API.
+        A second factor enrolled for web portal sign-in. The person using the credentials enrolls it in the portal; this API can't.
       properties:
         Id:
           type: string
@@ -1483,8 +1420,7 @@ components:
         Type:
           type: string
           description: |
-            The kind of factor: `totp` for an authenticator app, or `email` for a code sent to the
-            credential's email address.
+            The kind of factor: `totp` for an authenticator app, or `email` for a code sent to the credentials' email address.
           enum:
             - totp
             - email
@@ -1524,13 +1460,12 @@ components:
       type: object
       title: InboundRule
       description: |
-        One network rule that allows connections to a credential from an address or range.
+        A network rule that allows connections to a set of credentials from an address or range.
 
-        A connection is accepted when **any** enabled `allow` rule matches its protocol and source
-        address, counting your organization's rules and the credential's own together. So a credential's
-        rules can only add to what the organization already allows, never restrict it. New organizations
-        start with one organization rule that allows every address; tighten that rule before credential
-        rules make a difference.
+        A connection is allowed when any enabled `allow` rule matches its protocol and source address,
+        counting your organization's rules and the credentials' rules together. Rules on credentials can
+        only add to what the organization allows. New organizations start with one organization rule that
+        allows every address; tighten it before rules on credentials make a difference.
       required:
         - Protocol
         - State
@@ -1540,15 +1475,13 @@ components:
         Id:
           type: string
           description: |
-            An identifier for the rule, unique within the credential. You choose it; the dashboard uses a
-            UUID.
+            An identifier you choose, unique within these credentials. The dashboard uses a UUID.
           examples:
             - 9b2e4d6f-1a3c-4e5b-8d7f-0c2a4e6b8d1f
         Protocol:
           type: string
           description: |
-            Which connections the rule applies to: `*` for every protocol, or one of `SFTP`, `FTPS` or
-            `WEB_PORTAL`. Values are case-sensitive.
+            The connections the rule applies to: `*` for every protocol, or `SFTP`, `FTPS` or `WEB_PORTAL`. Case-sensitive.
           enum:
             - '*'
             - SFTP
@@ -1562,16 +1495,12 @@ components:
             - disabled
         Action:
           type: string
-          description: |
-            What a matching connection is allowed to do. Only `allow` rules are evaluated, so `allow` is
-            the only value with an effect.
+          description: What a matching connection may do. Only `allow` rules are evaluated.
           enum:
             - allow
         Source:
           type: string
-          description: |
-            Where the connection comes from: a single IPv4 or IPv6 address, or a CIDR range such as
-            `203.0.113.0/24`.
+          description: An IPv4 or IPv6 address, or a CIDR range such as `203.0.113.0/24`.
           examples:
             - 203.0.113.0/24
         Description:
@@ -1581,45 +1510,43 @@ components:
           anyOf:
             - type: string
             - type: 'null'
-    CredentialSettings:
+    CredentialsSettings:
       type: object
-      title: CredentialSettings
-      description: Per-credential security and network settings.
+      title: CredentialsSettings
+      description: Security and network settings for one set of credentials.
       properties:
         Security:
           type: object
-          description: How the person using this credential proves who they are in the web portal.
+          description: How the person using these credentials proves who they are in the web portal.
           properties:
             MFA:
               type: object
               description: |
-                Multi-factor authentication for web portal sign-in. It does not apply to SFTP, FTPS or S3
-                connections, which authenticate with a password or key.
+                Multi-factor authentication for web portal sign-in. It doesn't apply to SFTP, FTPS or S3 connections.
               properties:
                 Required:
                   type: boolean
                   description: Whether the person must enrol and use a second factor to sign in to the portal.
                 Factors:
                   type: array
-                  description: The second factors enrolled for this credential. Empty until one is added.
+                  description: The second factors enrolled for these credentials. Empty until one is added.
                   items:
                     $ref: '#/components/schemas/MfaFactor'
         Network:
           type: object
-          description: Where this credential may connect from, in addition to your organization's own rules.
+          description: Where these credentials may connect from, in addition to your organization's own rules.
           properties:
             InboundRules:
               type: array
               description: |
-                Rules that allow connections to this credential, on top of your organization's rules. See
-                the inbound rule object for how they combine. Empty by default.
+                Rules that allow connections to these credentials, in addition to your organization's rules. Empty by default.
               maxItems: 250
               items:
                 $ref: '#/components/schemas/InboundRule'
     LastLogin:
       type: object
       title: LastLogin
-      description: The most recent time this credential connected, and from where.
+      description: The most recent time these credentials connected, and from where.
       properties:
         Id:
           type: string
@@ -1631,8 +1558,7 @@ components:
             - 1785340800000
         IpAddress:
           description: |
-            The address the connection came from, anonymized: an IPv4 address keeps its first three
-            parts and an IPv6 address its first 48 bits, with the rest zeroed.
+            The anonymized source address. An IPv4 address keeps its first three parts and an IPv6 address its first 48 bits; the rest is zeroed.
           examples:
             - 203.0.113.0
           anyOf:
@@ -1647,8 +1573,7 @@ components:
             - type: 'null'
         Geo:
           description: |
-            Where that address is, approximately, or `null` when it could not be located. Location is
-            looked up from the address, so a connection through a VPN or proxy shows the proxy.
+            The approximate location of the address, or `null` if it couldn't be located. A connection through a VPN or proxy shows the proxy's location.
           oneOf:
             - type: object
               description: The approximate location of the address.
@@ -1682,9 +1607,7 @@ components:
               description: The address could not be located.
         UserAgent:
           description: |
-            The connecting client as it identified itself, parsed into the client, its operating system
-            and its device, or `null` when it sent nothing. Parts that cannot be recognised are `Other`
-            or `null`.
+            The client as it identified itself, parsed into application, operating system and device, or `null` if it sent nothing. Unrecognized parts are `Other` or `null`.
           oneOf:
             - type: object
               description: The client, parsed.
@@ -1768,23 +1691,21 @@ components:
                         - type: 'null'
             - type: 'null'
               description: The client did not identify itself.
-    Credential:
+    Credentials:
       type: object
-      title: Credential
+      title: Credentials
       description: |
-        A login your users and systems connect with, over SFTP, FTPS, the web portal or the
-        S3-compatible endpoint. The API calls this resource `users`; the product calls them credentials.
+        A set of credentials: a login for SFTP, FTPS, the web portal and the S3-compatible endpoint. The API calls this resource `users`.
 
-        A credential carries its own password, file access, permission and network rules, so each system
-        you integrate with can have its own, and revoking one leaves the others working.
+        Each set of credentials has its own password, file access and network rules, so you can give each
+        system its own and revoke one without affecting the others.
 
-        Its file access takes one of two forms. With a **home directory**, `Permission` applies
-        everywhere the credential can reach, from `ChrootDirectory` down. With **virtual folders**
-        (`HomeDirectoryDetails`), the credential sees only the folders listed there, each with its own
-        permission, and `Permission` is absent.
+        File access takes one of two forms. With a **home directory**, `Permission` applies everywhere
+        from `ChrootDirectory` down. With **virtual folders** (`HomeDirectoryDetails`), the credentials
+        see only the listed folders, each with its own permission, and `Permission` is absent.
 
-        Credentials created before a field existed may not have it, so treat everything not marked
-        required as optional.
+        Credentials created before a field existed may not have it, so treat fields that aren't required
+        as optional.
       required:
         - Id
         - OrganizationId
@@ -1795,21 +1716,16 @@ components:
         Id:
           type: string
           description: |
-            Unique identifier for the credential. Generated by us and used in the URL of every
-            credential-scoped request. It is not the login name, although it is used as one when you do
-            not choose a `UserName`.
+            Unique identifier, used in the URL of every request about these credentials. It's also the login name when you don't set `UserName`.
           examples:
             - 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
         OrganizationId:
           type: string
           format: uuid
-          description: The organization this credential belongs to.
+          description: The organization these credentials belong to.
         UserName:
           type: string
-          description: |
-            The name used to log in. Must be unique across the whole service, not just your
-            organization, so a name may be taken even though you have never used it. Check first with
-            the name-check endpoint.
+          description: The login name. Unique across SFTP To Go, not just your organization.
           minLength: 5
           maxLength: 100
           examples:
@@ -1817,30 +1733,26 @@ components:
         Alias:
           type: string
           description: |
-            A label for humans, shown in the dashboard. Defaults to `UserName`. Setting it to an empty
-            string resets it to `UserName` rather than clearing it.
+            A label shown in the dashboard. Defaults to `UserName`; an empty string resets it to `UserName`.
           maxLength: 80
           examples:
             - Data warehouse (production)
         State:
           type: string
           description: |
-            Whether the credential can currently connect. `inactive` blocks sign-in while keeping
-            everything else intact. A credential also becomes `inactive` when it expires.
+            Whether the credentials can connect. Credentials also become `inactive` when they expire.
           enum:
             - active
             - inactive
         Permission:
           type: string
           description: |
-            What this credential may do with files, everywhere under its chroot directory. Absent when
-            the credential uses virtual folders, which carry a permission each.
+            What the credentials can do with files under their chroot directory. Absent when they use virtual folders.
 
             - `none`: can connect, but sees nothing. The default.
             - `read-only`: download and list.
-            - `write-only`: upload only; folders can be listed, files cannot be read. Useful as a drop box.
-            - `read-write-no-delete`: download and upload, including replacing an existing file, but
-              never delete or rename.
+            - `write-only`: upload only; folders can be listed, files can't be read.
+            - `read-write-no-delete`: download and upload, including replacing a file, but never delete or rename.
             - `read-write`: download, upload and delete.
             - `full`: read-write, plus sharing files from the web portal.
           enum:
@@ -1852,51 +1764,47 @@ components:
             - full
         Host:
           type: string
-          description: The hostname this credential connects to. Reflects your custom domain when you have one.
+          description: The hostname the credentials connect to. Uses your custom domain if you have one.
           examples:
             - example.sftptogo.com
         HomeDirectory:
           type: string
           description: |
-            The directory the credential lands in after connecting. Defaults to `/home/{UserName}`. Must
-            start with a forward slash and must not end with one.
+            The directory the credentials land in after connecting. Defaults to `/home/{UserName}`.
           maxLength: 1024
           examples:
             - /home/data-warehouse-prod
         ChrootDirectory:
           type: string
           description: |
-            The highest directory the credential can reach: it cannot navigate above this, so it never
-            sees other credentials' files. Defaults to `/`. Ignored while the credential uses virtual
-            folders.
+            The highest directory the credentials can reach. Defaults to `/`. Ignored when they use virtual folders.
           examples:
             - /
         HomeDirectoryDetails:
           type: array
           description: |
-            Virtual folders: the folders this credential sees, each mapped to a real location in your
-            storage with its own permission. Absent when the credential uses a home directory instead.
+            Virtual folders: the folders the credentials see, each mapped to a location in your storage with its own permission. Absent when they use a home directory.
           maxItems: 50
           items:
             $ref: '#/components/schemas/VirtualFolder'
         SupportedProtocols:
           type: array
           description: |
-            How this credential can sign in. Normally `SFTP`, `FTPS` and `WEB_PORTAL`. A credential whose
-            virtual folders are too many or too deep to describe to the SFTP and FTPS service can sign in
-            only to the web portal, and lists `WEB_PORTAL` alone; shorten or remove folders to restore
-            the others. Absent on credentials created before this was tracked, which can use all three.
+            How the credentials can sign in: normally `SFTP`, `FTPS` and `WEB_PORTAL`.
+
+            If their virtual folders are too many or too deep for SFTP and FTPS, this lists only
+            `WEB_PORTAL`; shorten or remove folders to restore the others. Absent on older credentials,
+            which can use all three.
           items:
             type: string
-            description: A way the credential can sign in.
+            description: A way the credentials can sign in.
             enum:
               - SFTP
               - FTPS
               - WEB_PORTAL
         Email:
           description: |
-            Where web portal invitations and password resets are sent. Optional: a credential used only
-            by a machine does not need one.
+            Where web portal invitations and password resets are sent. Not needed for credentials used only by a machine.
           anyOf:
             - type: string
               format: email
@@ -1904,30 +1812,28 @@ components:
         EmailVerified:
           type: boolean
           description: |
-            Whether the address has been confirmed. Set when the recipient follows the link from the
-            email-verification endpoint; you cannot set it directly.
+            Whether the email address is confirmed. Set when the recipient follows the verification link; you can't set it directly.
         IsDefault:
           type: boolean
           description: |
-            Whether this is the organization's default credential, created with the organization itself.
-            The default credential cannot be deleted, and always uses a home directory.
+            Whether these are the organization's default credentials. Default credentials can't be deleted and always use a home directory.
         SshPublicKeysCount:
           type: integer
-          description: How many SSH public keys are attached, for key-based SFTP sign-in.
+          description: How many SSH public keys are attached.
         SshPublicKeys:
           type: array
-          description: The SSH public keys attached to the credential. Returned only when retrieving one credential.
+          description: |
+            The attached SSH public keys. Returned only when you retrieve one set of credentials.
           items:
             $ref: '#/components/schemas/SshPublicKey'
         Settings:
-          $ref: '#/components/schemas/CredentialSettings'
+          $ref: '#/components/schemas/CredentialsSettings'
         ExpiresAt:
           description: |
-            When access stops working, in **Unix epoch seconds**, or `null` or absent if it never expires.
+            When access stops, in **Unix epoch seconds**. `null` or absent means the credentials don't expire.
 
-            Once that time passes (checked every few minutes) the credential becomes `inactive` and
-            `ExpiresAt` returns to `null`, so an expired credential reads like a deactivated one with no
-            expiry. Activating it again restores access with no expiry.
+            Once the time passes (checked every few minutes), the credentials become `inactive` and
+            `ExpiresAt` returns to `null`. Activating them restores access with no expiry.
           examples:
             - 1793318400
           anyOf:
@@ -1935,44 +1841,40 @@ components:
             - type: 'null'
         LastLogin:
           description: |
-            The most recent sign-in, or `null` if the credential has never been used. Not returned when a
-            credential is first created.
+            The most recent sign-in, or `null` if the credentials have never been used. Not returned when credentials are created.
           oneOf:
             - $ref: '#/components/schemas/LastLogin'
             - type: 'null'
-              description: The credential has never been used.
+              description: The credentials have never been used.
         LoginsCount:
           type: integer
-          description: How many times this credential has signed in. Not returned when it is first created.
+          description: How many times the credentials have signed in. Not returned when they are created.
         Password:
           type: string
           description: |
-            The current password, in plain text.
+            The current password, in clear text.
 
-            Unusually for an API, this is returned on every read: we hold passwords so that they can be
-            shown in the dashboard and rotated for you. Treat any response containing a credential as a
-            secret: do not log it, cache it, or send it to a browser you do not control.
+            It's returned on every read, so treat any response that contains credentials as a secret:
+            don't log it, cache it or send it to a browser you don't control.
         PasswordCreatedAt:
           type: string
           format: date-time
           description: |
-            When the current password was set, as an ISO 8601 timestamp. Use it to find credentials due
-            for rotation. Not returned when a credential is created.
+            When the password was set, as an ISO 8601 timestamp. Not returned when credentials are created.
           examples:
             - '2026-07-02T09:30:00.000Z'
         URI:
           type: string
           description: |
-            A ready-to-use connection string combining the login name, password and host. Contains the
-            password in clear text, so it carries the same handling rules.
+            A connection string with the login name, password and host. It contains the password in clear text.
           examples:
             - sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
         CreatedAt:
           type: integer
-          description: When the credential was created, in Unix epoch milliseconds.
+          description: When the credentials were created, in Unix epoch milliseconds.
         UpdatedAt:
           type: integer
-          description: When the credential was last changed, in Unix epoch milliseconds.
+          description: When the credentials were last changed, in Unix epoch milliseconds.
     FieldError:
       type: object
       title: FieldError
@@ -1991,24 +1893,19 @@ components:
           description: Why the field was rejected, written for a person.
           examples:
             - Unfortunately, two virtual folders can't share the same path.
-    CreateCredentialRequest:
+    CreateCredentialsRequest:
       type: object
-      title: CreateCredentialRequest
+      title: CreateCredentialsRequest
       description: |
-        Every field is optional. Posting an empty body creates a working credential with a generated
-        name, a generated password and no file access: safe, but not useful until you set `Permission`
-        or `HomeDirectoryDetails`.
+        Every field is optional. An empty body creates credentials with a generated name and password and no file access.
       properties:
         UserName:
           type: string
           description: |
-            The name used to log in. Generated for you when omitted; the generated name is the
-            credential's `Id`.
+            The login name. Defaults to the generated `Id`.
 
-            Two ways it can be refused, and they differ: a name that is already in use returns `422`,
-            while a reserved name (`admin`, `root`, `support` and similar) is rejected by validation with
-            `400`. The name-check endpoint reports both as taken, so check there first if the name
-            matters to you.
+            A name already in use returns `422`. A reserved name, such as `admin`, `root` or `support`,
+            returns `400`. Check a name first if it matters to you.
           minLength: 5
           maxLength: 100
           pattern: ^(?![-.@])[a-zA-Z0-9-_.@]*$
@@ -2016,16 +1913,14 @@ components:
             - data-warehouse-prod
         Alias:
           type: string
-          description: A label for humans, shown in the dashboard. Defaults to the login name.
+          description: A label shown in the dashboard. Defaults to the login name.
           maxLength: 80
           examples:
             - Data warehouse (production)
         Permission:
           type: string
           description: |
-            What this credential may do with files under its home and chroot directories. Defaults to
-            `none`, meaning it can connect but sees nothing. Ignored when you send
-            `HomeDirectoryDetails`, whose folders carry their own permission.
+            What the credentials can do with files under their home and chroot directories. Defaults to `none`, which can connect but sees nothing. Ignored when you send `HomeDirectoryDetails`.
           enum:
             - none
             - read-only
@@ -2037,34 +1932,31 @@ components:
         Password:
           type: string
           description: |
-            A password of your choosing. It must satisfy your organization's password policy, which
-            governs its length, the kinds of characters it needs and whether it may appear in a known
-            data breach. The default policy asks for at least 30 characters, including a number and a
-            lowercase letter, not found in a breach. No password may be longer than 64 characters. A password that fails is rejected with `400`. Omit
-            it and we generate one that passes, which is the better option.
+            A password of your choosing. Omit it to have one generated, which is recommended.
+
+            It must meet your organization's password policy, which sets its length, the kinds of
+            characters it needs and whether it may appear in a known data breach. The default policy
+            requires at least 30 characters, including a number and a lowercase letter, not found in a
+            breach. The maximum is 64 characters. A password that fails returns `400`.
         HomeDirectory:
           type: string
           description: |
-            Where the credential lands after connecting. Defaults to `/home/{UserName}`. Must start with
-            a forward slash, must not end with one, and cannot contain a variable such as `${...}`.
+            Where the credentials land after connecting. Defaults to `/home/{UserName}`. Must start with a slash, not end with one, and not contain a variable such as `${...}`.
           maxLength: 1024
           examples:
             - /exports/warehouse
         ChrootDirectory:
           type: string
           description: |
-            The highest directory this credential can reach. Defaults to `/`. Set it to the home
-            directory to confine the credential to its own folder.
+            The highest directory the credentials can reach. Defaults to `/`. Set it to the home directory to confine the credentials to it.
         HomeDirectoryDetails:
           type: array
           description: |
-            Virtual folders, instead of a home directory: the folders the credential sees, each mapped to
-            a real location in your storage with its own permission. Up to 50.
+            Virtual folders to use instead of a home directory, up to 50. Each maps a path the credentials see to a location in your storage, with its own permission.
 
-            Each folder must be describable on its own to the web portal, so a very long `Target` can be
-            rejected with `400`. Many or deep folders together may be too much for SFTP and FTPS; such a
-            credential is still created, but can sign in only to the web portal, and its
-            `SupportedProtocols` says so.
+            A very long `Target` can return `400`. If the folders together are too many or too deep for
+            SFTP and FTPS, the credentials are still created but can sign in only to the web portal, as
+            `SupportedProtocols` shows.
           maxItems: 50
           items:
             $ref: '#/components/schemas/VirtualFolder'
@@ -2072,14 +1964,11 @@ components:
           type: string
           format: email
           description: |
-            Where web portal invitations and password resets are sent. Leave it out for
-            machine-to-machine credentials. The address starts unverified; see the email-verification
-            endpoint.
+            Where web portal invitations and password resets are sent. Omit it for credentials used only by a machine. The address starts unverified.
         State:
           type: string
           description: |
-            Set to `inactive` to create the credential without enabling it. Anything else is treated as
-            `active`.
+            Set to `inactive` to create the credentials disabled. Any other value creates them `active`.
           enum:
             - active
             - inactive
@@ -2087,17 +1976,16 @@ components:
         ExpiresAt:
           type: integer
           description: |
-            When access should stop working, in **Unix epoch seconds**. Must be after the end of today
-            and no more than a year away. Omit for a credential that does not expire. When the time
-            passes, the credential becomes `inactive` and its `ExpiresAt` returns to `null`.
+            When access stops, in **Unix epoch seconds**. Must be after the end of today and at most a year away. Omit it for credentials that don't expire.
+
+            When the time passes, the credentials become `inactive` and `ExpiresAt` returns to `null`.
           examples:
             - 1793318400
-    CredentialSettingsInput:
+    CredentialsSettingsInput:
       type: object
-      title: CredentialSettingsInput
+      title: CredentialsSettingsInput
       description: |
-        The settings you can change. Each part you send is merged into the current settings; within it,
-        a list you send replaces the stored list.
+        The settings you can change. Each part you send is merged into the current settings, and a list you send replaces the stored one.
       properties:
         Security:
           type: object
@@ -2110,55 +1998,47 @@ components:
                 Required:
                   type: boolean
                   description: |
-                    Require the person using this credential to enrol and use a second factor at their
-                    next portal sign-in.
+                    Whether the person using these credentials must use a second factor from their next portal sign-in.
         Network:
           type: object
-          description: Where this credential may connect from.
+          description: Where these credentials may connect from.
           properties:
             InboundRules:
               type: array
+              x-plan:
+                feature: inbound-rules
               description: |
-                The credential's complete list of inbound rules, replacing the current list. Up to 250.
+                The complete list of inbound rules, up to 250. Replaces the current list.
 
-                Takes effect only if your plan includes inbound rules. On a plan without them the list is
-                left unchanged and the request still succeeds, so read the credential back if it matters.
+                Requires a plan that includes inbound rules. On other plans the list is left unchanged and
+                the request still succeeds.
               maxItems: 250
               items:
                 $ref: '#/components/schemas/InboundRule'
-    UpdateCredentialRequest:
+    UpdateCredentialsRequest:
       type: object
-      title: UpdateCredentialRequest
+      title: UpdateCredentialsRequest
       description: |
-        Send only the fields you want to change; anything you leave out is untouched, and omitted fields
-        are not validated.
-
-        To change the password, use the password-rotation endpoint rather than this one.
+        Send only the fields you want to change. Omitted fields are left as they are and aren't validated. To change the password, rotate it instead.
       properties:
         UserName:
           type: string
           description: |
-            Rename the login. The old name is released and the new one must be free across the whole
-            service.
+            A new login name. The old name is released.
 
-            A name already in use returns `422`; a reserved name is rejected by validation with `400`.
-            Either way nothing changes. A credential that already holds a reserved name is exempt from
-            that check, so its other fields can still be updated.
+            A name already in use returns `422`, and a reserved name returns `400`; either way nothing
+            changes. Credentials that already have a reserved name can still update their other fields.
           minLength: 5
           maxLength: 100
           pattern: ^(?![-.@])[a-zA-Z0-9-_.@]*$
         Alias:
           type: string
-          description: |
-            The label shown in the dashboard. Sending an empty string resets it to the login name rather
-            than clearing it.
+          description: The label shown in the dashboard. An empty string resets it to the login name.
           maxLength: 80
         Permission:
           type: string
           description: |
-            What this credential may do with files under its home and chroot directories. Ignored on the
-            organization's default credential, and on a credential that has, or is being given, virtual
-            folders.
+            What the credentials can do with files under their home and chroot directories. Ignored on the organization's default credentials, and on credentials that have or are getting virtual folders.
           enum:
             - none
             - read-only
@@ -2169,23 +2049,20 @@ components:
         HomeDirectory:
           type: string
           description: |
-            Where the credential lands after connecting. Sending an empty string resets it to
-            `/home/{UserName}`. Must start with a forward slash, must not end with one, and cannot
-            contain a variable such as `${...}`.
+            Where the credentials land after connecting. An empty string resets it to `/home/{UserName}`. Must start with a slash, not end with one, and not contain a variable such as `${...}`.
           maxLength: 1024
         ChrootDirectory:
           type: string
-          description: The highest directory this credential can reach. Sending an empty string resets it to `/`.
+          description: The highest directory the credentials can reach. An empty string resets it to `/`.
         HomeDirectoryDetails:
           description: |
-            Replace the credential's virtual folders with this list, up to 50. The credential's
-            `Permission` is removed, since each folder carries its own.
+            Replaces the virtual folders, up to 50, and removes `Permission`, since each folder has its own.
 
-            Send an empty list or `null` to go back to a home directory. The credential then needs a
-            `Permission` again: send one in the same request, or the request is rejected with `400`
-            unless it already has one.
+            Send an empty list or `null` to switch back to a home directory. The credentials then need a
+            `Permission`: send one in the same request, or the request returns `400` unless they already
+            have one.
 
-            The organization's default credential cannot use virtual folders.
+            The organization's default credentials can't use virtual folders.
           anyOf:
             - type: array
               maxItems: 50
@@ -2194,8 +2071,7 @@ components:
             - type: 'null'
         Email:
           description: |
-            Where web portal invitations and password resets are sent. Changing it clears the verified
-            flag until the new address is confirmed. Send an empty string to remove it.
+            Where web portal invitations and password resets are sent. Changing it marks the address unverified. An empty string removes it.
           anyOf:
             - type: string
               format: email
@@ -2203,21 +2079,20 @@ components:
         State:
           type: string
           description: |
-            Whether the credential can connect. Prefer the activate and deactivate endpoints, which say
-            what they do at the call site.
+            Whether the credentials can connect. The activate and deactivate calls do the same and read more clearly.
           enum:
             - active
             - inactive
         ExpiresAt:
           description: |
-            When access should stop working, in **Unix epoch seconds**, or `null` to remove the expiry.
-            Must be after the end of today and no more than a year away. When the time passes, the
-            credential becomes `inactive` and its `ExpiresAt` returns to `null`.
+            When access stops, in **Unix epoch seconds**, or `null` to remove the expiry. Must be after the end of today and at most a year away.
+
+            When the time passes, the credentials become `inactive` and `ExpiresAt` returns to `null`.
           anyOf:
             - type: integer
             - type: 'null'
         Settings:
-          $ref: '#/components/schemas/CredentialSettingsInput'
+          $ref: '#/components/schemas/CredentialsSettingsInput'
   responses:
     BadRequest:
       description: |
@@ -2241,15 +2116,13 @@ components:
                     message: You must include at least one topic.
     Unauthorized:
       description: |
-        The request was not authenticated.
+        The request isn't authenticated.
 
-        Usually the `Authorization` header is missing or malformed, the key has been revoked, or the key
-        belongs to a different organization than the one in the path. It is also returned when the
-        organization is not in an active state.
+        The `Authorization` header is missing or malformed, the key is revoked, the key belongs to another
+        organization than the one in the path, or the organization isn't active.
 
-        Note the two body shapes. When authentication fails, the request never reaches a handler and the
-        gateway returns a bare `message`. When a handler rejects a request for its own reasons, you get
-        the standard error object with an `id`. Code defensively for both.
+        The body takes two shapes: a bare `message` when the request is rejected before it reaches the
+        endpoint, or the standard error with `id` when the endpoint rejects it. Handle both.
       content:
         application/json:
           schema:
@@ -2321,7 +2194,7 @@ components:
       description: |
         The request was well formed but conflicts with the current state.
 
-        The common case is a uniqueness clash, such as a credential login name already taken. Login
+        The common case is a uniqueness clash, such as a login name for credentials that is already taken. Login
         names are unique across the whole service, not just your organization. Change the conflicting
         value and retry.
       content:
@@ -2363,30 +2236,28 @@ components:
               value:
                 id: internal_server_error
                 message: Unable to create Automation.
-    CredentialInternalServerError:
+    CredentialsInternalServerError:
       description: |
         Something failed on our side.
 
-        The request may or may not have taken effect, so read the credential back before retrying a
-        change. Retrying a read is always safe. If it persists, contact support with the approximate time
-        of the request.
+        A change may or may not have been made, so retrieve the credentials before you retry one. Retrying
+        a read is always safe. If the error persists, contact support with the time of the request.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           examples:
             default:
-              summary: For example, when retrieving a credential
+              summary: For example, when retrieving one set of credentials
               value:
                 id: internal_server_error
                 message: Unable to get User.
-    CredentialBadRequest:
+    CredentialsBadRequest:
       description: |
-        The request body failed validation. Nothing was changed.
+        The request body is invalid. Nothing was changed.
 
-        `errors` says which fields were rejected and why, in one of two forms: an object keyed by field
-        name, or a list of fields. Handle both. This is a problem with the request: fix it rather than
-        retrying.
+        `errors` lists the rejected fields and why, either as an object keyed by field name or as a list
+        of fields; handle both. Fix the request rather than retrying it.
       content:
         application/json:
           schema:
@@ -2413,12 +2284,9 @@ components:
                 errors:
                   - field: HomeDirectoryDetails
                     message: Unfortunately, two virtual folders can't share the same path.
-    CredentialNotFound:
+    CredentialsNotFound:
       description: |
-        No such credential, or it belongs to another organization.
-
-        The API does not distinguish between the two, so that a credential's existence in another
-        organization cannot be probed.
+        No such credentials, or they belong to another organization. The two cases look the same, so the existence of another organization's credentials can't be probed.
       content:
         application/json:
           schema:
@@ -2429,8 +2297,8 @@ components:
                 id: not_found
                 message: User not found.
   examples:
-    Credential:
-      summary: A credential that has been in use
+    Credentials:
+      summary: Credentials that have been in use
       value:
         Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
         OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
