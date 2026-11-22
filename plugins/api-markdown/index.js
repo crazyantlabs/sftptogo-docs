@@ -130,6 +130,8 @@ function operationMarkdown({ operation, method, route, server, pageUrl, link }) 
   if (operation.description) lines.push(operation.description.trim(), '');
   const xPlan = operation['x-plan'];
   if (xPlan !== undefined && xPlan !== null) lines.push(`> ${planText(xPlan)}`, '');
+  const paged = (operation.parameters || []).some((p) => p.in === 'query' && (p.name === 'after' || p.name === 'before'));
+  if (paged) lines.push(`This list is paged: pass \`limit\` and follow the \`Link\` header. See [Pagination](${link('pagination')}).`, '');
   lines.push(`Authenticate with your API key as a bearer token: see [Authentication](${link('authentication')}).`, '');
 
   for (const location of ['path', 'query', 'header']) {
@@ -181,17 +183,24 @@ function operationMarkdown({ operation, method, route, server, pageUrl, link }) 
 function handWrittenMarkdown(source, pageUrl, link) {
   const frontMatter = source.match(/^---\n([\s\S]*?)\n---\n/);
   const title = frontMatter ? (frontMatter[1].match(/^title:\s*(.+)$/m) || [])[1] : null;
-  let body = frontMatter ? source.slice(frontMatter[0].length) : source;
-  body = body
-    .replace(/^import .*$\n?/gm, '')
-    .replace(/^<\/?Tabs[^>]*>\s*$\n?/gm, '')
-    .replace(/^<TabItem[^>]*label="([^"]+)"[^>]*>\s*$/gm, '**$1**\n')
-    .replace(/^<\/TabItem>\s*$\n?/gm, '')
-    .replace(/^```(\w+)[^\n]*$/gm, '```$1')
-    .replace(/\]\(\.\/([a-z0-9-]+)(?:\.api)?\.mdx?(#[^)]*)?\)/g, (match, slug, anchor) => `](${link(slug)}${anchor || ''})`)
+  const body = frontMatter ? source.slice(frontMatter[0].length) : source;
+  // MDX lines (imports, tab components) and links are rewritten only outside
+  // fenced code, so code examples keep their own import lines.
+  const converted = body
+    .split(/(^```[^\n]*\n[\s\S]*?^```[ \t]*$)/m)
+    .map((part) => {
+      if (part.startsWith('```')) return part.replace(/^```(\w+)[^\n]*/, '```$1');
+      return part
+        .replace(/^import .*$\n?/gm, '')
+        .replace(/^<\/?Tabs[^>]*>\s*$\n?/gm, '')
+        .replace(/^<TabItem[^>]*label="([^"]+)"[^>]*>\s*$/gm, '**$1**\n')
+        .replace(/^<\/TabItem>\s*$\n?/gm, '')
+        .replace(/\]\(\.\/([a-z0-9-]+)(?:\.api)?\.mdx?(#[^)]*)?\)/g, (match, slug, anchor) => `](${link(slug)}${anchor || ''})`);
+    })
+    .join('')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
-  return `${title ? `# ${title.replace(/^"|"$/g, '')}\n\n` : ''}${body}\n\nSource: ${pageUrl}\n`;
+  return `${title ? `# ${title.replace(/^"|"$/g, '')}\n\n` : ''}${converted}\n\nSource: ${pageUrl}\n`;
 }
 
 module.exports = function apiMarkdown(context, options) {
