@@ -57,7 +57,7 @@ When your organization turns on [advanced search](../getting-started/organizatio
 1. Click the **Search files by name...** box, or press `/` or `Cmd`+`K` (`Ctrl`+`K` on Windows and Linux).
 2. Type part of a file or folder name and press `Enter`.
 
-The search covers the folder you are in and all of its subfolders, and the folder breadcrumbs change to **Search results**. Every word you type must appear in the name, in any order and regardless of case, so "annual report" finds `2026_Annual-Report.pdf`. When nothing matches exactly, the web portal shows close matches instead, so a small typo still finds the file.
+The search covers the folder you are in and all of its subfolders, and the folder breadcrumbs change to **Search results**. Every word you type must appear in the name, in any order and regardless of case, so "annual report" finds `2026_Annual-Report.pdf`. When nothing matches exactly, the web portal shows close matches instead, so a small typo still finds the file. Close matches are listed by how closely they match, not by the column you sort by.
 
 Each result shows the folder it is **in**. Click a result to open it, or click its folder to go to that folder. To go to a result's folder from its menu button (...), select **Go to parent folder**.
 
@@ -79,13 +79,15 @@ Use the filters beside the search box to narrow the list. With a search, they na
 
 To clear a filter, click the × beside it.
 
-If nothing matches, click **Search anywhere** to search every folder you can access (offered unless the search already covers them), or **Clear search and filters** to go back to the folder.
+If nothing matches, click **Search anywhere** to apply the same search and filters to every folder you can access (offered unless they already cover them), or **Clear search and filters** to go back to the folder.
 
 #### Sorting
 
 Click the **Name**, **Type**, **Size** or **Modified** column header to sort by it. Click the same header again to reverse the order, and a third time to return to the default order, by name. Folders are always listed before files.
 
 Search, filters and sorting also work in shared folder links, limited to the shared folder.
+
+On small screens, the filters appear only while one of them is active, and only the **Name** column is shown.
 
 :::note
 New, changed and deleted files show up in search shortly after the change.
