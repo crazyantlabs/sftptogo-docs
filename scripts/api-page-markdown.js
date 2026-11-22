@@ -51,10 +51,15 @@ function sentences(entry) {
   return found.length ? found : ['What this operation can do depends on your plan.'];
 }
 
-function planNotice(xPlan) {
+// The plan sentences followed by the pricing link, as plain Markdown.
+function planText(xPlan) {
   const entries = Array.isArray(xPlan) ? xPlan : [xPlan];
   const lines = [...new Set(entries.flatMap(sentences))];
-  return `:::info\n\n${lines.join(' ')} ${PRICING}\n\n:::`;
+  return `${lines.join(' ')} ${PRICING}`;
+}
+
+function planNotice(xPlan) {
+  return `:::info\n\n${planText(xPlan)}\n\n:::`;
 }
 
 // Every operation page ends by pointing at the Errors page, which explains the
@@ -82,4 +87,4 @@ function createApiPageMDWithPlan(pageData) {
   return createApiPageMD(page) + ERRORS_LINK;
 }
 
-module.exports = { createApiPageMDWithPlan, planNotice };
+module.exports = { createApiPageMDWithPlan, planNotice, planText };

@@ -101,6 +101,15 @@ const config = {
         redirects: [{ from: '/api', to: '/api/introduction' }],
       },
     ],
+    // Writes a Markdown copy of each API page next to it (<page>.md) at build time.
+    [
+      './plugins/api-markdown',
+      {
+        specPath: 'static/openapi/management.yaml',
+        docsDir: 'api',
+        routeBasePath: 'api',
+      },
+    ],
     [
       'docusaurus-plugin-segment',
       {
