@@ -144,3 +144,20 @@ footer {
   flex: 1 1 0;
   min-width: 4rem;
 }
+
+/* API reference: label request parameters and body fields that aren't
+   required as "optional", next to where required ones say "required". Response
+   fields are left alone. */
+.openapi-schema__container:has(> .openapi-schema__property):not(:has(> .openapi-schema__required))::after {
+  content: 'optional';
+  margin-left: auto;
+  padding-left: 0.5rem;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.openapi-tabs__container .openapi-schema__container:has(> .openapi-schema__property)::after {
+  content: none;
+}

@@ -52,7 +52,7 @@ The API reference at `/docs/api/` is generated from the bundled OpenAPI spec of 
 
 3. Commit the spec together with the regenerated files in `api/`. Never edit the generated files by hand: fix the spec instead.
 
-`yarn gen-api-docs` renders the introduction with `scripts/api-info-page.mustache` (served at `/docs/api/introduction`) and operation pages through `scripts/api-page-markdown.js`, which adds a box with a link to the pricing page when an operation has an `x-plan` extension in the spec. It then runs `scripts/link-api-auth-page.js`, which points each operation's Authorization box at the Authentication page. `api/authentication.mdx` is written by hand and survives regeneration; `sidebarsApi.js` places it after the introduction.
+`yarn gen-api-docs` renders the introduction with `scripts/api-info-page.mustache` (served at `/docs/api/introduction`) and operation pages through `scripts/api-page-markdown.js`, which adds a box with a link to the pricing page when an operation has an `x-plan` extension in the spec. It then runs `scripts/postprocess-api-docs.js`, which points each operation's Authorization box at the Authentication page, empties the request panel's pre-filled example values (so nothing is sent unless the reader types it), and strips Markdown from page descriptions. `api/authentication.mdx` is written by hand and survives regeneration; `sidebarsApi.js` places it after the introduction.
 
 ### Deployment
 

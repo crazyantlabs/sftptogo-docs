@@ -151,9 +151,13 @@ const config = {
             label: 'Docs',
           },
           {
-            to: `${url}/blog/api-reference/`,
+            // The API reference's own docs instance: links to its first page
+            // and is active on every /docs/api/ page.
+            type: 'docSidebar',
+            docsPluginId: 'api',
+            sidebarId: 'apiSidebar',
             label: 'API',
-            position: 'left'
+            position: 'left',
           },
           {to: `${url}/blog/`, label: 'Blog', position: 'left'},
           {
