@@ -22,7 +22,7 @@ An error response is a JSON object with a stable `id` and a readable `message`:
 * `message`: an explanation for a person. Log it, but don't match on it: the wording can change.
 * `errors`: only on `400` responses for an invalid request body. It says which fields were rejected and why. See [Validation errors](#validation-errors).
 
-Errors from our gateway, which answers before a request reaches the API, have only a `message` and no `id`. Handle a missing `id`. They are:
+Errors from our gateway, which answers instead of the API, have only a `message` and no `id`. Handle a missing `id`. They are:
 
 * a `401` when authentication fails (see [Authentication](./authentication.mdx));
 * a `403` with the message `Missing Authentication Token` when the method or path doesn't exist;
