@@ -1,6 +1,7 @@
 // Page generator for the API reference (markdownGenerators.createApiPageMD in
 // docusaurus.config.js). It renders each operation page with the plugin's own
-// generator, and adds a plan box when the operation has an `x-plan` extension.
+// generator, adds a plan box when the operation has an `x-plan` extension, and
+// ends the page with a link to the Errors page.
 //
 // The box follows the guides' convention for plan-gated features: an `:::info`
 // admonition linking to the pricing page. It goes under the operation's
@@ -55,12 +56,23 @@ function planNotice(xPlan) {
   return `:::info\n\n${lines.join(' ')} ${PRICING}\n\n:::`;
 }
 
+// Every operation page ends by pointing at the Errors page, which explains the
+// error responses listed above it.
+const ERRORS_LINK = '\n\nSee [Errors](./errors.md) for the error body, the status codes and when to retry.\n';
+
 function createApiPageMDWithPlan(pageData) {
   const xPlan = (pageData.api.extensions || []).find((extension) => extension.key === 'x-plan');
-  if (!xPlan || xPlan.value === undefined || xPlan.value === null) return createApiPageMD(pageData);
-
-  const description = [pageData.api.description, planNotice(xPlan.value)].filter(Boolean).join('\n\n');
-  return createApiPageMD({ ...pageData, api: { ...pageData.api, description } });
+  const page =
+    !xPlan || xPlan.value === undefined || xPlan.value === null
+      ? pageData
+      : {
+          ...pageData,
+          api: {
+            ...pageData.api,
+            description: [pageData.api.description, planNotice(xPlan.value)].filter(Boolean).join('\n\n'),
+          },
+        };
+  return createApiPageMD(page) + ERRORS_LINK;
 }
 
 module.exports = { createApiPageMDWithPlan, planNotice };

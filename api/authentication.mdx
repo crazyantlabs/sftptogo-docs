@@ -77,7 +77,7 @@ A key can make any request the API allows in its organization, so keep it secret
 
 ## Authentication errors
 
-A request that can't be authenticated returns `401 Unauthorized` with this body. It doesn't say which check failed: check the header, the key, and the organization in the path.
+A request that can't be authenticated returns `401 Unauthorized` with this body. It doesn't say which check failed: check the header, the key, and the organization in the path. For every other error, see [Errors](./errors.md).
 
 ```json
 {
