@@ -13,6 +13,8 @@
 //   x-plan:
 //     limit: credentials                     # "Counts against your plan's credentials limit."
 //
+// An entry with both `feature` and `limit` gets both sentences.
+//
 // Any other shape still gets a box with a general sentence, so a change to the
 // extension in the spec never breaks the build or hides that a plan applies.
 
@@ -33,22 +35,23 @@ function codeSpan(value) {
   return text ? `\`${text}\`` : '';
 }
 
-function sentence(entry) {
+function sentences(entry) {
+  const found = [];
   if (entry && typeof entry === 'object') {
     const feature = words(entry.feature);
     if (feature) {
       const field = codeSpan(entry.appliesTo);
-      return `Only some plans include ${feature}${field ? ` (${field})` : ''}.`;
+      found.push(`Only some plans include ${feature}${field ? ` (${field})` : ''}.`);
     }
     const limit = words(entry.limit);
-    if (limit) return `Counts against your plan's ${limit} limit.`;
+    if (limit) found.push(`Counts against your plan's ${limit} limit.`);
   }
-  return 'What this operation can do depends on your plan.';
+  return found.length ? found : ['What this operation can do depends on your plan.'];
 }
 
 function planNotice(xPlan) {
   const entries = Array.isArray(xPlan) ? xPlan : [xPlan];
-  const lines = [...new Set(entries.map(sentence))];
+  const lines = [...new Set(entries.flatMap(sentences))];
   return `:::info\n\n${lines.join(' ')} ${PRICING}\n\n:::`;
 }
 

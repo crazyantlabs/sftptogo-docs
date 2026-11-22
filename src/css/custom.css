@@ -127,3 +127,13 @@ footer {
 .text-muted {
   color: var(--ifm-color-secondary-darkest);
 }
+/* API reference code samples: a language with a single variant (curl) shows a
+   second tab list holding just that variant. It adds nothing, so hide it. */
+.openapi-tabs__code-list-container:has(> .openapi-tabs__code-item--variant:only-child) {
+  display: none;
+}
+
+/* Let the language tabs wrap on narrow screens instead of clipping the last one. */
+.openapi-tabs__code-list-container {
+  flex-wrap: wrap;
+}

@@ -79,8 +79,6 @@ const config = {
           management: {
             specPath: 'static/openapi/management.yaml',
             outputDir: 'api',
-            // Trying requests from the docs comes later, with self-serve API keys.
-            hideSendButton: true,
             // Adds a plan box, built from the spec's x-plan extension, to operation pages.
             markdownGenerators: {
               createApiPageMD: createApiPageMDWithPlan,
@@ -91,6 +89,14 @@ const config = {
             },
           },
         },
+      },
+    ],
+    // /docs/api/ has no page of its own: send it to the API introduction. The
+    // plugin writes a static redirect page, so it works on any static hosting.
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [{ from: '/api', to: '/api/sftp-to-go-management-api' }],
       },
     ],
     [

@@ -1,0 +1,98 @@
+---
+id: authentication
+title: Authentication
+sidebar_label: Authentication
+description: Authenticate requests to the SFTP To Go Management API with an API key in the Authorization header.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+The SFTP To Go Management API authenticates requests with an API key, sent as a bearer token in the `Authorization` header. A request with a missing or incorrect key returns `401`. A request with a valid key that the API doesn't allow, such as one that would go over your plan's credentials limit, returns `403`. Send every request over HTTPS.
+
+<Tabs groupId="code-samples">
+<TabItem value="curl" label="curl">
+
+```bash title="Using an API key"
+curl https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users \
+  -H "Authorization: Bearer example_api_key_123456789"
+```
+
+</TabItem>
+<TabItem value="nodejs" label="Node.js">
+
+```javascript title="Using an API key"
+const response = await fetch(
+  'https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users',
+  { headers: { Authorization: 'Bearer example_api_key_123456789' } },
+);
+const credentials = await response.json();
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Using an API key"
+import requests
+
+response = requests.get(
+    "https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users",
+    headers={"Authorization": "Bearer example_api_key_123456789"},
+)
+credentials = response.json()
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Using an API key"
+req, err := http.NewRequest("GET",
+	"https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users", nil)
+if err != nil {
+	log.Fatal(err)
+}
+req.Header.Set("Authorization", "Bearer example_api_key_123456789")
+
+res, err := http.DefaultClient.Do(req)
+if err != nil {
+	log.Fatal(err)
+}
+defer res.Body.Close()
+```
+
+</TabItem>
+</Tabs>
+
+To get an API key, ask our support team through the in-app chat.
+
+## Organization scope
+
+A key belongs to one organization. Every path starts with that organization's ID: the ID that follows `/organizations/` in your dashboard's address.
+
+A key reaches only its own organization, and only organization endpoints. It can't reach account-level endpoints, such as your account's settings. Requests outside that scope return `401`, and so does every request while your organization isn't active.
+
+## Secure your API keys
+
+A key can make any request the API allows in its organization, so keep it secret. Keep it out of anything others can read, such as client-side code, repositories and logs.
+
+## Authentication errors
+
+A request that can't be authenticated returns `401 Unauthorized` with this body. It doesn't say which check failed: check the header, the key, and the organization in the path.
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+## Revoke a key
+
+Keys don't expire. To revoke one, contact our support team through the in-app chat. Requests made with a revoked key return `401`.
+
+To replace a key without interrupting your integrations, ask for the new key first, switch over, then have the old one revoked.
+
+## Try it
+
+Each operation page has a request panel. Paste your API key into its **Bearer Token** field and click **Send API Request**. The key is never stored: it is gone when you leave the page.
+
+Requests from the panel run against your live organization. A request that creates, changes or deletes something does so for real, and can't be undone.
