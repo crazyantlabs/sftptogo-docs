@@ -36,7 +36,7 @@ Both control and data channels are encrypted over the wire using the aforementio
 Access Restriction
 ---------
 
-Depending on your plan, you may add inbound network rules at the organization or at the credential level to restrict access to certain IP address ranges. In addition we use static IPs with all of our host endpoints, so that if any users require outbound network rules, they can use static IPs to allow access to SFTP To Go from their network.
+Depending on your plan, you may add inbound network rules at the organization or at the credentials level to restrict access to certain IP address ranges. In addition we use static IPs with all of our host endpoints, so that if any users require outbound network rules, they can use static IPs to allow access to SFTP To Go from their network.
 
 Auditing
 -------
