@@ -133,7 +133,14 @@ footer {
   display: none;
 }
 
-/* Let the language tabs wrap on narrow screens instead of clipping the last one. */
+/* The four language tabs are 80px each and overflow the request column at any
+   width, which clipped the last one. Let them share the row, and wrap only if
+   they cannot fit even at their minimum width. */
 .openapi-tabs__code-list-container {
   flex-wrap: wrap;
+}
+
+.openapi-tabs__code-list-container > .openapi-tabs__code-item:not(.openapi-tabs__code-item--variant) {
+  flex: 1 1 0;
+  min-width: 4rem;
 }
