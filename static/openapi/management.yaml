@@ -37,26 +37,20 @@ security:
 tags:
   - name: Credentials
     description: |
-      Credentials are the SFTP, FTPS and S3 logins your users and systems connect with. The API
-      calls this resource `users`; the product calls them credentials, and this reference follows
-      the product.
+      Credentials are the SFTP, FTPS and S3 logins your users and systems connect with. The API calls this resource `users`; the product calls them credentials, and this reference follows the product.
   - name: SSH keys
     description: Public keys attached to a credential, for key-based SFTP authentication.
   - name: S3 credentials
     description: S3-compatible access keys attached to a credential.
   - name: Share links
     description: |
-      Links that give someone access to a folder through the web portal, without an SFTP client.
-      The API calls this resource `portal-links`.
+      Links that give someone access to a folder through the web portal, without an SFTP client. The API calls this resource `portal-links`.
   - name: Automations
     description: |
-      Rules that run when something happens to your files — notify a system, forward a file,
-      encrypt or decrypt it. Automations replace webhooks; an existing webhook can be converted
-      into the equivalent automation, keeping its signing secret so receivers do not notice.
+      Rules that run when something happens to your files — notify a system, forward a file, encrypt or decrypt it. Automations replace webhooks; an existing webhook can be converted into the equivalent automation, keeping its signing secret so receivers do not notice.
   - name: Automation runs
     description: |
-      The execution history of an automation: what triggered it, what each action did, and whether
-      it succeeded. Individual runs can be replayed.
+      The execution history of an automation: what triggered it, what each action did, and whether it succeeded. Individual runs can be replayed.
   - name: PGP keys
     description: Keys used by automations that encrypt or decrypt files.
   - name: Audit logs
@@ -71,8 +65,7 @@ tags:
     description: Your organization's settings, plan, usage metrics and members.
   - name: Team members
     description: |
-      People with dashboard access to your organization, and their roles. The API calls this
-      resource `memberships`.
+      People with dashboard access to your organization, and their roles. The API calls this resource `memberships`.
 paths:
   /organizations/{organizationId}/users:
     parameters:
@@ -457,8 +450,7 @@ paths:
       tags:
         - Credentials
       description: |
-        Returns one credential, including its current password in clear text, a ready-made connection
-        string and the SSH public keys attached to it. Handle the response as a secret.
+        Returns one credential, including its current password in clear text, a ready-made connection string and the SSH public keys attached to it. Handle the response as a secret.
 
         Use `PasswordCreatedAt` to find credentials that are due for rotation.
       responses:
@@ -571,8 +563,7 @@ paths:
       tags:
         - Credentials
       description: |
-        Changes one or more properties. Send only what you want to change: omitted fields are left
-        alone and are not validated.
+        Changes one or more properties. Send only what you want to change: omitted fields are left alone and are not validated.
 
         Three fields reset rather than clear when you send an empty string: `Alias` returns to the
         login name, `HomeDirectory` to `/home/{UserName}`, and `ChrootDirectory` to `/`.
@@ -803,8 +794,7 @@ paths:
       tags:
         - Credentials
       description: |
-        Puts a deactivated credential back into service. Its password, keys, home directory and network
-        rules are unchanged, so connections work again immediately.
+        Puts a deactivated credential back into service. Its password, keys, home directory and network rules are unchanged, so connections work again immediately.
 
         Activating an already-active credential succeeds and changes nothing.
       responses:
@@ -904,9 +894,7 @@ paths:
       tags:
         - Credentials
       description: |
-        Stops the credential connecting, without deleting anything. The password, SSH keys, home
-        directory and network rules are all kept, so activating it again restores access exactly as it
-        was.
+        Stops the credential connecting, without deleting anything. The password, SSH keys, home directory and network rules are all kept, so activating it again restores access exactly as it was.
 
         This is the reversible way to cut off access — reach for it rather than delete when you are
         responding to a suspected leak, or retiring an integration you might bring back.
@@ -1501,10 +1489,10 @@ components:
             - totp
             - email
         Description:
-          type:
-            - string
-            - 'null'
           description: A label the person gave the factor when enrolling it.
+          anyOf:
+            - type: string
+            - type: 'null'
         CodeLength:
           type: integer
           description: How many digits the one-time codes for this factor have.
@@ -1522,10 +1510,10 @@ components:
             enum:
               - WEB_PORTAL
         LastAuthAt:
-          type:
-            - integer
-            - 'null'
           description: When the factor was last used to sign in, in Unix epoch milliseconds, or `null`.
+          anyOf:
+            - type: integer
+            - type: 'null'
         CreatedAt:
           type: integer
           description: When the factor was enrolled, in Unix epoch milliseconds.
@@ -1587,12 +1575,12 @@ components:
           examples:
             - 203.0.113.0/24
         Description:
-          type:
-            - string
-            - 'null'
           description: A note explaining why the rule exists. Shown in the dashboard.
           examples:
             - Warehouse egress range
+          anyOf:
+            - type: string
+            - type: 'null'
     CredentialSettings:
       type: object
       title: CredentialSettings
@@ -1642,28 +1630,26 @@ components:
           examples:
             - 1785340800000
         IpAddress:
-          type:
-            - string
-            - 'null'
           description: |
             The address the connection came from, anonymized: an IPv4 address keeps its first three
             parts and an IPv6 address its first 48 bits, with the rest zeroed.
           examples:
             - 203.0.113.0
+          anyOf:
+            - type: string
+            - type: 'null'
         OriginalIpAddress:
-          type:
-            - string
-            - 'null'
           description: The full address the connection came from.
           examples:
             - 203.0.113.24
+          anyOf:
+            - type: string
+            - type: 'null'
         Geo:
           description: |
             Where that address is, approximately, or `null` when it could not be located. Location is
             looked up from the address, so a connection through a VPN or proxy shows the proxy.
           oneOf:
-            - type: 'null'
-              description: The address could not be located.
             - type: object
               description: The approximate location of the address.
               properties:
@@ -1692,14 +1678,14 @@ components:
                   description: Latitude and longitude, comma-separated.
                   examples:
                     - 39.7817,-89.6501
+            - type: 'null'
+              description: The address could not be located.
         UserAgent:
           description: |
             The connecting client as it identified itself, parsed into the client, its operating system
             and its device, or `null` when it sent nothing. Parts that cannot be recognised are `Other`
             or `null`.
           oneOf:
-            - type: 'null'
-              description: The client did not identify itself.
             - type: object
               description: The client, parsed.
               properties:
@@ -1718,20 +1704,20 @@ components:
                       examples:
                         - Safari
                     major:
-                      type:
-                        - string
-                        - 'null'
                       description: The major version.
+                      anyOf:
+                        - type: string
+                        - type: 'null'
                     minor:
-                      type:
-                        - string
-                        - 'null'
                       description: The minor version.
+                      anyOf:
+                        - type: string
+                        - type: 'null'
                     patch:
-                      type:
-                        - string
-                        - 'null'
                       description: The patch version.
+                      anyOf:
+                        - type: string
+                        - type: 'null'
                 os:
                   type: object
                   description: The operating system.
@@ -1742,25 +1728,25 @@ components:
                       examples:
                         - Mac OS X
                     major:
-                      type:
-                        - string
-                        - 'null'
                       description: The major version.
+                      anyOf:
+                        - type: string
+                        - type: 'null'
                     minor:
-                      type:
-                        - string
-                        - 'null'
                       description: The minor version.
+                      anyOf:
+                        - type: string
+                        - type: 'null'
                     patch:
-                      type:
-                        - string
-                        - 'null'
                       description: The patch version.
+                      anyOf:
+                        - type: string
+                        - type: 'null'
                     patchMinor:
-                      type:
-                        - string
-                        - 'null'
                       description: The version part after the patch, when there is one.
+                      anyOf:
+                        - type: string
+                        - type: 'null'
                 device:
                   type: object
                   description: The device.
@@ -1771,15 +1757,17 @@ components:
                       examples:
                         - Mac
                     brand:
-                      type:
-                        - string
-                        - 'null'
                       description: The device maker.
+                      anyOf:
+                        - type: string
+                        - type: 'null'
                     model:
-                      type:
-                        - string
-                        - 'null'
                       description: The device model.
+                      anyOf:
+                        - type: string
+                        - type: 'null'
+            - type: 'null'
+              description: The client did not identify itself.
     Credential:
       type: object
       title: Credential
@@ -1906,13 +1894,13 @@ components:
               - FTPS
               - WEB_PORTAL
         Email:
-          type:
-            - string
-            - 'null'
-          format: email
           description: |
             Where web portal invitations and password resets are sent. Optional: a credential used only
             by a machine does not need one.
+          anyOf:
+            - type: string
+              format: email
+            - type: 'null'
         EmailVerified:
           type: boolean
           description: |
@@ -1934,9 +1922,6 @@ components:
         Settings:
           $ref: '#/components/schemas/CredentialSettings'
         ExpiresAt:
-          type:
-            - integer
-            - 'null'
           description: |
             When access stops working, in **Unix epoch seconds**, or `null` or absent if it never expires.
 
@@ -1945,14 +1930,17 @@ components:
             expiry. Activating it again restores access with no expiry.
           examples:
             - 1793318400
+          anyOf:
+            - type: integer
+            - type: 'null'
         LastLogin:
           description: |
             The most recent sign-in, or `null` if the credential has never been used. Not returned when a
             credential is first created.
           oneOf:
+            - $ref: '#/components/schemas/LastLogin'
             - type: 'null'
               description: The credential has never been used.
-            - $ref: '#/components/schemas/LastLogin'
         LoginsCount:
           type: integer
           description: How many times this credential has signed in. Not returned when it is first created.
@@ -2189,9 +2177,6 @@ components:
           type: string
           description: The highest directory this credential can reach. Sending an empty string resets it to `/`.
         HomeDirectoryDetails:
-          type:
-            - array
-            - 'null'
           description: |
             Replace the credential's virtual folders with this list, up to 50. The credential's
             `Permission` is removed, since each folder carries its own.
@@ -2201,17 +2186,20 @@ components:
             unless it already has one.
 
             The organization's default credential cannot use virtual folders.
-          maxItems: 50
-          items:
-            $ref: '#/components/schemas/VirtualFolder'
+          anyOf:
+            - type: array
+              maxItems: 50
+              items:
+                $ref: '#/components/schemas/VirtualFolder'
+            - type: 'null'
         Email:
-          type:
-            - string
-            - 'null'
-          format: email
           description: |
             Where web portal invitations and password resets are sent. Changing it clears the verified
             flag until the new address is confirmed. Send an empty string to remove it.
+          anyOf:
+            - type: string
+              format: email
+            - type: 'null'
         State:
           type: string
           description: |
@@ -2221,13 +2209,13 @@ components:
             - active
             - inactive
         ExpiresAt:
-          type:
-            - integer
-            - 'null'
           description: |
             When access should stop working, in **Unix epoch seconds**, or `null` to remove the expiry.
             Must be after the end of today and no more than a year away. When the time passes, the
             credential becomes `inactive` and its `ExpiresAt` returns to `null`.
+          anyOf:
+            - type: integer
+            - type: 'null'
         Settings:
           $ref: '#/components/schemas/CredentialSettingsInput'
   responses:
