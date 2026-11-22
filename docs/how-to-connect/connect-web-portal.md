@@ -63,7 +63,7 @@ Your short-lived passwords are listed under **Short-lived passwords**, with thei
 
 ![The Short-lived passwords list with three passwords for SFTP and FTPS, each with a Revoke link, and the Generate password button](../../static/img/sso-credentials-short-lived-list.png)
 
- Your organization sets how long they last and how many you can have active at once. When you are at the limit, a new password replaces your oldest one.
+Your organization sets how long they last and how many you can have active at once. When you are at the limit, a new password replaces your oldest one.
 
 To stop a password before it expires, click **Revoke** next to it, then **Revoke**. Any client using that password stops connecting.
 
