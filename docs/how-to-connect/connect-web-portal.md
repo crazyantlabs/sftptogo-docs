@@ -90,7 +90,7 @@ Search, filters and sorting also work in shared folder links, limited to the sha
 On small screens, the filters appear only while one of them is active, and only the **Name** column is shown.
 
 :::note
-New, changed and deleted files show up in search shortly after the change.
+Search results, filtered lists and sorted lists pick up new, changed and deleted files shortly after the change.
 :::
 
 :::info

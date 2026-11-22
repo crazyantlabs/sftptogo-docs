@@ -167,7 +167,7 @@ Advanced search is off by default. To turn it on:
 
 The setting applies to web portal sessions and shared folder links alike.
 
-After you turn it on, the section shows **Building the search index…** while SFTP To Go indexes your files. This takes from a few minutes to a few days for very large buckets. When the index is ready, advanced search is available to users who sign in to the web portal or open a shared folder link from then on. Users already signed in get it the next time they sign in.
+After you turn it on, the section shows **Building the search index…** while SFTP To Go indexes your files. This can take from a few minutes to a few days for very large buckets. When the index is ready, advanced search is available to users who sign in to the web portal or open a shared folder link from then on. Users already signed in get it the next time they sign in.
 
 To remove search, sorting and filtering from the web portal, turn off **Enable advanced search** and click **Save and set live**. The web portal goes back to plain folder listings, including for users already signed in, the next time they open a folder.
 
