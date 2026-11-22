@@ -22,7 +22,12 @@ An error response is a JSON object with a stable `id` and a readable `message`:
 * `message`: an explanation for a person. Log it, but don't match on it: the wording can change.
 * `errors`: only on `400` responses for an invalid request body. It says which fields were rejected and why. See [Validation errors](#validation-errors).
 
-A `401` from a failed authentication is the one exception: its body has only a `message`. See [Authentication](./authentication.mdx).
+Errors from our gateway, which answers before a request reaches the API, have only a `message` and no `id`. Handle a missing `id`. They are:
+
+* a `401` when authentication fails (see [Authentication](./authentication.mdx));
+* a `403` with the message `Missing Authentication Token` when the method or path doesn't exist;
+* a `429` when requests are throttled;
+* a `502` or `504` when the API fails or doesn't answer in time.
 
 ## Status codes
 
@@ -31,7 +36,7 @@ A `401` from a failed authentication is the one exception: its body has only a `
 | `400` | The request body is invalid. | Fix the fields listed in `errors`, then send it again. |
 | `401` | The request isn't authenticated: the API key is missing, wrong or revoked, or it can't reach this path. | Check the `Authorization` header, the key, and the organization ID in the path. |
 | `402` | Your plan doesn't include this feature. | Upgrade your plan, or don't use the feature. |
-| `403` | The request is authenticated and your plan includes the feature, but this request isn't allowed. | Read `message`: for example, you reached a limit, or the item can't be changed this way. |
+| `403` | The request is authenticated and your plan includes the feature, but this request isn't allowed. | Read `message`: for example, you reached a limit, or the item can't be changed this way. With no `id` and the message `Missing Authentication Token`, check the method and path instead. |
 | `404` | The object doesn't exist, or belongs to another organization. | Check the ID in the path. |
 | `422` | A required value is missing, or the request conflicts with the current state, such as a login name that's taken. | Fill in the value, or change the request, such as choosing another name. |
 | `429` | The same action was requested too recently. | Wait, then retry. |
@@ -55,7 +60,7 @@ A `401` from a failed authentication is the one exception: its body has only a `
 | `too_many_requests` | `429` | The same action was requested too recently. Wait before retrying. |
 | `internal_server_error` | `500` | Something failed on our side. |
 
-A `401` has no `id`: it comes from authentication, with a body of just `{"message": "Unauthorized"}`.
+Errors from the gateway, including every `401`, have no `id`: see [Error body](#error-body).
 
 ## Validation errors
 
