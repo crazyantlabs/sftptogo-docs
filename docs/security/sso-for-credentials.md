@@ -182,12 +182,12 @@ You can't disable SSO for credentials while it is your organization's only sign-
 
 When a person who uses linked credentials leaves, disable or delete them at your identity provider, then [remove SSO from their credentials](#removing-sso). Disabling the person at your identity provider stops new SSO sign-ins only: their short-lived passwords, and a web portal tab they have open, keep working until you remove SSO from the credentials. Removing SSO revokes their short-lived passwords at once.
 
-If nobody else uses the credentials, you can deactivate them instead: on the credentials row, open the **...** menu and select **Deactivate**. Deactivated credentials can't sign in to the web portal or connect over SFTP and FTPS.
+If nobody else uses the credentials, you can deactivate them instead: on the credentials row, open the **...** menu and select **Deactivate**. Deactivated credentials can't sign in to the web portal or connect over SFTP and FTPS. They stay linked to the person's identity, so if you might reactivate them later, remove SSO from them first.
 
 If the credentials stay active, also check these:
 
 - **Their password.** Linked credentials keep their own password. If **Password** sign-in is turned on, give the credentials a new password, so the person can't sign in with the old one: on the credentials row, open the **...** menu and select **Set password**.
-- **SSH keys.** While **Password** and **SSH public key** are turned off (as under [SSO only](#sso-only)), SSH keys added to linked credentials keep working over SFTP until you remove SSO from the credentials or delete the key. Disabling the person at your identity provider doesn't stop a key.
+- **SSH keys.** Delete the SSH keys the person added to the credentials. If **SSH public key** sign-in is turned on, they keep working over SFTP after you remove SSO. Under [SSO only](#sso-only), they keep working until you remove SSO from the credentials or delete the key. Disabling the person at your identity provider doesn't stop a key.
 
 Either way, check **share links**. Share links the person created keep working: turning SSO off and removing SSO from the credentials don't end them. Delete them from your organization's **Share links** tab. Refer to [Sharing files and folders](../getting-started/sharing-files-and-folders.md).
 
