@@ -94,24 +94,49 @@ function fieldList(schema, depth = 0) {
   const object = merged(schema);
   if (!object) return [];
   const target = object.type === 'array' ? merged(object.items) : object;
-  if (!target || !target.properties) {
-    const variants = target && (target.oneOf || target.anyOf);
+  if (!target) return [];
+  const indent = '  '.repeat(depth);
+  if (!target.properties && !isObject(target.additionalProperties)) {
+    const variants = target.oneOf || target.anyOf;
     if (!variants) return [];
     return variants.flatMap((variant, index) => [
-      `${'  '.repeat(depth)}- Option ${index + 1}${variant.title ? ` (${variant.title})` : ''}: ${oneLine(variant.description)}`.trimEnd(),
+      `${indent}- Option ${index + 1}${variant.title ? ` (${variant.title})` : ''}, ${typeOf(variant)}: ${oneLine(variant.description)}`.trimEnd(),
       ...fieldList(variant, depth + 1),
     ]);
   }
   const required = new Set(target.required || []);
-  return Object.entries(target.properties).flatMap(([name, property]) => {
+  const lines = Object.entries(target.properties || {}).flatMap(([name, property]) => {
     const field = merged(property);
     const text = [oneLine(field.description), ...constraints(field)].filter(Boolean).join(' ');
-    const line = `${'  '.repeat(depth)}- \`${name}\` (${typeOf(property)}, ${required.has(name) ? 'required' : 'optional'})${text ? `: ${text}` : ''}`;
-    const nested = field.type === 'object' || field.properties || (field.type === 'array' && field.items) || field.allOf
-      ? fieldList(field, depth + 1)
-      : [];
-    return [line, ...nested];
+    const line = `${indent}- \`${name}\` (${typeOf(property)}, ${required.has(name) ? 'required' : 'optional'})${text ? `: ${text}` : ''}`;
+    return [line, ...(hasFields(field) ? fieldList(field, depth + 1) : [])];
   });
+  // Properties not named in the schema, such as one entry per rejected field.
+  if (isObject(target.additionalProperties)) {
+    const extra = merged(target.additionalProperties);
+    const text = [oneLine(extra.description), ...constraints(extra)].filter(Boolean).join(' ');
+    lines.push(`${indent}- Any other property (${typeOf(target.additionalProperties)})${text ? `: ${text}` : ''}`);
+    if (hasFields(extra)) lines.push(...fieldList(extra, depth + 1));
+  }
+  return lines;
+}
+
+function isObject(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+// Whether a field has sub-fields worth listing under it.
+function hasFields(field) {
+  if (!field) return false;
+  const variants = field.oneOf || field.anyOf;
+  return Boolean(
+    field.type === 'object' ||
+      field.properties ||
+      isObject(field.additionalProperties) ||
+      (field.type === 'array' && field.items) ||
+      field.allOf ||
+      (variants && variants.some((variant) => hasFields(merged(variant)) || variant.type === 'array')),
+  );
 }
 
 function firstExample(media) {
@@ -203,6 +228,29 @@ function handWrittenMarkdown(source, pageUrl, link) {
   return `${title ? `# ${title.replace(/^"|"$/g, '')}\n\n` : ''}${converted}\n\nSource: ${pageUrl}\n`;
 }
 
+// Every name an operation page shows (schema properties, parameters, response
+// headers), read from the JSON files the page renders from (api/<slug>.*.json).
+function namesShownOnPage(dir, slug) {
+  const names = new Set();
+  const walk = (node) => {
+    if (Array.isArray(node)) return node.forEach(walk);
+    if (!node || typeof node !== 'object') return;
+    if (node.properties && typeof node.properties === 'object' && !Array.isArray(node.properties)) {
+      Object.keys(node.properties).forEach((name) => names.add(name));
+    }
+    if (node.headers && typeof node.headers === 'object' && !Array.isArray(node.headers)) {
+      Object.keys(node.headers).forEach((name) => names.add(name));
+    }
+    if (typeof node.name === 'string' && typeof node.in === 'string') names.add(node.name);
+    Object.values(node).forEach(walk);
+  };
+  for (const part of ['ParamsDetails', 'RequestSchema', 'StatusCodes']) {
+    const file = path.join(dir, `${slug}.${part}.json`);
+    if (fs.existsSync(file)) walk(JSON.parse(fs.readFileSync(file, 'utf8')));
+  }
+  return names;
+}
+
 module.exports = function apiMarkdown(context, options) {
   const { siteDir, siteConfig } = context;
   const { specPath, docsDir, routeBasePath } = options;
@@ -238,11 +286,13 @@ module.exports = function apiMarkdown(context, options) {
 
       // Operations, and the tag pages that list them.
       const byTag = new Map();
+      const operationSlugs = [];
       for (const [route, item] of Object.entries(spec.paths || {})) {
         for (const method of METHODS) {
           if (!item[method]) continue;
           const operation = resolve({ ...item[method], parameters: [...(item.parameters || []), ...(item[method].parameters || [])] });
           const slug = kebabCase(operation.operationId || operation.summary);
+          operationSlugs.push(slug);
           pages.set(slug, operationMarkdown({ operation, method, route, server, pageUrl: pageUrl(slug), link }));
           for (const tag of operation.tags || []) {
             if (!byTag.has(tag)) byTag.set(tag, []);
@@ -292,6 +342,17 @@ module.exports = function apiMarkdown(context, options) {
         throw new Error(
           `api-markdown: Markdown copies and API pages disagree. No page for: ${missingPages.join(', ') || 'none'}. No copy for: ${missingCopies.join(', ') || 'none'}.`,
         );
+      }
+      // Each operation's copy must name every field its page shows.
+      const missingFields = [];
+      for (const slug of operationSlugs) {
+        const markdown = pages.get(slug);
+        for (const name of namesShownOnPage(dir, slug)) {
+          if (!markdown.includes(`\`${name}\``)) missingFields.push(`${slug}: ${name}`);
+        }
+      }
+      if (missingFields.length) {
+        throw new Error(`api-markdown: fields shown on a page are missing from its Markdown copy: ${missingFields.join('; ')}.`);
       }
       for (const [slug, markdown] of pages) fs.writeFileSync(path.join(builtDir, `${slug}.md`), markdown);
     },
