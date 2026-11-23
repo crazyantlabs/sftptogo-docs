@@ -244,6 +244,9 @@ function namesShownOnPage(dir, slug) {
     if (typeof node.name === 'string' && typeof node.in === 'string') names.add(node.name);
     Object.values(node).forEach(walk);
   };
+  if (!fs.existsSync(path.join(dir, `${slug}.StatusCodes.json`))) {
+    throw new Error(`api-markdown: ${slug} has no StatusCodes.json to check its Markdown copy against.`);
+  }
   for (const part of ['ParamsDetails', 'RequestSchema', 'StatusCodes']) {
     const file = path.join(dir, `${slug}.${part}.json`);
     if (fs.existsSync(file)) walk(JSON.parse(fs.readFileSync(file, 'utf8')));
@@ -348,7 +351,9 @@ module.exports = function apiMarkdown(context, options) {
       for (const slug of operationSlugs) {
         const markdown = pages.get(slug);
         for (const name of namesShownOnPage(dir, slug)) {
-          if (!markdown.includes(`\`${name}\``)) missingFields.push(`${slug}: ${name}`);
+          // Only a list item counts (a field, parameter or header line), not a mention in prose.
+          const item = new RegExp(`^\\s*- \`${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\``, 'm');
+          if (!item.test(markdown)) missingFields.push(`${slug}: ${name}`);
         }
       }
       if (missingFields.length) {
