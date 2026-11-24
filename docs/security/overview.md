@@ -25,7 +25,16 @@ MFA devices can be used with credentials when accessing the web portal.
 Authorization
 ---------
 
-Credentials are assigned permissions (full access, read-only, write-only or read-write) and a home directory to which they are bound (chrooted). Multiple credentials can have access to the same home directory or to a parent directory and child directories (e.g. user `marketing` has access to `marketing/`, while user `marketing-partner1` has access to `marketing/partner1` and `marketing-partner2` has access to `marketing/partner2`).
+Credentials are assigned a home directory to which they are bound (chrooted), and one of these permissions:
+
+* **Full access**: can list, read, write, delete and share.
+* **Read-only**: can list and read, but not write, delete or share.
+* **Read and write**: can list, read, write and delete, but not share.
+* **Read and write without delete**: can list, read and write, but not delete or share.
+* **Write-only**: can list and write, but not read, delete, overwrite or share.
+* **None**: can do nothing. Useful for suspending access for a while.
+
+Multiple credentials can have access to the same home directory or to a parent directory and child directories (e.g. user `marketing` has access to `marketing/`, while user `marketing-partner1` has access to `marketing/partner1` and `marketing-partner2` has access to `marketing/partner2`).
 
 
 Data encryption
