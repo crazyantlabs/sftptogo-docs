@@ -108,21 +108,25 @@ Here are some links to documentation on editing DNS records with popular domain 
 
 ### Inbound network rules
 
-Inbound network rules define IP address ranges from which a user can connect to your storage using the SFTP or FTPS protocols.
+Inbound network rules decide which IP addresses can reach your storage over SFTP and FTPS, sign in to the web portal, and open your share links.
 
-The organization level rules define the IP ranges from which any set of credentials can be used to login to your cloud storage.
+The organization level rules apply to every set of credentials, and they are the only rules that decide where share links can be opened from.
 
-By default, there is a single rule that allows access from any IP address to all endpoints/protocols (SFTP, FTPS or Web Portal).
+By default, there is a single rule that allows access from any IP address with all protocols (SFTP, FTPS, web portal and share links).
 
-To restrict access to your storage, you may edit, disable, or delete this rule, and either add rules at the organization level or at the 
-[credentials level](../getting-started/creating-and-modifying-users.md)
+To restrict access to your storage, you may edit, disable, or delete this rule, and either add rules at the organization level or at the
+[credentials level](../getting-started/creating-and-modifying-users.md#editing-inbound-network-rules-for-users).
 To add a new inbound rule:
 
 1. Click **Add inbound rule**.
-2. Select the protocols you'd like to give access to (All, SFTP, FTPS or Web Portal).
-4. Fill out the source IP address or CIDR for IP address range.
-5. Add an optional description.
-6. Click 'Add inbound rule'.
+2. Select the protocol you'd like to give access to: **All protocols**, **SFTP**, **FTPS**, **Web portal** or **Share links**. A **Web portal** rule also lets visitors open share links, while a **Share links** rule allows nothing else.
+3. Fill out the source IP address or CIDR for IP address range.
+4. Add an optional description.
+5. Click **Add inbound rule**.
+
+To check whether an IP address is allowed with a given protocol, click **Test IP address**.
+
+For how rules are checked, and an example that keeps SFTP restricted while share links open from anywhere, see [Using inbound network rules](../security/using-inbound-network-rules.md).
 
 You can also edit, disable, enable, and delete inbound network rules by clicking the menu button (...) on a specific network rule followed by the relevant menu item.
 
