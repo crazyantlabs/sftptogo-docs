@@ -5,6 +5,8 @@
 // operations grouped by tag in the spec's tag order. The hand-written
 // Authentication, Errors and Pagination pages go right after the introduction.
 
+const { HAND_WRITTEN_FILES } = require('./scripts/api-reference');
+
 const generated = require('./api/sidebar.ts').default;
 
 const introduction = generated.findIndex((item) => item.type === 'doc');
@@ -13,9 +15,7 @@ const introduction = generated.findIndex((item) => item.type === 'doc');
 const sidebars = {
   apiSidebar: [
     ...generated.slice(0, introduction + 1),
-    { type: 'doc', id: 'authentication' },
-    { type: 'doc', id: 'errors' },
-    { type: 'doc', id: 'pagination' },
+    ...Object.keys(HAND_WRITTEN_FILES).map((id) => ({ type: 'doc', id })),
     ...generated.slice(introduction + 1),
   ],
 };

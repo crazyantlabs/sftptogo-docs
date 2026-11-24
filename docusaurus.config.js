@@ -4,7 +4,8 @@
 require('dotenv').config();
 
 const path = require('path')
-const { createApiPageMDWithPlan } = require('./scripts/api-page-markdown');
+const { createApiPageMDWithPlan, createInfoPageMDWithLinks } = require('./scripts/api-page-markdown');
+const { API_DOCS_ID, API_DIR, API_ROUTE, INTRODUCTION_SLUG, SPEC_PATH } = require('./scripts/api-reference');
 
 import { themes as prismThemes } from "prism-react-renderer";
 
@@ -63,9 +64,9 @@ const config = {
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'api',
-        path: 'api',
-        routeBasePath: 'api',
+        id: API_DOCS_ID,
+        path: API_DIR,
+        routeBasePath: API_ROUTE,
         sidebarPath: require.resolve('./sidebarsApi.js'),
         docItemComponent: '@theme/ApiItem',
       },
@@ -74,16 +75,17 @@ const config = {
       'docusaurus-plugin-openapi-docs',
       {
         id: 'openapi',
-        docsPluginId: 'api',
+        docsPluginId: API_DOCS_ID,
         config: {
           management: {
-            specPath: 'static/openapi/management.yaml',
-            outputDir: 'api',
+            specPath: SPEC_PATH,
+            outputDir: API_DIR,
             // The introduction's template: the plugin's own, served at /docs/api/introduction.
             infoTemplate: path.join(__dirname, 'scripts/api-info-page.mustache'),
-            // Adds a plan box, built from the spec's x-plan extension, to operation pages.
+            // Operation pages get plan boxes and links; the introduction ends with links.
             markdownGenerators: {
               createApiPageMD: createApiPageMDWithPlan,
+              createInfoPageMD: createInfoPageMDWithLinks,
             },
             sidebarOptions: {
               groupPathsBy: 'tag',
@@ -98,18 +100,11 @@ const config = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        redirects: [{ from: '/api', to: '/api/introduction' }],
+        redirects: [{ from: `/${API_ROUTE}`, to: `/${API_ROUTE}/${INTRODUCTION_SLUG}` }],
       },
     ],
     // Writes a Markdown copy of each API page next to it (<page>.md) at build time.
-    [
-      './plugins/api-markdown',
-      {
-        specPath: 'static/openapi/management.yaml',
-        docsDir: 'api',
-        routeBasePath: 'api',
-      },
-    ],
+    './plugins/api-markdown',
     [
       'docusaurus-plugin-segment',
       {
@@ -163,7 +158,7 @@ const config = {
             // The API reference's own docs instance: links to its first page
             // and is active on every /docs/api/ page.
             type: 'docSidebar',
-            docsPluginId: 'api',
+            docsPluginId: API_DOCS_ID,
             sidebarId: 'apiSidebar',
             label: 'API',
             position: 'left',

@@ -5,14 +5,16 @@ const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
 
-const dir = path.join(__dirname, '..', 'api');
+const { API_DIR, API_ROUTE } = require('./api-reference');
+
+const dir = path.join(__dirname, '..', API_DIR);
 
 // The theme turns `info_path` into the link in the page's Authorization box
 // (`/<info_path>#authentication`). The generator points it at the introduction
 // and sets it only after page generators have run, so it is repointed here, at
 // the hand-written Authentication page (api/authentication.mdx).
 function linkAuthenticationPage(source) {
-  return source.replace(/^info_path: .*$/m, 'info_path: api/authentication');
+  return source.replace(/^info_path: .*$/m, `info_path: ${API_ROUTE}/authentication`);
 }
 
 // The request panel ("Try it") reads the compressed `api:` front matter, and

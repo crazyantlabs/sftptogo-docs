@@ -1,8 +1,10 @@
-// Page generator for the API reference (markdownGenerators.createApiPageMD in
-// docusaurus.config.js). It renders each operation page with the plugin's own
-// generator, adds a plan box when the operation has an `x-plan` extension and a
-// pointer to Pagination on list operations, and ends the page with a link to
-// the Errors page.
+// Page generators for the API reference (markdownGenerators in
+// docusaurus.config.js), wrapping the plugin's own:
+// - createApiPageMDWithPlan renders each operation page, adds a plan box when
+//   the operation has an `x-plan` extension and a pointer to Pagination on list
+//   operations, and ends the page with a link to the Errors page;
+// - createInfoPageMDWithLinks ends the introduction with links to the
+//   hand-written pages.
 //
 // The box follows the guides' convention for plan-gated features: an `:::info`
 // admonition linking to the pricing page. It goes under the operation's
@@ -20,9 +22,8 @@
 // Any other shape still gets a box with a general sentence, so a change to the
 // extension in the spec never breaks the build or hides that a plan applies.
 
-const { createApiPageMD } = require('docusaurus-plugin-openapi-docs/lib/markdown');
-
-const PRICING = 'Read more about our different plans [here](https://sftptogo.com/pricing).';
+const { createApiPageMD, createInfoPageMD } = require('docusaurus-plugin-openapi-docs/lib/markdown');
+const { siblingLink, isPaged, pricingSentence, paginationNote, errorsSentence, referenceLinksSection } = require('./api-reference');
 
 // Spec values become prose inside MDX: keep letters, digits and spaces only.
 function words(value) {
@@ -55,36 +56,28 @@ function sentences(entry) {
 function planText(xPlan) {
   const entries = Array.isArray(xPlan) ? xPlan : [xPlan];
   const lines = [...new Set(entries.flatMap(sentences))];
-  return `${lines.join(' ')} ${PRICING}`;
+  return `${lines.join(' ')} ${pricingSentence()}`;
 }
 
 function planNotice(xPlan) {
   return `:::info\n\n${planText(xPlan)}\n\n:::`;
 }
 
-// Every operation page ends by pointing at the Errors page, which explains the
-// error responses listed above it.
-const ERRORS_LINK = '\n\nSee [Errors](./errors.md) for the error body, the status codes and when to retry.\n';
-
-// A list operation (one that takes an `after` or `before` cursor) gets a line
-// under its description pointing at the Pagination page.
-const PAGINATION_NOTE = 'This list is paged: pass `limit` and follow the `Link` header. See [Pagination](./pagination.mdx).';
-
-function isPaged(parameters) {
-  return (parameters || []).some((p) => p && p.in === 'query' && (p.name === 'after' || p.name === 'before'));
-}
-
 function createApiPageMDWithPlan(pageData) {
   const xPlan = (pageData.api.extensions || []).find((extension) => extension.key === 'x-plan');
   const hasPlan = Boolean(xPlan) && xPlan.value !== undefined && xPlan.value !== null;
   const notes = [
-    isPaged(pageData.api.parameters) ? PAGINATION_NOTE : null,
+    isPaged(pageData.api.parameters) ? paginationNote(siblingLink) : null,
     hasPlan ? planNotice(xPlan.value) : null,
   ].filter(Boolean);
   const page = notes.length
     ? { ...pageData, api: { ...pageData.api, description: [pageData.api.description, ...notes].filter(Boolean).join('\n\n') } }
     : pageData;
-  return createApiPageMD(page) + ERRORS_LINK;
+  return `${createApiPageMD(page)}\n\n${errorsSentence(siblingLink)}\n`;
 }
 
-module.exports = { createApiPageMDWithPlan, planNotice, planText };
+function createInfoPageMDWithLinks(pageData) {
+  return `${createInfoPageMD(pageData)}\n\n${referenceLinksSection(siblingLink)}`;
+}
+
+module.exports = { createApiPageMDWithPlan, createInfoPageMDWithLinks, planNotice, planText };

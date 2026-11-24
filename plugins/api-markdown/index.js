@@ -4,6 +4,18 @@ const yaml = require('js-yaml');
 const kebabCase = require('lodash/kebabCase');
 
 const { planText } = require('../../scripts/api-page-markdown');
+const {
+  API_DIR,
+  API_ROUTE,
+  INTRODUCTION_SLUG,
+  SPEC_PATH,
+  HAND_WRITTEN_FILES,
+  markdownCopyPath,
+  isPaged,
+  paginationNote,
+  errorsSentence,
+  referenceLinksSection,
+} = require('../../scripts/api-reference');
 
 // Writes a Markdown copy of every API reference page next to it in the build,
 // so `/docs/api/<page>` is also served as `/docs/api/<page>.md`. Agents fetch
@@ -155,8 +167,7 @@ function operationMarkdown({ operation, method, route, server, pageUrl, link }) 
   if (operation.description) lines.push(operation.description.trim(), '');
   const xPlan = operation['x-plan'];
   if (xPlan !== undefined && xPlan !== null) lines.push(`> ${planText(xPlan)}`, '');
-  const paged = (operation.parameters || []).some((p) => p.in === 'query' && (p.name === 'after' || p.name === 'before'));
-  if (paged) lines.push(`This list is paged: pass \`limit\` and follow the \`Link\` header. See [Pagination](${link('pagination')}).`, '');
+  if (isPaged(operation.parameters)) lines.push(paginationNote(link), '');
   lines.push(`Authenticate with your API key as a bearer token: see [Authentication](${link('authentication')}).`, '');
 
   for (const location of ['path', 'query', 'header']) {
@@ -199,7 +210,7 @@ function operationMarkdown({ operation, method, route, server, pageUrl, link }) 
       if (example !== undefined) lines.push('Example:', '', ...jsonBlock(example), '');
     }
   }
-  lines.push(`See [Errors](${link('errors')}) for the error body, the status codes and when to retry.`, '', `Source: ${pageUrl}`, '');
+  lines.push(errorsSentence(link), '', `Source: ${pageUrl}`, '');
   return lines.join('\n');
 }
 
@@ -254,35 +265,32 @@ function namesShownOnPage(dir, slug) {
   return names;
 }
 
-module.exports = function apiMarkdown(context, options) {
+module.exports = function apiMarkdown(context) {
   const { siteDir, siteConfig } = context;
-  const { specPath, docsDir, routeBasePath } = options;
 
   return {
     name: 'api-markdown',
 
     async postBuild({ outDir }) {
-      const spec = yaml.load(fs.readFileSync(path.join(siteDir, specPath), 'utf8'));
+      const spec = yaml.load(fs.readFileSync(path.join(siteDir, SPEC_PATH), 'utf8'));
       const resolve = createResolver(spec);
-      const publicBase = `${siteConfig.url}${siteConfig.baseUrl}${routeBasePath}`;
+      const publicBase = `${siteConfig.url}${siteConfig.baseUrl}${API_ROUTE}`;
       const pageUrl = (slug) => `${publicBase}/${slug}`;
-      const link = (slug) => `${pageUrl(slug)}.md`;
+      const link = (slug) => markdownCopyPath(pageUrl(slug));
       const server = (spec.servers && spec.servers[0] && spec.servers[0].url) || '';
       const pages = new Map();
 
-      // Introduction (served at <routeBasePath>/introduction by its template).
+      // Introduction.
       pages.set(
-        'introduction',
+        INTRODUCTION_SLUG,
         [
           `# ${spec.info.title}`,
           '',
           (spec.info.description || '').trim(),
           '',
-          '## Authentication, errors and pagination',
+          referenceLinksSection(link),
           '',
-          `Send your API key with every request: see [Authentication](${link('authentication')}). For the status codes and error bodies the API returns, see [Errors](${link('errors')}). List endpoints return results a page at a time: see [Pagination](${link('pagination')}).`,
-          '',
-          `Source: ${pageUrl('introduction')}`,
+          `Source: ${pageUrl(INTRODUCTION_SLUG)}`,
           '',
         ].join('\n'),
       );
@@ -325,16 +333,14 @@ module.exports = function apiMarkdown(context, options) {
       }
 
       // Hand-written pages.
-      const dir = path.join(siteDir, docsDir);
-      for (const file of fs.readdirSync(dir)) {
-        if (!/\.mdx?$/.test(file) || /\.(api|info|tag)\.mdx$/.test(file)) continue;
-        const slug = file.replace(/\.mdx?$/, '');
+      const dir = path.join(siteDir, API_DIR);
+      for (const [slug, file] of Object.entries(HAND_WRITTEN_FILES)) {
         pages.set(slug, handWrittenMarkdown(fs.readFileSync(path.join(dir, file), 'utf8'), pageUrl(slug), link));
       }
 
       // Every copy must sit next to a page the site built, and no API page may
       // go without a copy.
-      const builtDir = path.join(outDir, routeBasePath);
+      const builtDir = path.join(outDir, API_ROUTE);
       const built = fs
         .readdirSync(builtDir, { withFileTypes: true })
         .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(builtDir, entry.name, 'index.html')))
@@ -359,7 +365,7 @@ module.exports = function apiMarkdown(context, options) {
       if (missingFields.length) {
         throw new Error(`api-markdown: fields shown on a page are missing from its Markdown copy: ${missingFields.join('; ')}.`);
       }
-      for (const [slug, markdown] of pages) fs.writeFileSync(path.join(builtDir, `${slug}.md`), markdown);
+      for (const [slug, markdown] of pages) fs.writeFileSync(markdownCopyPath(path.join(builtDir, slug)), markdown);
     },
   };
 };
