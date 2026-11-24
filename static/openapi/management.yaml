@@ -47,7 +47,7 @@ tags:
       Links that give someone access to a folder through the web portal, without an SFTP client. The API calls this resource `portal-links`.
   - name: Automations
     description: |
-      Rules that run when something happens to your files — notify a system, forward a file, encrypt or decrypt it. Automations replace webhooks; an existing webhook can be converted into the equivalent automation, keeping its signing secret so receivers do not notice.
+      Rules that run when something happens to your files — notify a system, forward a file, encrypt or decrypt it. Automations replace webhooks; an existing webhook can be converted into the equivalent automation, keeping its signing secret, so receivers verify deliveries without any change.
   - name: Automation runs
     description: |
       The execution history of an automation: what triggered it, what each action did, and whether it succeeded. Individual runs can be replayed.
