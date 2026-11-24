@@ -3,8 +3,4 @@ sidebar_label: 'Management APIs'
 title: 'Management APIs'
 sidebar_position: 5
 ---
-SFTP To Go's REST APIs allow you to manage, control, and modify your organization, including credentials, webhooks, inbound network rules, and other objects.
-
-SFTP To Go's API uses API keys to authenticate requests. You can request your API key from our support team via the in-app chat.
-
-Check out our API documentation [here](https://sftptogo.com/blog/api-reference/).
+The SFTP To Go Management API lets you manage your organization from code. See the [API reference](/api/introduction), and [Authentication](/api/authentication) for how to get and use an API key.
