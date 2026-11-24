@@ -144,9 +144,8 @@ Malware protection is only available with certain plans. Read more about our dif
 
 ## Audit logs {#audit-logs}
 
-Use the audit logs to monitor access to your storage. In **Organization settings**, open **Audit logs** to:
+Use the audit logs to monitor access to your storage. In **Organization settings**, open **Audit logs**. The section lists your organization's audit log entries; use the filters above the table to narrow them down by username, principal ID, session ID, IP address, event type or timestamp, and click an entry to expand its details. Below the table, you can:
 
-* Click **View audit logs** to browse through your organization's logs and filter them by username, session ID or timestamp range.
 * Export audit logs as files into your storage, for long term storage or further processing. Refer to [Exporting audit logs](../security/audit-logs.md#export).
 * Stream audit logs to a security information and event management (SIEM) system or your own endpoint. Refer to [Streaming audit logs](../security/audit-logs.md#stream).
 
