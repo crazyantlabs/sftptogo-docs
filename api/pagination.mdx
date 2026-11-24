@@ -25,7 +25,7 @@ Cursors are opaque. Take them from the `Link` header rather than building or sto
 * `X-Total-Count-Exact`: whether `X-Total-Count` is exact. Counting a long list stops early to keep responses fast. Then this is `false`, and `X-Total-Count` is a lower bound that's still larger than the number of items you've paged through. On the last page it's always `true`.
 
 ```http
-Link: <https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users?limit=50&after=eyJJZCI6IjdjMmU5YTRm...&offset=50>; rel=next
+Link: <https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users?limit=50&after=ZXhhbXBsZS1jdXJzb3ItMDAx&offset=50>; rel=next
 X-Total-Count: 120
 X-Total-Count-Exact: true
 ```
