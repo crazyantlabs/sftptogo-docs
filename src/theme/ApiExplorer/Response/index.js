@@ -20,7 +20,7 @@ export default function ResponseWithFailure(props) {
         <Admonition type="danger" title="The request didn't complete">
           <p>{message}</p>
           <p>
-            The browser got no response it could read, so there is no status code to show. This
+            The browser got no response it could read, so there's no status code to show. This
             happens when the network fails, when the API returns a server error, or when the request
             is sent from anywhere but sftptogo.com.
           </p>

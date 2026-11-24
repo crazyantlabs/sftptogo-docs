@@ -34,10 +34,10 @@ Errors from our gateway, which answers instead of the API, have only a `message`
 | Code | Meaning | What to do |
 | --- | --- | --- |
 | `400` | The request body is invalid. | Fix the fields listed in `errors`, then send it again. |
-| `401` | The request isn't authenticated: the API key is missing, wrong or revoked, or it can't reach this path. | Check the `Authorization` header, the key, and the organization ID in the path. |
+| `401` | The request isn't authenticated. | Check the `Authorization` header, the key, and the organization ID in the path. |
 | `402` | Your plan doesn't include this feature. | Upgrade your plan, or don't use the feature. |
-| `403` | The request is authenticated and your plan includes the feature, but this request isn't allowed. | Read `message`: for example, you reached a limit, or the item can't be changed this way. With no `id` and the message `Missing Authentication Token`, check the method and path instead. |
-| `404` | The object doesn't exist, or belongs to another organization. | Check the ID in the path. |
+| `403` | The request isn't allowed. | Read `message` to see why, such as a limit you've reached. Without an `id`, the method or path doesn't exist. |
+| `404` | The object doesn't exist, or belongs to another organization. The two look the same on purpose, so no one can learn whether another organization's object exists. | Check the ID in the path. |
 | `422` | A required value is missing, or the request conflicts with the current state, such as a login name that's taken. | Fill in the value, or change the request, such as choosing another name. |
 | `429` | The same action was requested too recently. | Wait, then retry. |
 | `500` | Something went wrong on our side. | Retry later. If it keeps happening, contact our support team. |
@@ -64,7 +64,7 @@ Errors from the gateway, including every `401`, have no `id`: see [Error body](#
 
 ## Validation errors
 
-A `400` with the id `invalid_request_body` comes with an `errors` field naming the rejected fields. It takes one of two forms, so handle both.
+A `400` with the id `invalid_request_body` comes with an `errors` field that says which fields were rejected. It takes one of two forms, so handle both.
 
 An object keyed by field name. It lists every field that was checked, so look for `isInvalid: true`:
 

@@ -15,6 +15,9 @@ import styles from './styles.module.css';
 // Clicks send the homepage's Segment event, `Ask AI Clicked` with `assistant`
 // and `language`, plus `page` (the path it came from). Segment loads only with
 // the visitor's consent (plugins/segment-consent); until then calls queue.
+// Shown at the foot of the menu: what never to share with an assistant.
+const PRIVACY_NOTE = "Don't paste API keys, passwords or customer data into an assistant.";
+
 function track(assistant, language) {
   if (typeof window === 'undefined' || !window.analytics) return;
   window.analytics.track('Ask AI Clicked', { assistant, language, page: window.location.pathname });
@@ -115,6 +118,9 @@ export default function ExploreWithAI({ prompt, markdownUrl }) {
               </a>
             </li>
           ))}
+          <li role="none" className={styles.note}>
+            {PRIVACY_NOTE}
+          </li>
         </ul>
       )}
     </div>

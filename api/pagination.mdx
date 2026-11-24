@@ -20,9 +20,9 @@ Cursors are opaque. Take them from the `Link` header rather than building or sto
 
 ## Response headers
 
-* `Link`: links to the neighbouring pages, in [RFC 8288](https://www.rfc-editor.org/rfc/rfc8288) format. It has a `next` link while more results follow, and a `prev` link while earlier results exist; it is empty when there is only one page. Use the URLs as given: they already carry your `limit`, the cursor and an `offset` that tracks your position.
+* `Link`: links to the neighboring pages, in [RFC 8288](https://www.rfc-editor.org/rfc/rfc8288) format. It has a `next` link while more results follow, and a `prev` link while earlier results exist; it's empty when there's only one page. Use the URLs as given: they already carry your `limit`, the cursor and an `offset` that tracks your position.
 * `X-Total-Count`: the number of items across all pages.
-* `X-Total-Count-Exact`: whether `X-Total-Count` is exact. Counting a long list stops early to keep responses fast. Then this is `false`, and `X-Total-Count` is a lower bound that is still larger than the number of items you've paged through. On the last page it's always `true`.
+* `X-Total-Count-Exact`: whether `X-Total-Count` is exact. Counting a long list stops early to keep responses fast. Then this is `false`, and `X-Total-Count` is a lower bound that's still larger than the number of items you've paged through. On the last page it's always `true`.
 
 ```http
 Link: <https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users?limit=50&after=eyJJZCI6IjdjMmU5YTRm...&offset=50>; rel=next
