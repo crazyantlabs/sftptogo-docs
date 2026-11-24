@@ -6,17 +6,17 @@ info:
   description: |-
     The SFTP To Go Management API lets you script what you would otherwise do in the dashboard. This reference documents credentials: creating, updating, rotating and removing the logins your users and systems connect with. More of the dashboard is added here as it is documented.
 
-    ## What this API does not do
+    ## What this API doesn't do
 
-    **It does not transfer files.** Files move over SFTP, FTPS or the S3-compatible endpoint, using the credentials you create here. There is no upload or download operation in this reference: that is by design, not an omission.
+    **It doesn't transfer files.** Files move over SFTP, FTPS or the S3-compatible endpoint, using the credentials you create here. There is no upload or download operation in this reference: that is by design, not an omission.
 
     ## Base URL and organization scope
 
-    Almost every path is scoped to an organization: `https://api.sftptogo.com/organizations/{organizationId}/...`
+    Every path is scoped to an organization: `https://api.sftptogo.com/organizations/{organizationId}/...`
 
     An API key works for one organization only. See [Authentication](https://sftptogo.com/docs/api/authentication) for how keys work.
 
-    The API itself runs in one region. The region you chose for your storage is a property of your organization and does not change which host you call.
+    The API itself runs in one region. The region you chose for your storage is a property of your organization and doesn't change which host you call.
 
     ## Conventions
 
@@ -39,7 +39,7 @@ tags:
     description: |
       Credentials are the logins your users and systems use to connect over SFTP, FTPS, the web portal and the S3-compatible endpoint. The API calls this resource `users`.
   - name: SSH keys
-    description: Public keys attached to a set of credentials, for key-based SFTP authentication.
+    description: Public keys attached to a set of credentials, for key-based SFTP sign-in.
   - name: S3 credentials
     description: S3-compatible access keys attached to a set of credentials.
   - name: Share links
@@ -82,7 +82,7 @@ paths:
         page. Without `limit`, a page holds up to 2,000 credentials; this default may be lowered.
 
         Each set of credentials in the response includes its password in clear text and a connection
-        string. Don't log the response or pass it to an untrusted client.
+        string. Treat the response as a secret: don't log it or pass it to browser or mobile code.
       parameters:
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/After'
@@ -106,7 +106,7 @@ paths:
                   $ref: '#/components/schemas/Credentials'
               examples:
                 default:
-                  summary: Two credentials
+                  summary: Two sets of credentials
                   value:
                     - Id: 7c2e9a4f1b6d3e8a0c5f2b7d9e1a4c
                       OrganizationId: 6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34
@@ -141,9 +141,9 @@ paths:
                           InboundRules: []
                       LastLogin: null
                       LoginsCount: 0
-                      Password: q8w3e5r7t9y2u4i6o1p0a3s5d7f9g2
+                      Password: example-password-not-real-000002
                       PasswordCreatedAt: '2026-08-14T10:05:00.000Z'
-                      URI: sftp://partner-acme:q8w3e5r7t9y2u4i6o1p0a3s5d7f9g2@example.sftptogo.com
+                      URI: sftp://partner-acme:example-password-not-real-000002@example.sftptogo.com
                       CreatedAt: 1786701900000
                       UpdatedAt: 1786701900000
                     - Id: 3f9a1c7e5b2d4a6f8e0c1b3d5f7a9c
@@ -214,9 +214,9 @@ paths:
                       ExpiresAt: null
                       CreatedAt: 1780675200000
                       UpdatedAt: 1785340800000
-                      Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
+                      Password: example-password-not-real-000001
                       PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
-                      URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+                      URI: sftp://data-warehouse-prod:example-password-not-real-000001@example.sftptogo.com
                       SupportedProtocols:
                         - SFTP
                         - FTPS
@@ -237,9 +237,7 @@ paths:
         home directory of `/home/{UserName}` and `Permission: none`: they can connect but can't see any
         files. Set `Permission`, or give them virtual folders with `HomeDirectoryDetails`.
 
-        The response includes the password. You can read it again later by retrieving the credentials.
-
-        Counts against your plan's limit on credentials.
+        You can read the password again later by retrieving the credentials.
       x-plan:
         limit: credentials
       requestBody:
@@ -281,7 +279,7 @@ paths:
                   ExpiresAt: 1793318400
       responses:
         '201':
-          description: Returns the new credentials, including their password.
+          description: Returns the new credentials, including their password in clear text and a connection string. Treat the response as a secret.
           content:
             application/json:
               schema:
@@ -314,8 +312,8 @@ paths:
                           Factors: []
                       Network:
                         InboundRules: []
-                    Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
-                    URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+                    Password: example-password-not-real-000001
+                    URI: sftp://data-warehouse-prod:example-password-not-real-000001@example.sftptogo.com
                     CreatedAt: 1780675200000
                     UpdatedAt: 1780675200000
         '400':
@@ -382,7 +380,7 @@ paths:
               properties:
                 UserName:
                   type: string
-                  description: The login name to test. Compared exactly as sent.
+                  description: The login name, compared exactly as sent.
             examples:
               default:
                 value:
@@ -518,9 +516,9 @@ paths:
                     ExpiresAt: null
                     CreatedAt: 1780675200000
                     UpdatedAt: 1785340800000
-                    Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
+                    Password: example-password-not-real-000001
                     PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
-                    URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+                    URI: sftp://data-warehouse-prod:example-password-not-real-000001@example.sftptogo.com
                     SupportedProtocols:
                       - SFTP
                       - FTPS
@@ -555,8 +553,8 @@ paths:
         validated. An empty string resets `Alias` to the login name, `HomeDirectory` to
         `/home/{UserName}` and `ChrootDirectory` to `/`.
 
-        Inbound rules require a plan that includes them. On other plans, changes to
-        `Settings.Network.InboundRules` are skipped without an error and the rest of the update applies.
+        On a plan without inbound rules, changes to `Settings.Network.InboundRules` are skipped without
+        an error and the rest of the update applies.
 
         Changes apply to new connections; open sessions aren't interrupted. To change the password,
         rotate it instead.
@@ -607,7 +605,7 @@ paths:
                           Description: Warehouse egress range
       responses:
         '200':
-          description: Returns the updated credentials.
+          description: Returns the updated credentials, including the password in clear text and a connection string. Treat the response as a secret.
           content:
             application/json:
               schema:
@@ -654,8 +652,8 @@ paths:
         Permanently deletes credentials and releases their login name for reuse.
 
         This can't be undone. Files aren't deleted: they stay in your storage, reachable through other
-        credentials with access to them. You can't delete the organization's default credentials. To stop access but keep
-        the credentials, deactivate them instead.
+        credentials with access to them. You can't delete the organization's default credentials. To
+        stop access but keep the credentials, deactivate them instead.
       responses:
         '200':
           description: |
@@ -765,11 +763,11 @@ paths:
       description: |
         Activates deactivated credentials.
 
-        Their password, keys, home directory and network rules are unchanged, so they can connect again
+        Their password, SSH keys, home directory and network rules are unchanged, so they can connect again
         immediately. Activating credentials that are already active changes nothing.
       responses:
         '200':
-          description: Returns the credentials, now active.
+          description: Returns the credentials, now active, including the password in clear text and a connection string. Treat the response as a secret.
           content:
             application/json:
               schema:
@@ -845,9 +843,9 @@ paths:
                     ExpiresAt: null
                     CreatedAt: 1780675200000
                     UpdatedAt: 1785340800000
-                    Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
+                    Password: example-password-not-real-000001
                     PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
-                    URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+                    URI: sftp://data-warehouse-prod:example-password-not-real-000001@example.sftptogo.com
         '401':
           $ref: '#/components/responses/CredentialsUnauthorized'
         '404':
@@ -867,11 +865,14 @@ paths:
         Deactivates credentials so that they can't connect.
 
         Nothing is deleted: the password, SSH keys, home directory and network rules are kept, and
-        activating the credentials restores access as it was. Deactivate rather than delete when you
-        respond to a suspected leak or pause an integration.
+        activating the credentials restores access as it was. Sessions already open aren't ended.
+
+        To respond to a suspected leak, deactivate the credentials, then rotate the password and remove
+        any SSH key you don't trust before you activate them again. Deactivating doesn't revoke S3
+        access keys attached to the credentials.
       responses:
         '200':
-          description: Returns the credentials, now inactive.
+          description: Returns the credentials, now inactive, including the password in clear text and a connection string. Treat the response as a secret.
           content:
             application/json:
               schema:
@@ -948,9 +949,9 @@ paths:
                     ExpiresAt: null
                     CreatedAt: 1780675200000
                     UpdatedAt: 1785340800000
-                    Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
+                    Password: example-password-not-real-000001
                     PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
-                    URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+                    URI: sftp://data-warehouse-prod:example-password-not-real-000001@example.sftptogo.com
         '401':
           $ref: '#/components/responses/CredentialsUnauthorized'
         '404':
@@ -980,7 +981,6 @@ paths:
           application/json:
             schema:
               type: object
-              description: An empty body generates a password for you.
               properties:
                 Password:
                   type: string
@@ -998,19 +998,14 @@ paths:
               chosen:
                 summary: Set a specific password
                 value:
-                  Password: vq7pl2mxr9tz4wka8ne3ub6yc5jd1hgs
+                  Password: example-password-not-real-chosen
       responses:
         '200':
-          description: Returns a confirmation. The new password isn't included.
+          description: Returns a confirmation.
           content:
             application/json:
               schema:
-                type: object
-                description: A confirmation. The new password is not included.
-                properties:
-                  message:
-                    type: string
-                    description: Confirmation that the password was set.
+                $ref: '#/components/schemas/Confirmation'
               examples:
                 default:
                   value:
@@ -1064,12 +1059,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                description: A confirmation.
-                properties:
-                  message:
-                    type: string
-                    description: Confirmation that the email was sent.
+                $ref: '#/components/schemas/Confirmation'
               examples:
                 default:
                   value:
@@ -1107,7 +1097,7 @@ components:
     apiKey:
       type: http
       scheme: bearer
-      description: Send your API key as a bearer token in the Authorization header of every request. How to get a key, what it can reach and how to keep it safe are explained at https://sftptogo.com/docs/api/authentication.
+      description: 'Send your API key as a bearer token in the Authorization header, over HTTPS only. A key reaches your whole organization, so keep it server-side, out of browser and mobile code, repositories, logs, URLs and AI assistants, and if one leaks, contact support at once: https://sftptogo.com/docs/api/authentication explains keys in full.'
   parameters:
     OrganizationId:
       name: organizationId
@@ -1134,7 +1124,7 @@ components:
         type: string
       examples:
         default:
-          value: eyJJZCI6IjdjMmU5YTRmMWI2ZDNlOGEwYzVmMmI3ZDllMWE0YyIsIk9yZ2FuaXphdGlvbklkIjoiNmIxZjBkMmUtNGEzYy00ZjhiLTllMGEtMmM3ZDViOGUxZjM0IiwiQ3JlYXRlZEF0IjoxNzg2NzAxOTAwMDAwfQ==
+          value: ZXhhbXBsZS1jdXJzb3ItMDAx
     Before:
       name: before
       in: query
@@ -1148,7 +1138,7 @@ components:
         type: string
       examples:
         default:
-          value: eyJJZCI6IjNmOWExYzdlNWIyZDRhNmY4ZTBjMWIzZDVmN2E5YyIsIk9yZ2FuaXphdGlvbklkIjoiNmIxZjBkMmUtNGEzYy00ZjhiLTllMGEtMmM3ZDViOGUxZjM0IiwiQ3JlYXRlZEF0IjoxNzgwNjc1MjAwMDAwfQ==
+          value: ZXhhbXBsZS1jdXJzb3ItMDAy
     Limit:
       name: limit
       in: query
@@ -1190,7 +1180,7 @@ components:
         type: string
       examples:
         default:
-          value: <https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users?limit=50&after=eyJJZCI6IjdjMmU5YTRmMWI2ZDNlOGEwYzVmMmI3ZDllMWE0YyIsIk9yZ2FuaXphdGlvbklkIjoiNmIxZjBkMmUtNGEzYy00ZjhiLTllMGEtMmM3ZDViOGUxZjM0IiwiQ3JlYXRlZEF0IjoxNzg2NzAxOTAwMDAwfQ%3D%3D&offset=50>; rel=next
+          value: <https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users?limit=50&after=ZXhhbXBsZS1jdXJzb3ItMDAx&offset=50>; rel=next
     XTotalCount:
       description: |
         The total number of matching items across all pages. On a long list it can be a lower bound; check `X-Total-Count-Exact`.
@@ -1246,7 +1236,7 @@ components:
             - not_found
         message:
           type: string
-          description: A human-readable explanation, safe to log but not intended for end users verbatim.
+          description: An explanation for people. Safe to log; don't show it to end users verbatim.
           examples:
             - Credentials not found.
         errors:
@@ -1285,36 +1275,12 @@ components:
             description: Why the field was rejected. Empty when the field passed.
       examples:
         - isValid: false
-          HasActions:
+          UserName:
             isInvalid: true
-            message: You must include at least one action.
+            message: Unfortunately, username can't be shorter than 5 characters.
           Alias:
             isInvalid: false
             message: ''
-    UnauthorizedError:
-      type: object
-      title: UnauthorizedError
-      description: |
-        The body of a `401`.
-
-        When authentication fails, the request is rejected before it reaches the endpoint and the body has
-        only `message`. When an endpoint rejects an authenticated request, the body is the standard error,
-        with `id`. So `id` is optional on this status only.
-      required:
-        - message
-      properties:
-        id:
-          type: string
-          description: |
-            A stable, machine-readable code. Absent when the request was rejected before reaching the
-            endpoint.
-          examples:
-            - unauthorized
-        message:
-          type: string
-          description: A human-readable explanation of why the request was not authenticated.
-          examples:
-            - Unauthorized
     VirtualFolder:
       type: object
       title: VirtualFolder
@@ -1328,7 +1294,7 @@ components:
         Entry:
           type: string
           description: |
-            The path the credentials see, such as `/inbound`. Must start with a slash and not end with one. The root `/` must be the only entry. Entries can't share a path, contain one another, or contain a variable such as `${...}`.
+            The path the credentials see, such as `/inbound`. Must start with a slash and not end with one. If the root `/` is an entry, it must be the only one. Entries can't share a path, contain one another, or contain a variable such as `${...}`.
           maxLength: 1024
           examples:
             - /inbound
@@ -1531,7 +1497,7 @@ components:
               properties:
                 Required:
                   type: boolean
-                  description: Whether the person must enrol and use a second factor to sign in to the portal.
+                  description: Whether the person must enroll and use a second factor to sign in to the web portal.
                 Factors:
                   type: array
                   description: The second factors enrolled for these credentials. Empty until one is added.
@@ -1551,14 +1517,14 @@ components:
     LastLogin:
       type: object
       title: LastLogin
-      description: The most recent time these credentials connected, and from where.
+      description: The most recent time these credentials signed in, and from where.
       properties:
         Id:
           type: string
-          description: The identifier of the audit log event that recorded the login.
+          description: The identifier of the audit log event that recorded the sign-in.
         Timestamp:
           type: integer
-          description: When the login happened, in Unix epoch milliseconds.
+          description: When the sign-in happened, in Unix epoch milliseconds.
           examples:
             - 1785340800000
         IpAddress:
@@ -1609,7 +1575,7 @@ components:
                   examples:
                     - 39.7817,-89.6501
             - type: 'null'
-              description: The address could not be located.
+              description: The address couldn't be located.
         UserAgent:
           description: |
             The client as it identified itself, parsed into application, operating system and device, or `null` if it sent nothing. Unrecognized parts are `Other` or `null`.
@@ -1695,7 +1661,7 @@ components:
                         - type: string
                         - type: 'null'
             - type: 'null'
-              description: The client did not identify itself.
+              description: The client didn't identify itself.
     Credentials:
       type: object
       title: Credentials
@@ -1860,7 +1826,8 @@ components:
             The current password, in clear text.
 
             It's returned on every read, so treat any response that contains credentials as a secret:
-            don't log it, cache it or send it to a browser you don't control.
+            don't log or cache it, don't pass it to browser or mobile code, and don't paste it into an AI
+            assistant or chat.
         PasswordCreatedAt:
           type: string
           format: date-time
@@ -1873,7 +1840,7 @@ components:
           description: |
             A connection string with the login name, password and host. It contains the password in clear text.
           examples:
-            - sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+            - sftp://data-warehouse-prod:example-password-not-real-000001@example.sftptogo.com
         CreatedAt:
           type: integer
           description: When the credentials were created, in Unix epoch milliseconds.
@@ -1901,8 +1868,7 @@ components:
     CreateCredentialsRequest:
       type: object
       title: CreateCredentialsRequest
-      description: |
-        Every field is optional. An empty body creates credentials with a generated name and password and no file access.
+      description: The fields of the new credentials.
       properties:
         UserName:
           type: string
@@ -2003,7 +1969,7 @@ components:
                 Required:
                   type: boolean
                   description: |
-                    Whether the person using these credentials must use a second factor from their next portal sign-in.
+                    Whether the person using these credentials must use a second factor from their next web portal sign-in.
         Network:
           type: object
           description: Where these credentials may connect from.
@@ -2015,16 +1981,14 @@ components:
               description: |
                 The complete list of inbound rules, up to 250. Replaces the current list.
 
-                Requires a plan that includes inbound rules. On other plans the list is left unchanged and
-                the request still succeeds.
+                On a plan without inbound rules, the list is left unchanged and the request still succeeds.
               maxItems: 250
               items:
                 $ref: '#/components/schemas/InboundRule'
     UpdateCredentialsRequest:
       type: object
       title: UpdateCredentialsRequest
-      description: |
-        Send only the fields you want to change. Omitted fields are left as they are and aren't validated. To change the password, rotate it instead.
+      description: The fields to change.
       properties:
         UserName:
           type: string
@@ -2098,113 +2062,17 @@ components:
             - type: 'null'
         Settings:
           $ref: '#/components/schemas/CredentialsSettingsInput'
+    Confirmation:
+      type: object
+      title: Confirmation
+      description: A confirmation that the request succeeded.
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: What was done, written for people.
   responses:
-    Unauthorized:
-      description: |
-        The request isn't authenticated.
-
-        The `Authorization` header is missing or malformed, the key is revoked, the key belongs to another
-        organization than the one in the path, or the organization isn't active.
-
-        The body takes two shapes: a bare `message` when the request is rejected before it reaches the
-        endpoint, or the standard error with `id` when the endpoint rejects it. Handle both.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/UnauthorizedError'
-          examples:
-            gateway:
-              summary: Rejected before reaching the endpoint
-              value:
-                message: Unauthorized
-            handler:
-              summary: Rejected by the endpoint
-              value:
-                id: unauthorized
-                message: Unauthorized.
-    Forbidden:
-      description: |
-        The request was authenticated but not allowed.
-
-        Two very different situations produce this status. Either the caller may not perform this action,
-        or the action would exceed a limit on your plan — for example creating one more automation than
-        the plan allows. The `message` distinguishes them.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            limit:
-              summary: A plan limit would be exceeded
-              value:
-                id: forbidden
-                message: You have reached the maximum number of automations (25).
-            denied:
-              summary: The action is not permitted
-              value:
-                id: forbidden
-                message: Forbidden.
-    NotFound:
-      description: |
-        No such object, or it does not belong to this organization.
-
-        The API does not distinguish between the two, so that an object's existence in another
-        organization cannot be probed.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            default:
-              value:
-                id: not_found
-                message: Automation not found.
-    UnprocessableEntity:
-      description: |
-        The request was well formed but conflicts with the current state.
-
-        The common case is a uniqueness clash, such as a login name for credentials that is already taken. Login
-        names are unique across the whole service, not just your organization. Change the conflicting
-        value and retry.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            default:
-              value:
-                id: unprocessable_entity
-                message: Unfortunately, this username is already taken.
-    TooManyRequests:
-      description: |
-        Too many requests in too short a window.
-
-        Back off and retry with exponential delay. We do not publish a fixed rate limit.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            default:
-              value:
-                id: too_many_requests
-                message: Too many requests. Please try again later.
-    InternalServerError:
-      description: |
-        Something failed on our side.
-
-        The request may or may not have taken effect, so re-read the object before retrying a write.
-        Retrying a read is always safe. If it persists, contact support with the approximate time of the
-        request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            default:
-              value:
-                id: internal_server_error
-                message: Unable to create Automation.
     CredentialsUnauthorized:
       description: |
         The request isn't authenticated.
@@ -2214,7 +2082,7 @@ components:
         application/json:
           schema:
             type: object
-            title: GatewayUnauthorizedError
+            title: AuthenticationError
             description: The body of a `401` returned before the request reaches the endpoint.
             required:
               - message
@@ -2360,9 +2228,9 @@ components:
         ExpiresAt: null
         CreatedAt: 1780675200000
         UpdatedAt: 1785340800000
-        Password: x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1
+        Password: example-password-not-real-000001
         PasswordCreatedAt: '2026-07-02T09:30:00.000Z'
-        URI: sftp://data-warehouse-prod:x7k2m9q4w8n3p6r1t5v0y2b4d6f8h1@example.sftptogo.com
+        URI: sftp://data-warehouse-prod:example-password-not-real-000001@example.sftptogo.com
         SupportedProtocols:
           - SFTP
           - FTPS

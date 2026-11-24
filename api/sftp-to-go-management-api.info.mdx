@@ -32,17 +32,17 @@ import Export from "@theme/ApiExplorer/Export";
 
 The SFTP To Go Management API lets you script what you would otherwise do in the dashboard. This reference documents credentials: creating, updating, rotating and removing the logins your users and systems connect with. More of the dashboard is added here as it is documented.
 
-## What this API does not do
+## What this API doesn't do
 
-**It does not transfer files.** Files move over SFTP, FTPS or the S3-compatible endpoint, using the credentials you create here. There is no upload or download operation in this reference: that is by design, not an omission.
+**It doesn't transfer files.** Files move over SFTP, FTPS or the S3-compatible endpoint, using the credentials you create here. There is no upload or download operation in this reference: that is by design, not an omission.
 
 ## Base URL and organization scope
 
-Almost every path is scoped to an organization: `https://api.sftptogo.com/organizations/{organizationId}/...`
+Every path is scoped to an organization: `https://api.sftptogo.com/organizations/{organizationId}/...`
 
 An API key works for one organization only. See [Authentication](https://sftptogo.com/docs/api/authentication) for how keys work.
 
-The API itself runs in one region. The region you chose for your storage is a property of your organization and does not change which host you call.
+The API itself runs in one region. The region you chose for your storage is a property of your organization and doesn't change which host you call.
 
 ## Conventions
 
@@ -69,7 +69,7 @@ The API itself runs in one region. The region you chose for your storage is a pr
     >
       
       
-      Send your API key as a bearer token in the Authorization header of every request. How to get a key, what it can reach and how to keep it safe are explained at https://sftptogo.com/docs/api/authentication.
+      Send your API key as a bearer token in the Authorization header, over HTTPS only. A key reaches your whole organization, so keep it server-side, out of browser and mobile code, repositories, logs, URLs and AI assistants, and if one leaks, contact support at once: https://sftptogo.com/docs/api/authentication explains keys in full.
       
       <div>
         <table>
