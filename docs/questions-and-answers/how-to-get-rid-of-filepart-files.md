@@ -8,7 +8,7 @@ If you're seeing .filepart files in your SFTP To Go storage, the issue is due to
 
 Once the transfer is complete, WinSCP renames the file to its final name, but this may fail due to user permissions, connectivity issues or other issues. 
 
-Furthermore, upload of files with the `.filepart` extension could trigger webhook actions where triggers are set to that filename, which may not be desired. 
+Furthermore, upload of files with the `.filepart` extension could trigger [automations](../automation/automations.md) or webhooks whose filters match that file name, which may not be desired. 
 
 To disable this behaviour, follow these steps:
 

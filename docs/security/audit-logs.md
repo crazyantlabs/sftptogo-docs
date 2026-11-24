@@ -24,7 +24,7 @@ To export audit logs to your SFTP To Go storage, click your organization's [Sett
 
 The audit data will be saved as CSV files under the /audit-logs folder in your storage, where you can access, download, or process them as needed. You will get an email notification when the process is complete. 
 
-To automate exports and processing, use SFTP To Go’s APIs to trigger audit log exports programmatically. You can also set up a webhook to notify your system whenever a new file is uploaded to the /audit-logs/ folder, allowing you to kick off downstream processing or archiving workflows.
+To automate exports and processing, use SFTP To Go’s APIs to trigger audit log exports programmatically. You can also set up an [automation](../automation/automations.md) to notify your system whenever a new file is uploaded to the /audit-logs/ folder, allowing you to kick off downstream processing or archiving workflows.
 
 CSV file structure:
 
@@ -43,7 +43,7 @@ CSV file structure:
 |Data	| JSON object of the event data|
 
 
-If you need to inspect S3 access logs (for direct S3 access), please reach out to our support and we'll provide you with the logs you need. Note that webhooks trigger for activities performed by direct S3 requests as well.
+If you need to inspect S3 access logs (for direct S3 access), please reach out to our support and we'll provide you with the logs you need. Note that automations and webhooks trigger for activities performed by direct S3 requests as well.
 
 ## Event types {#event-types}
 
@@ -58,7 +58,7 @@ Every event carries a principal type identifying who or what caused it. Activity
 | Team members | `organization.member.invited`, `organization.member.joined` (invitation accepted), `organization.member.role.updated`, `organization.member.removed`, `organization.member.left`. Member events include the affected member's name and email |
 | Credential management | `user.created`, `user.updated`, `user.deleted`, `user.activated`, `user.deactivated`, `user.password.updated` (rotated by an admin — recorded alongside the credentials' own `user.password-updated`), `user.aws-credentials.rotated`, `user.ssh-public-key.added`, `user.ssh-public-key.removed`, `user.mfa-factor.added`, `user.mfa-factor.updated`, `user.mfa-factor.removed` |
 | Share links and web portal | `share-link.created`, `share-link.updated`, `share-link.deleted`, `organization.portal-link.activated` and `organization.portal-link.deactivated` (web portal turned on or off) |
-| Webhooks | `webhook.created`, `webhook.updated`, `webhook.deleted`, `webhook.paused` (by an admin, or automatically after consecutive delivery failures), `webhook.resumed`, `webhook.tested`, `webhook.secret.rotated`, `webhook.delivery.resent`, `webhook.delivery.failed` |
+| Webhooks | `webhook.created`, `webhook.updated`, `webhook.deleted`, `webhook.paused` (by an admin, or automatically after consecutive delivery failures), `webhook.resumed`, `webhook.tested`, `webhook.secret.rotated`, `webhook.delivery.resent`, `webhook.delivery.failed`, `webhook.migrated` (a webhook was [migrated to an automation](../automation/using-webhook-notifications-to-trigger-processes.md#migrating-a-webhook-to-an-automation); one event covers both the new automation and the paused webhook, with no separate `automation.created` or `webhook.paused`) |
 | Domains | `domain.created`, `domain.updated`, `domain.deleted` |
 | Audit logs | `audit-logs.export-requested` (the `Data` includes the requested `StartDate` and `EndDate`), `audit-logs.export-uploaded`, `audit-logs.streaming-destination.created`, `audit-logs.streaming-destination.updated`, `audit-logs.streaming-destination.deleted`, `audit-logs.streaming-destination.failed` |
 | Connections | `connection.created`, `connection.updated`, `connection.deleted`, `connection.tested` (every test, whether or not it passed; the `Data` records the type, the server or bucket, the outcome and, for SFTP, the host key fingerprint, never the folder listing). The created, updated and deleted events also record, for an SFTP connection that signs in with a key, the fingerprint of that key as `KeyFingerprint`. `connection.disabled` is recorded when a connection is taken out of service after ten failed uses in a row or a changed host key; it names the automation that hit the failure, and its `Data` includes the `Reason` and the number of consecutive failures. Passwords, keys and secrets are never included |

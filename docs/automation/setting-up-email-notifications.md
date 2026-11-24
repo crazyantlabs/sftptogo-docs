@@ -3,10 +3,14 @@ sidebar_label: 'Email notifications'
 title: 'Setting up email notification'
 sidebar_position: 4
 ---
+:::warning
+Email notifications on this page are sent by webhooks, which are deprecated. To get an email when files are uploaded, downloaded or deleted, [create an automation](./automations.md#creating-an-automation) with a [Send email](./automations.md#send-email) action. Existing email webhooks keep working, and you can [migrate one to an automation](./using-webhook-notifications-to-trigger-processes.md#migrating-a-webhook-to-an-automation).
+:::
+
 
 SFTP To Go's email notifications alert you when files are uploaded, downloaded or deleted. You can choose to receive notifications for all activities across your entire storage, or customize them to focus on specific files, paths, types, or even based on who performed the action.
 
-To create a new email notification, click **Webhooks** from the menu, and then click the `Add webhook` button.
+The **Webhooks** tab is shown only to organizations that already have a webhook. To add an email webhook, click **Webhooks** from the menu, and then click the `Add webhook` button.
 
 In the dialog that opens, fill out the following:
 

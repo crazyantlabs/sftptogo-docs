@@ -157,7 +157,7 @@ The icon serves as your site's favicon and the primary logo, unless you choose t
 
 ## Organization
 
-The organization is the top level object that holds the storage, credentials, webhook notifications, and billing information. 
+The organization is the top level object that holds the storage, credentials, automations, webhook notifications, and billing information. 
 
 Within the organization section, you may change your organization's name and obtain your organization's unique identifier, which we may request from you during support conversations.
 
