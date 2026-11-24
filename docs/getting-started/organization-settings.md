@@ -1,11 +1,107 @@
 ---
-sidebar_label: 'Organization Settings'
-title: 'Organization Settings'
+sidebar_label: 'Organization settings'
+title: 'Organization settings'
 sidebar_position: 40
 ---
-To manage your organization, security, billing, and team settings, click **Settings** from the menu.
+Organization settings is where you manage your organization's details, team, security, network, web portal, usage and billing. To open it, click **Settings** in the dashboard menu.
 
-## Security
+## Finding a setting {#finding-a-setting}
+
+The **Organization settings** sidebar lists the settings sections. Click a section to open it. Each section has its own page, and every setting in it is shown in full.
+
+![Organization settings, with the sidebar listing its sections and the General section open](../../static/img/organization-settings-general.png)
+
+To find a setting without knowing its section, type in the **Search** box at the top of the sidebar. Search matches setting names and common terms for them: for example, `2fa` finds **Multi-factor authentication**, and `ip` finds **Inbound rules**. The results show each setting with its section, and the sidebar shows how many results each section has. Click a result, or select it with the arrow keys and press `Enter`, to open its section at that setting.
+
+![Search results for "ip" in organization settings, with a result count next to each matching section](../../static/img/organization-settings-search.png)
+
+:::tip
+Press `/` to jump to the search box, and `Esc` to clear it.
+:::
+
+The sections, in the order the sidebar lists them:
+
+| Section | What it holds |
+|---|---|
+| [General](#general) | Your organization's name and ID |
+| [Team](#access---team-management) | Team members and single sign-on (SSO) |
+| [Security](#security) | Authentication methods, multi-factor authentication, password policy and sharing policy |
+| [Data protection](#data-protection) | Malware protection |
+| [Audit logs](#audit-logs) | Viewing, exporting and streaming audit logs |
+| [Network](#network) | Domains and inbound rules |
+| [Connections & keys](#connections-and-keys) | Connections, outbound IP addresses and encryption keys |
+| [Web portal](#web-portal) | The portal login link, public business information and branding |
+| [Usage](#usage) | Your usage metrics |
+| [Billing](#billing) | Your subscription and billing portal |
+
+## General {#general}
+
+The organization is the top level object that holds the storage, credentials, webhook notifications, and billing information.
+
+In **Organization settings**, open **General** to change your organization's name and to copy its ID. We can ask you for this unique identifier during support conversations.
+
+## Team {#access---team-management}
+
+The **Team** section lists the accounts that have access to the organization's dashboard. Owners can invite more team members, change their roles, and view and reset their multi-factor authentication status.
+
+To invite a team member:
+
+1. In **Organization settings**, open **Team**.
+2. Click **Invite team member**.
+3. Enter the team member's **Name** and **Email address**, and click **Send invite**.
+
+After clicking the invitation link, the new member creates a password. When they sign in, they can access the organization according to their role.
+
+:::info
+If access to SFTP To Go is managed by a partner (e.g. Heroku), use the partner's access management to add or remove team members.
+:::
+
+To remove a member from the organization, open the **...** menu on their row in **Team** and select **Remove from team**.
+
+To change a member's role, open the **...** menu on their row in **Team** and select **Change role**.
+
+:::note
+An organization must have at least one owner.
+:::
+
+### Resetting a team member's multi-factor authentication
+
+If a team member loses access to the method they use for multi-factor authentication, an owner can reset it so they can set it up again. In **Organization settings**, open **Team**, open the **...** menu on the member's row and select **Reset multi-factor authentication**.
+
+Only organization owners can reset a team member's multi-factor authentication.
+
+All of the member's multi-factor authentication methods stop working immediately, whichever ones they had set up, and they are asked to set one up again the next time they sign in. Passkeys are managed separately and are not affected, so a member who has one can still sign in with it.
+
+The member and every other owner of the organization are notified by email whenever this happens.
+
+:::warning
+Only reset a team member's multi-factor authentication after you have confirmed, outside of SFTP To Go, that the request really came from them. Resetting it on someone else's request is a common way for attackers to take over an account.
+:::
+
+:::note
+You can't reset your own multi-factor authentication from this page. To change your own, go to [account settings](./account-settings#multi-factor-authentication).
+:::
+
+### Single sign-on (SSO) {#sso}
+
+Enable your team to sign in to the SFTP To Go dashboard using your identity provider.
+To activate SSO (single sign-on), open **Team** in **Organization settings**, turn it on under **Single Sign-On (SSO)** and follow the on-screen steps to connect your provider.
+
+SFTP To Go supports Google Workspace, Microsoft ADFS, Microsoft Entra, Okta, OpenID, and custom SAML identity providers.
+
+Once connected, users will be redirected to your identity provider for authentication. Their access to the dashboard will follow the roles you assign inside SFTP To Go.
+
+With just-in-time provisioning, new users are created automatically when they sign in through your identity provider for the first time. You do not need to invite them manually. Their account is created on demand and assigned the default role you set in your organization settings. This keeps onboarding simple and ensures that access stays aligned with your identity provider.
+
+If just-in-time provisioning is not enabled, users must be invited manually before they can sign in with SSO. Only accounts that already exist in your organization will be allowed to authenticate through your identity provider.
+
+:::info
+Using SSO is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing). Organizations billed through a partner (Heroku, DigitalOcean or Addons.io) don't have SSO, and **Team** doesn't show it.
+:::
+
+## Security {#security}
+
+The **Security** section holds the settings that control how credentials sign in and share files: authentication methods, multi-factor authentication, the password policy and the sharing policy.
 
 ### Authentication Methods
 
@@ -38,23 +134,27 @@ Set your organization's password policy for credentials. This will not change ex
 
 Control how your users share files and folders with others. This will not change existing share links, but newly created share links will adhere to changes you make in the policy.
 
-### Audit logs
+## Data protection {#data-protection}
 
-Use the audit logs to monitor access to your storage. The Audit logs dialog lets you browse through your organization's logs, filter them by Username, session ID or timestamp range. You can also export audit logs as files into your storage for long term storage or further processing.
+The **Data protection** section holds malware protection, which scans files for malware as they are uploaded to your storage. Turn it on with the **Enable** switch, then choose how to treat files detected as malware.
 
-## Automations
+:::info
+Malware protection is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing). The **Data protection** section appears only when your plan includes it.
+:::
 
-What your [automations](../automation/automations) reach for by name.
+## Audit logs {#audit-logs}
 
-### Connections
+Use the audit logs to monitor access to your storage. In **Organization settings**, open **Audit logs** to:
 
-Saved servers and storage that automations copy files to: a partner's SFTP server, a bucket in your own cloud account, a WebDAV server. Credentials are entered once and never shown again. See [Connections](../automation/connections).
+* Click **View audit logs** to browse through your organization's logs and filter them by username, session ID or timestamp range.
+* Export audit logs as files into your storage, for long term storage or further processing. Refer to [Exporting audit logs](../security/audit-logs.md#export).
+* Stream audit logs to a security information and event management (SIEM) system or your own endpoint. Refer to [Streaming audit logs](../security/audit-logs.md#stream).
 
-### Encryption keys
+Refer to [Audit logs](../security/audit-logs.md) for the events they record.
 
-PGP keys that automations encrypt and decrypt files with. See [Encryption keys](../security/encryption-keys).
+## Network {#network}
 
-## Network
+The **Network** section holds your custom domains and your organization's inbound rules.
 
 ### Domains
 
@@ -62,7 +162,7 @@ Custom domains allow you to customize and brand your SFTP To Go endpoints for bo
 
 To add a new custom domain:
 
-1. Click **Add domain**.
+1. In **Organization settings**, open **Network** and click **Add domain**.
 2. Enter the fully qualified domain you'd like to use as an endpoint. Note that root domains cannot be used (i.e., use files.example.io instead of example.io). Also, the domain you enter should be in a domain that you manage (i.e. not sftptogo.com).
 3. Select the type of endpoint that the domain will be used for:
     * SFTP/FTPS - For use with FTP clients. Requires adding a CNAME pointing to the endpoint.
@@ -106,7 +206,7 @@ Here are some links to documentation on editing DNS records with popular domain 
 | Wix | [Adding or Updating CNAME Records](https://support.wix.com/en/article/adding-or-updating-cname-records-in-your-wix-account) |
 
 
-### Inbound network rules
+### Inbound rules {#inbound-network-rules}
 
 Inbound network rules define IP address ranges from which a user can connect to your storage using the SFTP or FTPS protocols.
 
@@ -118,11 +218,11 @@ To restrict access to your storage, you may edit, disable, or delete this rule, 
 [credentials level](../getting-started/creating-and-modifying-users.md)
 To add a new inbound rule:
 
-1. Click **Add inbound rule**.
+1. In **Organization settings**, open **Network** and click **Add inbound rule**.
 2. Select the protocols you'd like to give access to (All, SFTP, FTPS or Web Portal).
-4. Fill out the source IP address or CIDR for IP address range.
-5. Add an optional description.
-6. Click 'Add inbound rule'.
+3. Fill out the source IP address or CIDR for IP address range.
+4. Add an optional description.
+5. Click **Add inbound rule**.
 
 You can also edit, disable, enable, and delete inbound network rules by clicking the menu button (...) on a specific network rule followed by the relevant menu item.
 
@@ -130,9 +230,27 @@ You can also edit, disable, enable, and delete inbound network rules by clicking
 Editing inbound network rules is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
 :::
 
-## Web Portal
+## Connections & keys {#connections-and-keys}
 
-The web portal enables users to sign in and manage files in their designated home directories directly through their web browser. To activate it, click the switch button in the settings tab, under the web portal section. Once the web portal is enabled, your organization's login URL will be displayed here.
+The **Connections & keys** section holds what your [automations](../automation/automations) reach for by name.
+
+### Connections
+
+Saved servers and storage that automations copy files to: a partner's SFTP server, a bucket in your own cloud account, a WebDAV server. Credentials are entered once and never shown again. Refer to [Connections](../automation/connections).
+
+### Outbound IP addresses
+
+Connections always reach your servers from a fixed set of IP addresses. Click **View IP addresses** to list them, so you can allow them in your firewall.
+
+Connections and outbound IP addresses appear in **Connections & keys** only for organizations that have connections.
+
+### Encryption keys
+
+PGP keys that automations encrypt and decrypt files with. Refer to [Encryption keys](../security/encryption-keys).
+
+## Web portal {#web-portal}
+
+The web portal enables users to sign in and manage files in their designated home directories directly through their web browser. To activate it, open **Web portal** in **Organization settings** and turn on the **Active** switch under **Portal login link**. Once the web portal is enabled, your organization's login link is displayed there, ready to copy and share.
 
 :::info
 When the web portal is activated in your organization, any credential can log in and manage files, provided the user or organization's inbound network rules permit access.
@@ -144,7 +262,7 @@ Input the information you want to be accessible to web portal users. The busines
 
 ### Branding
 
-Customize your web portal's appearance by selecting your icon, logo, and colors for both light and dark modes.
+Customize your web portal's appearance under **Set your branding**, by selecting your icon, logo, and colors for both light and dark modes.
 
 For both the icon and the logo you can either upload an image or point to one you already host at an `https://` address. Uploading is usually simpler, since you don't need somewhere to publish the file first. To swap an image later, select it and choose a new file or address; to go back to the default, remove it.
 
@@ -154,76 +272,18 @@ Uploads accept PNG, JPEG, GIF, WebP and SVG images of up to 1 MB.
 The icon serves as your site's favicon and the primary logo, unless you choose to use a logo instead. We recommend using a rectangular image with dimensions of 128x128 pixels.
 :::
 
+## Usage {#usage}
 
-## Organization
+<p><span>The <b>Usage</b> section shows metrics such as storage, bandwidth and number of files to track your usage. Metrics refresh periodically, not in real time. The figures are current as of the last update. To view historical data, click the   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false" vector-effect="non-scaling-stroke"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"></path></svg> button.</span></p>
 
-The organization is the top level object that holds the storage, credentials, webhook notifications, and billing information. 
+## Billing {#billing}
 
-Within the organization section, you may change your organization's name and obtain your organization's unique identifier, which we may request from you during support conversations.
-
-## Usage & Billing
-
-<p><span>Use metrics such as storage, bandwidth and number of files to track your usage. Metrics refresh periodically, not in real time. The figures are current as of the last update. To view historical data, click the   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false" vector-effect="non-scaling-stroke"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"></path></svg> button.</span></p>
-
-To change your organization's billing plan, Scroll to the billing section and click **Open your billing portal**.
+The **Billing** section shows your current plan under **Subscription**. To change your organization's billing plan, open **Billing** in **Organization settings** and click **Open your billing portal**.
 
 In the billing portal, you can change your billing details (including credit card details), change or cancel your plan, and download your historical invoices.
 
-If you are billed for SFTP To Go by a partner (e.g. Heroku), the billing section may not show up in your organization section. You can change your billing settings through the relevant partner's website.
+If you are billed for SFTP To Go by a partner (e.g. Heroku), **Billing** says which partner provisioned your organization instead. Change your billing settings through that partner's website.
 
 :::info
 If you'd like to change your plan during a trial, we ask that you please reach out to us via the live-chat button on the bottom-right corner of the screen and request that we modify it. Otherwise, your credit card may be automatically charged.
-:::
-
-## Access - team management
-
-The access section lists the accounts that have access to an organization's management dashboard and allows owners to invite more team members, track their usage, and view and reset their Multi-factor authentication status.
-
-To invite a new member to your organization, scroll down to the **Access** section and click **Invite team member**. Fill out the team member's name and email address and an invitation will be sent out for the new member to join your organization. After clicking the invitation link, the new member will be requested to create a password. Once logged in, the new member will be able to access the organization according to the assigned role.
-
-:::info
-If access to SFTP To Go is managed by a partner (e.g. Heroku), use the partner's access management to add or remove team members.
-:::
-
-To remove a member from the organization, click the menu button (...) and then **Remove from team**.
-
-To change an existing member role, click the menu button (...) and then **Change role**.
-
-### Resetting a team member's multi-factor authentication
-
-If a team member loses access to the method they use for multi-factor authentication, an owner can reset it so they can set it up again. Click the menu button (...) next to the member and then **Reset multi-factor authentication**.
-
-Only organization owners can reset a team member's multi-factor authentication.
-
-All of the member's multi-factor authentication methods stop working immediately, whichever ones they had set up, and they are asked to set one up again the next time they sign in. Passkeys are managed separately and are not affected, so a member who has one can still sign in with it.
-
-The member and every other owner of the organization are notified by email whenever this happens.
-
-:::warning
-Only reset a team member's multi-factor authentication after you have confirmed, outside of SFTP To Go, that the request really came from them. Resetting it on someone else's request is a common way for attackers to take over an account.
-:::
-
-:::note
-You can't reset your own multi-factor authentication from this page. To change your own, go to [account settings](./account-settings#multi-factor-authentication).
-:::
-
-:::note
-An account must have at least one owner account.
-:::
-
-### SSO
-
-Enable your team to sign in to the SFTP To Go dashboard using your identity provider.
-To activate SSO (Single-Sign-On), turn it on in the SSO section and follow the on-screen steps to connect your provider.
-
-SFTP To Go supports Google Workspace, Microsoft ADFS, Microsoft Entra, Okta, OpenID, and custom SAML identity providers.
-
-Once connected, users will be redirected to your identity provider for authentication. Their access to the dashboard will follow the roles you assign inside SFTP To Go.
-
-With just-in-time provisioning, new users are created automatically when they sign in through your identity provider for the first time. You do not need to invite them manually. Their account is created on demand and assigned the default role you set in your organization settings. This keeps onboarding simple and ensures that access stays aligned with your identity provider.
-
-If just-in-time provisioning is not enabled, users must be invited manually before they can sign in with SSO. Only accounts that already exist in your organization will be allowed to authenticate through your identity provider.
-
-:::info
-Using SSO is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
 :::

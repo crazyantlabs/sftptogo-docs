@@ -8,7 +8,7 @@ SFTP To Go automatically charges your organization's default payment method at t
 To view your payment methods:
 
 1. Click **Settings** in the dashboard menu.
-2. Scroll to the billing section and click **Open your billing portal**.
+2. In **Organization settings**, open **Billing** and click **Open your billing portal**.
 3. Scroll to the payment method section.
 
 To add a payment method:

@@ -9,7 +9,7 @@ When your trial period is over, you will be charged according to your plan and b
 
 To change your billing or credit card information, plan, or to view your invoices history, go to your billing portal:
 1. Click **Settings** in the dashboard menu.
-2. Scroll to the billing section and click **Open your billing portal**.
+2. In **Organization settings**, open **Billing** and click **Open your billing portal**.
 
 :::caution
 During trial, please reach out to us to change your plan. If you change it in the billing portal, your credit card will be charged.

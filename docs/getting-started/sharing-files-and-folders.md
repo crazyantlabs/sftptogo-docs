@@ -37,6 +37,6 @@ Creating share links is only available in certain plans. Learn more about our pr
 
 ## How to Customize Share Links
 
-Share links are created using your default domain. You can change this by following [these instructions](../getting-started/organization-settings#domains).
+Share links are created using your default domain. To change it, open **Settings** in the dashboard menu and go to **Network**. Refer to [Domains](../getting-started/organization-settings#domains).
 
-You can also update your organization's sharing policy in the [Settings tab](organization-settings#sharing-policy).
+To update your organization's sharing policy, open **Settings** in the dashboard menu and go to **Security**. Refer to [Sharing policy](organization-settings#sharing-policy).

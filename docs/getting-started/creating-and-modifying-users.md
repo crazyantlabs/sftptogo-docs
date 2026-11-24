@@ -36,7 +36,7 @@ You may edit existing credentials by clicking the menu button (...) for the part
 To set credentials' passwords, click the menu button (...) for the specific user and then select **Set Password** in the menu. If you select `Random password`, a new password will be generated according to your organization's password policy. If you select `Custom password`, you'll have to enter a password that conforms with the organization's password policy.
 
 :::note
-To change your organization's password policy, go to [Settings](../getting-started/organization-settings#password-policy).
+To change your organization's password policy, open **Settings** in the dashboard menu and go to **Security**. Refer to [Password policy](../getting-started/organization-settings#password-policy).
 :::
 
 ### Expiration
