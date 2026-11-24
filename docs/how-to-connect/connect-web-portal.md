@@ -48,6 +48,55 @@ Each item includes a menu button (...) for actions such as:
 
 **Print** is available for files the browser can display: PDFs, images, plain text and code, CSV and TSV spreadsheets, and Markdown. When previewing one of these files you can also press `Cmd`+`P` (or `Ctrl`+`P`) to print it. Some browsers cannot print PDFs directly — in that case the file opens in a new tab so you can print it from there.
 
+### Searching, sorting and filtering
+
+When your organization turns on [advanced search](../getting-started/organization-settings#advanced-search), the file browser adds a search box, filters and sortable columns.
+
+#### Searching
+
+1. Click the **Search files by name...** box, or press `/` or `Cmd`+`K` (`Ctrl`+`K` on Windows and Linux).
+2. Type part of a file or folder name and press `Enter`.
+
+The search covers the folder you are in and all of its subfolders, and the folder breadcrumbs change to **Search results**. Every word you type must appear in the name, in any order and regardless of case, so "annual report" finds `2026_Annual-Report.pdf`. When nothing matches exactly, the web portal shows close matches instead, so a small typo still finds the file. Close matches are listed by how closely they match, not by the column you sort by.
+
+Each result shows the folder it is **in**. Click a result to open it, or click its folder to go to that folder. To go to a result's folder from its menu button (...), select **Go to parent folder**.
+
+To change where the search looks, use the **In:** control beside the search box:
+
+* **Anywhere**: every folder you can access.
+* **_folder_ and subfolders**: the current folder and everything under it (the default).
+* **_folder_ only**: the current folder, without its subfolders.
+
+To leave the search, clear the search box. Opening another folder also leaves the search; your browser's back button returns you to the results.
+
+#### Filtering
+
+Use the filters beside the search box to narrow the list. With a search, they narrow the search results; without one, they narrow the current folder only.
+
+* **Type**: select one or more types, such as **Folders**, **Documents**, **PDFs**, **Pictures**, **Spreadsheets** or **Other**.
+* **Modified**: select a quick range, from **Past 5 minutes** to **Past year**, or set a custom range with **On or after** and **On or before**, then click **Apply**.
+* **Size**: select a preset, from **Tiny** (under 100 KB) to **Massive** (over 1 GB), or set a custom range with **Greater than** and **Less than**, then click **Apply**.
+
+To clear a filter, click the × beside it.
+
+If nothing matches, click **Search anywhere** to apply the same search and filters to every folder you can access (offered unless they already cover them), or **Clear search and filters** to go back to the folder.
+
+#### Sorting
+
+Click the **Name**, **Type**, **Size** or **Modified** column header to sort by it. Click the same header again to reverse the order, and a third time to return to the default order, by name. Folders are always listed before files.
+
+Search, filters and sorting also work in shared folder links, limited to the shared folder.
+
+On small screens, the filters appear only while one of them is active, and only the **Name** column is shown.
+
+:::note
+Search results, filtered lists and sorted lists pick up new, changed and deleted files shortly after the change.
+:::
+
+:::info
+This feature is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
+:::
+
 ### Bulk operations
 
 Selecting all or some files/folders in the items list displays the count of selected items above the list, along with a menu button (...). This allows bulk operations on the selected items:

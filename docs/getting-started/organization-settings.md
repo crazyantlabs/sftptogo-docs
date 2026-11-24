@@ -154,6 +154,27 @@ Uploads accept PNG, JPEG, GIF, WebP and SVG images of up to 1 MB.
 The icon serves as your site's favicon and the primary logo, unless you choose to use a logo instead. We recommend using a rectangular image with dimensions of 128x128 pixels.
 :::
 
+### Advanced search
+
+Advanced search lets your web portal users search, filter and sort the files and folders they can access. Refer to [Searching, sorting and filtering](../how-to-connect/connect-web-portal#searching-sorting-and-filtering) for how it works in the web portal.
+
+Advanced search is off by default. To turn it on:
+
+1. Open your organization's **Settings** tab and go to the **Web Portal** section.
+2. Under **Advanced search**, click **Expand**.
+3. Turn on **Enable advanced search**.
+4. Click **Save and set live**.
+
+The setting applies to web portal sessions and shared folder links alike.
+
+After you turn it on, the section shows **Building the search index…** while SFTP To Go indexes your files. This can take from a few minutes to a few days for very large buckets. When the index is ready, advanced search is available to users who sign in to the web portal or open a shared folder link from then on. Users already signed in get it the next time they sign in.
+
+To remove search, sorting and filtering from the web portal, turn off **Enable advanced search** and click **Save and set live**. The web portal goes back to plain folder listings, including for users already signed in, the next time they open a folder.
+
+:::info
+This feature is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
+:::
+
 
 ## Organization
 
