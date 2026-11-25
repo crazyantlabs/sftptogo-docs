@@ -10,7 +10,7 @@ Authentication
 
 There are two types of logins in SFTP To Go:
 
-1. Accounts - accounts are members in one or more organization and have the ability to access the admin dashboard: manage files, credentials, webhooks, inbound network rules and other settings at the organization level.
+1. Accounts - accounts are members in one or more organization and have the ability to access the admin dashboard: manage files, credentials, automations, webhooks, inbound network rules and other settings at the organization level.
 
 2. Credentials - credentials can only access your SFTP To Go file storage to upload, download or manage files, using various access protocols. They can be used by humans and machines alike.
 

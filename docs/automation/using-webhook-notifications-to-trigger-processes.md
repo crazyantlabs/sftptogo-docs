@@ -1,8 +1,12 @@
 ---
-sidebar_label: 'Webhook notifications'
+sidebar_label: 'Webhook notifications (deprecated)'
 title: 'Using webhook notifications to trigger processes'
 sidebar_position: 3
 ---
+:::warning
+Webhooks are deprecated. [Automations](./automations.md) replace them: an automation can send the same webhook request, Slack message, Microsoft Teams message or email, and can also act on the file. Existing webhooks keep working. To move one to an automation, see [Migrating a webhook to an automation](#migrating-a-webhook-to-an-automation).
+:::
+
 Webhooks enable you to receive notifications whenever particular events occur within your SFTP To Go organization's storage. You can subscribe to notifications for the following events:
 
 * File upload and directory creation
@@ -15,7 +19,9 @@ Webhook notifications are sent as HTTP POST requests to a URL of your choosing. 
 Please note that our webhooks don’t work with self-signed certs. If a webhook detects a self-signed cert, it will result in an error and no request will be sent.
 :::
 
-To subscribe to webhooks, click **Webhooks** from the menu, and then click the `Add webhook` button.
+The **Webhooks** tab is shown only to organizations that already have a webhook. An organization without one can't create webhooks: [create an automation](./automations.md#creating-an-automation) instead.
+
+To add a webhook, click **Webhooks** from the menu, and then click the `Add webhook` button.
 
 In the dialog that opens, fill out the following:
 
@@ -43,6 +49,47 @@ Some common filters you can use:
  - Actor ID is `username` - triggers webhook for files or folders touched by `username`.
  - Actor ID is not `username` - triggers webhook for files or folders touched by anyone but `username`.
 :::
+
+### Migrating a webhook to an automation
+
+Move a webhook to an automation that sends the same notifications:
+
+1. Click **Webhooks** from the menu.
+2. Click the **...** menu next to the webhook. In the menu, click **Migrate to an automation ...** to open the confirmation dialog.
+3. Click **Yes, migrate the webhook**.
+
+The dashboard then shows the **Automations** list with the new automation. The automation has the webhook's name, its filter and the events it listens for, and a single action that sends to the same place:
+
+| Webhook endpoint type | Automation action |
+|--|--|
+| `Webhook` | [Send webhook request](./automations.md#send-webhook-request), with the same URL and authorization header |
+| `Slack` | [Send Slack message](./automations.md#send-slack-message) |
+| `Teams` | [Send Microsoft Teams message](./automations.md#send-microsoft-teams-message) |
+| `Email` | [Send email](./automations.md#send-email) |
+
+| Webhook topic | Automation event |
+|--|--|
+| `file.created` | `File created` |
+| `file.deleted` | `File deleted` |
+| `file.downloaded` | `File downloaded` |
+| `webhook.ping` | None. The test event isn't carried over; use [Run now](./automations.md#running-an-automation-manually) to test an automation |
+
+The automation also keeps the webhook's signing secret, so code that [validates the signature](#validating-webhook-signature) keeps working. Its webhook requests use API version `2020-01-01`, so `Data.Path` stays URL-encoded, as in webhook notifications. A paused webhook becomes a paused automation.
+
+The webhook isn't deleted. It's paused, so the same event isn't sent twice, and its deliveries stay available to view. Delete it once you no longer need them. A webhook can be migrated only once.
+
+:::info
+A migrated webhook becomes an automation, and automations are only available with certain plans. If your plan doesn't include automations, or has no room for another one, the migration is refused with a message saying why. Read more about our different plans [here](https://sftptogo.com/pricing)
+:::
+
+Some details change for the system that receives the notifications:
+
+* The `Metadata` object of a request identifies the automation, its execution and the action instead of the webhook and the delivery. Requests also carry an `X-Idempotency-Key` header and the other [automation request headers](./automations.md#request-headers-and-retries).
+* A `file.downloaded` notification doesn't include the download details in `Data.Metadata` (protocol, client IP and session ID).
+* Each run is recorded in the automation's [execution history](./automations.md#execution-history) rather than in the deliveries log.
+* An automation is paused after [10 failed runs in a row](./automations.md#when-an-automation-fails), not 5.
+
+You can also build the automation yourself: click **Automations** from the menu, click **Add automation**, choose **On a file or folder event**, and pick the events, filter and action from the tables above. An automation you build has a new signing secret, and uses the latest API version unless you choose `2020-01-01`.
 
 ### Securing Webhooks
 
@@ -166,9 +213,10 @@ if (safeCompare(computedSignature, signature)) {
 
 After creating a webhook, you may do the following:
 
-* Pause/Resume - temporarily pause or resume webhook notifications.
+* Pause webhook / Resume webhook - temporarily pause or resume webhook notifications.
 * Rotate secret - request a new signing secret. See [Securing Webhooks](#securing-webhooks)
-* Ping webhook - manually send a test event to your endpoint
+* Test webhook - manually send a test event to your endpoint
+* Migrate to an automation - replace the webhook with an automation. See [Migrating a webhook to an automation](#migrating-a-webhook-to-an-automation)
 * View deliveries - View a log of the notifications that SFTP To Go has enqueued for delivery. Each notification has a `status` (one of `Succeeded`, `Failed`, 'Pending'), `Created` timestamp, `ID`, `Topic` (one of `file.created`, `file.deleted`, `file.downloaded`, `webhook.ping`) and `Duration`. You may also view the `Request payload`, `Response code`, and `Response body` as well as manually send a webhook payload from within the webhook delivery dialog.
 
 ### Receiving Webhooks

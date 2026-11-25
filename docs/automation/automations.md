@@ -6,6 +6,8 @@ sidebar_position: 1
 
 Automations run a sequence of actions on your files — either whenever something happens in your storage, or on a schedule you set. Use them to sort uploads into dated folders, archive downloads, clean up temporary files, deliver a report every morning, or notify another system — without running any infrastructure of your own.
 
+Automations replace [webhook notifications](./using-webhook-notifications-to-trigger-processes.md), which are deprecated. To move an existing webhook to an automation, see [Migrating a webhook to an automation](./using-webhook-notifications-to-trigger-processes.md#migrating-a-webhook-to-an-automation).
+
 :::info
 Automations are only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
 :::

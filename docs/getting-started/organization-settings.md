@@ -36,7 +36,7 @@ The sections, in the order the sidebar lists them:
 
 ## General {#general}
 
-The organization is the top level object that holds the storage, credentials, webhook notifications, and billing information.
+The organization is the top level object that holds the storage, credentials, automations, webhook notifications, and billing information.
 
 In **Organization settings**, open **General** to change your organization's name and to copy its ID. We can ask you for this unique identifier during support conversations.
 
