@@ -10,17 +10,19 @@ SFTP To Go's audit logs keep track of all the activities happening in your stora
 Logs are retained for a certain period, depending on your organization's subscription plan.
 :::
 
-To inspect your audit logs, click your organization's [settings tab](../getting-started/organization-settings#audit-logs) and then click View audit logs to open the audit logs dialog. 
+To inspect your audit logs, open **Settings** in the dashboard menu and go to [**Audit logs**](../getting-started/organization-settings#audit-logs). The section lists the entries, latest first, in your timezone. Use the filters above the table (**Username**, **Principal ID**, **Session ID**, **IP address**, **Type** and **Timestamp**) to narrow them down. Click an entry to expand its details.
 
-The logs are sorted in a descending order (latest activity to earliest activity), in your timezone. You can filter the logs by timestamp range, Username or session ID.
+![The Audit logs section of organization settings, with the filters above the table of audit log entries](../../static/img/organization-settings-audit-logs.png)
+
+To see the audit logs of one set of credentials or one share link, open the **...** menu on its row in **Credentials** or **Share links** and select **View audit logs**. The **Audit logs** section opens filtered to it.
 
 :::tip
-Expand an event and click the Username or Session ID links to quickly filter for the same username or session ID.
+In an expanded entry, click the **Username**, **Principal ID** or **Session ID** value to filter the list by it.
 :::
 
 ## Exporting Audit Logs {#export}
 
-To export audit logs to your SFTP To Go storage, click your organization's [Settings tab](../getting-started/organization-settings#audit-logs), and scroll to Export Audit Logs. Choose the time range you want and click Export to CSV to generate the files. Note that the time range is based on your local time.
+To export audit logs to your SFTP To Go storage, open **Settings** in the dashboard menu, go to [**Audit logs**](../getting-started/organization-settings#audit-logs), and find **Export audit logs** below the table. Choose the time range you want and click Export to CSV to generate the files. Note that the time range is based on your local time.
 
 The audit data will be saved as CSV files under the /audit-logs folder in your storage, where you can access, download, or process them as needed. You will get an email notification when the process is complete. 
 
@@ -148,7 +150,7 @@ Unlike the CSV export — where `Data` is stringified to fit a CSV cell — the 
 
 ### Add a streaming destination
 
-1. Go to your organization's [**Settings** tab](../getting-started/organization-settings#audit-logs) and scroll to the **Stream audit logs** section.
+1. Open **Settings** in the dashboard menu, go to [**Audit logs**](../getting-started/organization-settings#audit-logs), and find **Stream audit logs** below the table.
 2. Click **Add destination**.
 3. Pick a destination type and click **Next**.
 4. Enter a **Destination name** (used to identify the destination in the dashboard) and the provider-specific configuration:

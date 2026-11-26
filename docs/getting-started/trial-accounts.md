@@ -12,7 +12,7 @@ Once your 7-day trial has ended, your plan will be automatically converted to a 
 At any point during the trial, you may cancel your account by following these steps:
 
 1. Click **Settings** in the dashboard menu.
-2. Scroll down to the billing section and click **Open your billing portal**.
+2. In **Organization settings**, open **Billing** and click **Open your billing portal**.
 3. On the billing portal page, click **Cancel Plan**.
 
 

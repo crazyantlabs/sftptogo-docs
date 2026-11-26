@@ -5,8 +5,8 @@ sidebar_position: 10
 ---
 The web portal enables users with SFTP To Go credentials to manage files in their designated storage (i.e., their home directory) using a web browser over a secure HTTPS channel.
 
-To access the web portal, first ensure it is enabled in your organization's [settings tab](../getting-started/organization-settings#web-portal).
-Then, log in using your organization's portal login link, which can be found in the settings tab:
+To access the web portal, first make sure it is enabled: open **Settings** in the dashboard menu and go to **Web portal**. Refer to [Web portal](../getting-started/organization-settings#web-portal).
+Then, log in using your organization's portal login link, which **Web portal** displays under **Portal login link**:
 
 1. Enter a credentials username
 2. Enter a credentials password or click "Email sign-in code" if the credentials are associated with an email address and the [Magic Code](../getting-started/organization-settings#authentication-methods) authentication method is enabled).

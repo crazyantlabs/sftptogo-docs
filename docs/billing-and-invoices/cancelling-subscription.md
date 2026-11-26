@@ -8,6 +8,6 @@ We'd hate to see you go, but we understand that sometimes it just wasn't meant t
 To cancel your subscription, go to your billing portal:
 
 1. Click **Settings** in the dashboard menu.
-2. Scroll to the billing section and click **Open your billing portal**.
+2. In **Organization settings**, open **Billing** and click **Open your billing portal**.
 3. Click **Cancel plan**.
 4. Follow the instructions on the screen.

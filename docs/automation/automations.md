@@ -179,7 +179,7 @@ By default, the file-writing actions (copy, move, rename, and PGP encrypt/decryp
 
 ### PGP encrypt and decrypt
 
-The PGP actions encrypt or decrypt a single file using a key from your [encryption keys](../security/encryption-keys) (**Settings → Automations → Encryption keys**). The key is referenced by selection — no key material is stored on the automation.
+The PGP actions encrypt or decrypt a single file using a key from your [encryption keys](../security/encryption-keys) (**Settings → Connections & keys**). The key is referenced by selection — no key material is stored on the automation.
 
 * `PGP key` — the key to use. For **PGP encrypt**, pick a key that can encrypt (any public or private key). For **PGP decrypt**, pick the private key the file was encrypted to — a file can only be decrypted with a private key it was encrypted to (you must be one of its recipients). The **+ New key** option lets you import a key without leaving the builder.
 * `Destination path` (optional) — where to write the result. By default, **encrypt** appends a `.pgp` extension to the source path, and **decrypt** removes a trailing `.pgp`, `.gpg` or `.asc` extension. To keep that default name but write it somewhere else, give a **folder** (e.g. `/decrypted/`) — the file keeps the extension-stripped name. For a custom name, give a full path; `{{file.basename}}` is the source name without its last extension, so `/decrypted/{{file.basename}}` also drops the `.pgp`.
@@ -320,7 +320,7 @@ If a server or endpoint an automation reaches only accepts traffic from known ad
 * Everything that reaches a [connection](./connections) (copying or moving files to or from it, and testing it) comes from the addresses of the region your storage is in. Files sent to or fetched from a connection are transferred from that region, directly to or from the server, without passing through any of our other regions.
 * Requests from the [Send webhook request](#send-webhook-request), [Send Slack message](#send-slack-message) and [Send Microsoft Teams message](#send-microsoft-teams-message) actions come from the Virginia, US East addresses, whatever region your storage is in.
 
-Adding every address in the table always works, and is what **View IP addresses** under **Settings → Automations → Connections** in the dashboard suggests. To keep the allowlist shorter, add all the addresses of your storage's region for a connection's server, and all the Virginia, US East addresses for a webhook, Slack or Microsoft Teams endpoint.
+Adding every address in the table always works, and is what **View IP addresses** under **Settings → Connections & keys** in the dashboard suggests. To keep the allowlist shorter, add all the addresses of your storage's region for a connection's server, and all the Virginia, US East addresses for a webhook, Slack or Microsoft Teams endpoint.
 
 | Region | Addresses |
 | --- | --- |
