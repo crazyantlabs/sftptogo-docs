@@ -171,6 +171,8 @@ To add a new custom domain:
 6. It may take some time for DNS records to apply. You can wait for the state of your domain to show as "Verified" or click the ... menu button to manually refresh the state.
 7. Once the domain has been verified, you can click the ... menu button to set it as the default domain, which will replace the default domain with the newly set up domain in the SFTP To Go admin dashboard.
 
+Organization owners get an email when a domain is verified for the first time, and when its verification fails or times out. While any domain is failed or timed out, owners also get periodic reminders listing those domains until the domains are updated or removed.
+
 :::info
 SFTP domains can be added with any plan. Additionally, you can point subdomains to your SFTP endpoint without adding them to the domains list. Adding custom domains for use with the web portal is only available with certain plans. Read more about our various plans [here](https://sftptogo.com/pricing).
 :::
