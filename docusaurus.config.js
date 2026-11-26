@@ -4,6 +4,8 @@
 require('dotenv').config();
 
 const path = require('path')
+const { createApiPageMDWithPlan, createInfoPageMDWithLinks } = require('./scripts/api-page-markdown');
+const { API_DOCS_ID, API_DIR, API_ROUTE, INTRODUCTION_SLUG, SPEC_PATH } = require('./scripts/api-reference');
 
 import { themes as prismThemes } from "prism-react-renderer";
 
@@ -52,7 +54,57 @@ const config = {
       
     ]
   ],
+  themes: ['docusaurus-theme-openapi-docs'],
   plugins: [
+    'docusaurus-plugin-sass',
+    // The API reference at /docs/api/: MDX generated into api/ from the spec in
+    // static/openapi/ by `yarn gen-api-docs`. A docs instance of its own, so the
+    // guides keep the standard page layout. Its folder sits outside docs/
+    // because the guides instance compiles every MDX file under docs/.
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: API_DOCS_ID,
+        path: API_DIR,
+        routeBasePath: API_ROUTE,
+        sidebarPath: require.resolve('./sidebarsApi.js'),
+        docItemComponent: '@theme/ApiItem',
+      },
+    ],
+    [
+      'docusaurus-plugin-openapi-docs',
+      {
+        id: 'openapi',
+        docsPluginId: API_DOCS_ID,
+        config: {
+          management: {
+            specPath: SPEC_PATH,
+            outputDir: API_DIR,
+            // The introduction's template: the plugin's own, served at /docs/api/introduction.
+            infoTemplate: path.join(__dirname, 'scripts/api-info-page.mustache'),
+            // Operation pages get plan boxes and links; the introduction ends with links.
+            markdownGenerators: {
+              createApiPageMD: createApiPageMDWithPlan,
+              createInfoPageMD: createInfoPageMDWithLinks,
+            },
+            sidebarOptions: {
+              groupPathsBy: 'tag',
+              categoryLinkSource: 'tag',
+            },
+          },
+        },
+      },
+    ],
+    // /docs/api/ has no page of its own: send it to the API introduction. The
+    // plugin writes a static redirect page, so it works on any static hosting.
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [{ from: `/${API_ROUTE}`, to: `/${API_ROUTE}/${INTRODUCTION_SLUG}` }],
+      },
+    ],
+    // Writes a Markdown copy of each API page next to it (<page>.md) at build time.
+    './plugins/api-markdown',
     [
       'docusaurus-plugin-segment',
       {
@@ -103,9 +155,13 @@ const config = {
             label: 'Docs',
           },
           {
-            to: `${url}/blog/api-reference/`,
+            // The API reference's own docs instance: links to its first page
+            // and is active on every /docs/api/ page.
+            type: 'docSidebar',
+            docsPluginId: API_DOCS_ID,
+            sidebarId: 'apiSidebar',
             label: 'API',
-            position: 'left'
+            position: 'left',
           },
           {to: `${url}/blog/`, label: 'Blog', position: 'left'},
           {
@@ -167,6 +223,18 @@ const config = {
       prism: {
           theme: prismThemes.github,
           darkTheme: prismThemes.dracula,
+          additionalLanguages: ['bash'],
+      },
+      // API reference pages: code sample languages, and never store a token
+      // typed into the request panel in the browser.
+      languageTabs: [
+        { highlight: 'bash', language: 'curl', logoClass: 'curl' },
+        { highlight: 'javascript', language: 'nodejs', logoClass: 'nodejs' },
+        { highlight: 'python', language: 'python', logoClass: 'python' },
+        { highlight: 'go', language: 'go', logoClass: 'go' },
+      ],
+      api: {
+        authPersistence: false,
       },
       docs: {
         sidebar: {

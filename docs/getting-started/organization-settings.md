@@ -252,7 +252,7 @@ PGP keys that automations encrypt and decrypt files with. Refer to [Encryption k
 The web portal enables users to sign in and manage files in their designated home directories directly through their web browser. To activate it, open **Web portal** in **Organization settings** and turn on the **Active** switch under **Portal login link**. Once the web portal is enabled, your organization's login link is displayed there, ready to copy and share.
 
 :::info
-When the web portal is activated in your organization, any credential can log in and manage files, provided the user or organization's inbound network rules permit access.
+When the web portal is activated in your organization, any credentials can log in and manage files, provided the user or organization's inbound network rules permit access.
 :::
 
 ### Public business information

@@ -1,0 +1,109 @@
+---
+id: pagination
+title: Pagination
+sidebar_label: Pagination
+description: How list endpoints in the SFTP To Go Management API page through results, with cursors and the Link header.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+List endpoints, such as [List all credentials](./list-credentials.api.mdx), return results a page at a time, newest first. Ask for a page size with `limit`, then follow the `next` link in the `Link` response header until there isn't one.
+
+## Parameters
+
+* `limit`: the number of items per page, from 1 to 100. A value outside that range is clamped to it. Without `limit`, or with a value that isn't a number, a page holds up to 2,000 items, which for most lists is everything. That default may be lowered, so always pass `limit`.
+* `after`: returns the page that follows this cursor.
+* `before`: returns the page that precedes this cursor. If you send both `after` and `before`, `before` wins.
+
+Cursors are opaque. Take them from the `Link` header rather than building or storing them.
+
+## Response headers
+
+* `Link`: links to the neighboring pages, in [RFC 8288](https://www.rfc-editor.org/rfc/rfc8288) format. It has a `next` link while more results follow, and a `prev` link while earlier results exist; it's empty when there's only one page. Use the URLs as given: they already carry your `limit`, the cursor and an `offset` that tracks your position.
+* `X-Total-Count`: the number of items across all pages.
+* `X-Total-Count-Exact`: whether `X-Total-Count` is exact. Counting a long list stops early to keep responses fast. Then this is `false`, and `X-Total-Count` is a lower bound that's still larger than the number of items you've paged through. On the last page it's always `true`.
+
+```http
+Link: <https://api.sftptogo.com/organizations/6b1f0d2e-4a3c-4f8b-9e0a-2c7d5b8e1f34/users?limit=50&after=ZXhhbXBsZS1jdXJzb3ItMDAx&offset=50>; rel=next
+X-Total-Count: 120
+X-Total-Count-Exact: true
+```
+
+## Fetch every page
+
+<Tabs groupId="code-samples">
+<TabItem value="curl" label="curl">
+
+```bash title="Fetching every page"
+url="https://api.sftptogo.com/organizations/$SFTPTOGO_ORGANIZATION_ID/users?limit=100"
+while [ -n "$url" ]; do
+  curl -s -D headers.txt -H "Authorization: Bearer $SFTPTOGO_API_KEY" "$url"
+  url=$(grep -i '^link:' headers.txt | grep -oE '<[^>]+>; *rel="?next"?' | sed -E 's/^<([^>]+)>.*/\1/')
+done
+```
+
+</TabItem>
+<TabItem value="nodejs" label="Node.js">
+
+```javascript title="Fetching every page"
+const headers = { Authorization: `Bearer ${process.env.SFTPTOGO_API_KEY}` };
+let url = `https://api.sftptogo.com/organizations/${process.env.SFTPTOGO_ORGANIZATION_ID}/users?limit=100`;
+const credentials = [];
+
+while (url) {
+  const response = await fetch(url, { headers });
+  credentials.push(...(await response.json()));
+  const next = (response.headers.get('link') ?? '').match(/<([^>]+)>;\s*rel="?next"?/);
+  url = next ? next[1] : null;
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Fetching every page"
+import os
+import requests
+
+headers = {"Authorization": f"Bearer {os.environ['SFTPTOGO_API_KEY']}"}
+url = f"https://api.sftptogo.com/organizations/{os.environ['SFTPTOGO_ORGANIZATION_ID']}/users?limit=100"
+credentials = []
+
+while url:
+    response = requests.get(url, headers=headers)
+    credentials.extend(response.json())
+    url = response.links.get("next", {}).get("url")
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Fetching every page"
+nextLink := regexp.MustCompile(`<([^>]+)>;\s*rel="?next"?`)
+url := "https://api.sftptogo.com/organizations/" + os.Getenv("SFTPTOGO_ORGANIZATION_ID") + "/users?limit=100"
+var credentials []map[string]any
+
+for url != "" {
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("SFTPTOGO_API_KEY"))
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var page []map[string]any
+	json.NewDecoder(res.Body).Decode(&page)
+	res.Body.Close()
+	credentials = append(credentials, page...)
+
+	url = ""
+	if m := nextLink.FindStringSubmatch(res.Header.Get("Link")); m != nil {
+		url = m[1]
+	}
+}
+```
+
+</TabItem>
+</Tabs>
+
+Each example stops when a page has no `next` link. Check the status code too in real code: a page that fails returns an [error](./errors.md), not a list.

@@ -30,7 +30,7 @@ In transit, all communication is encrypted with AES-256 bit using the HTTPS, SFT
 
 * Multi-factor authentication can be enabled and monitored for all administrators in an organization for web access.
 
-* SFTP and FTPS passwords are by default strong and complex for all users and cannot be overridden by simple passwords.
+* SFTP and FTPS passwords are strong by default: 30 characters, with lowercase letters and numbers, checked against known leaked passwords. An organization can change its [password policy](../getting-started/organization-settings#password-policy), down to a minimum length of 8 characters and with the character rules turned off. For HIPAA workloads, keep the default policy or make it stricter.
 
 * Inbound network rules allow IP safelisting (by specific IP addresses or CIDR notation for address range) in certain plans. If your security team requires IP safelisting, make sure to select the right plan for this.
 

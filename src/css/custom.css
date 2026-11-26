@@ -127,3 +127,37 @@ footer {
 .text-muted {
   color: var(--ifm-color-secondary-darkest);
 }
+/* API reference code samples: a language with a single variant (curl) shows a
+   second tab list holding just that variant. It adds nothing, so hide it. */
+.openapi-tabs__code-list-container:has(> .openapi-tabs__code-item--variant:only-child) {
+  display: none;
+}
+
+/* The four language tabs are 80px each and overflow the request column at any
+   width, which clipped the last one. Let them share the row, and wrap only if
+   they cannot fit even at their minimum width. */
+.openapi-tabs__code-list-container {
+  flex-wrap: wrap;
+}
+
+.openapi-tabs__code-list-container > .openapi-tabs__code-item:not(.openapi-tabs__code-item--variant) {
+  flex: 1 1 0;
+  min-width: 4rem;
+}
+
+/* API reference: label request parameters and body fields that aren't
+   required as "optional", next to where required ones say "required". Response
+   fields are left alone. */
+.openapi-schema__container:has(> .openapi-schema__property):not(:has(> .openapi-schema__required))::after {
+  content: 'optional';
+  margin-left: auto;
+  padding-left: 0.5rem;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.openapi-tabs__container .openapi-schema__container:has(> .openapi-schema__property)::after {
+  content: none;
+}

@@ -1,0 +1,104 @@
+---
+id: authentication
+title: Authentication
+sidebar_label: Authentication
+description: Authenticate requests to the SFTP To Go Management API with an API key in the Authorization header.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+The SFTP To Go Management API authenticates requests with an API key, sent as a bearer token in the `Authorization` header. A request with a missing or incorrect key returns `401`. A request with a valid key that the API doesn't allow, such as one that would go over your plan's credentials limit, returns `403`. Send every request over HTTPS.
+
+<Tabs groupId="code-samples">
+<TabItem value="curl" label="curl">
+
+```bash title="Using an API key"
+curl "https://api.sftptogo.com/organizations/$SFTPTOGO_ORGANIZATION_ID/users" \
+  -H "Authorization: Bearer $SFTPTOGO_API_KEY"
+```
+
+</TabItem>
+<TabItem value="nodejs" label="Node.js">
+
+```javascript title="Using an API key"
+const response = await fetch(
+  `https://api.sftptogo.com/organizations/${process.env.SFTPTOGO_ORGANIZATION_ID}/users`,
+  { headers: { Authorization: `Bearer ${process.env.SFTPTOGO_API_KEY}` } },
+);
+const credentials = await response.json();
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Using an API key"
+import os
+import requests
+
+response = requests.get(
+    f"https://api.sftptogo.com/organizations/{os.environ['SFTPTOGO_ORGANIZATION_ID']}/users",
+    headers={"Authorization": f"Bearer {os.environ['SFTPTOGO_API_KEY']}"},
+)
+credentials = response.json()
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Using an API key"
+req, err := http.NewRequest("GET",
+	"https://api.sftptogo.com/organizations/"+os.Getenv("SFTPTOGO_ORGANIZATION_ID")+"/users", nil)
+if err != nil {
+	log.Fatal(err)
+}
+req.Header.Set("Authorization", "Bearer "+os.Getenv("SFTPTOGO_API_KEY"))
+
+res, err := http.DefaultClient.Do(req)
+if err != nil {
+	log.Fatal(err)
+}
+defer res.Body.Close()
+```
+
+</TabItem>
+</Tabs>
+
+To get an API key, ask our support team through the in-app chat.
+
+## Organization scope
+
+A key belongs to one organization. Every path starts with that organization's ID: the ID that follows `/organizations/` in your dashboard's address.
+
+A key reaches only its own organization, and only organization endpoints. It can't reach account-level endpoints, such as your account's settings. Requests outside that scope return `401`, and so does every request while your organization isn't active.
+
+## Secure your API keys
+
+A key has full access to its organization: anyone who has it can read the password of every set of credentials, and create, change or delete them. There are no read-only or limited keys.
+
+* Keep keys on your servers. Never put one in browser code, a mobile app, a repository, a log, a URL or a query string.
+* Load the key from an environment variable or a secret manager, as the examples above do.
+* Never paste a key into an AI assistant or a chat, including the assistants in the **Explore with AI** menu on these pages.
+* If a key leaks, or might have, contact our support team right away. Don't paste the key into the chat: we'll arrange a safe way to identify it and issue a replacement.
+
+## Authentication errors
+
+A request that can't be authenticated returns `401 Unauthorized` with this body. It doesn't say which check failed: check the header, the key, and the organization in the path. For every other error, see [Errors](./errors.md).
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+## Revoke a key
+
+Keys don't expire. To revoke one, contact our support team through the in-app chat. Requests made with a revoked key return `401`.
+
+To replace a key without interrupting your integrations, ask for the new key first, switch over, then have the old one revoked.
+
+## Try it
+
+Each operation page has a request panel. Paste your API key into its **Bearer Token** field and click **Send API Request**. The key stays on that page only: it isn't saved, and it's gone when you leave.
+
+Requests from the panel run against your live organization with your key's full access, and a request that creates, changes or deletes something does so for real. Responses can show passwords in clear text, so don't use the panel on a shared or untrusted computer.

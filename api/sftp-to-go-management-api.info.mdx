@@ -1,0 +1,123 @@
+---
+id: sftp-to-go-management-api
+title: "SFTP To Go Management API"
+description: "The SFTP To Go Management API lets you script what you would otherwise do in the dashboard. This reference documents credentials: creating, updating, rotating and removing the logins your users and systems connect with. More of the dashboard is added here as it is documented."
+slug: /introduction
+sidebar_label: Introduction
+sidebar_position: 0
+hide_title: true
+custom_edit_url: null
+---
+
+import ApiLogo from "@theme/ApiLogo";
+import Heading from "@theme/Heading";
+import SchemaTabs from "@theme/SchemaTabs";
+import TabItem from "@theme/TabItem";
+import Export from "@theme/ApiExplorer/Export";
+
+<span
+  className={"theme-doc-version-badge badge badge--secondary"}
+  children={"Version: 2026-07-31"}
+>
+</span>
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"SFTP To Go Management API"}
+>
+</Heading>
+
+
+
+The SFTP To Go Management API lets you script what you would otherwise do in the dashboard. This reference documents credentials: creating, updating, rotating and removing the logins your users and systems connect with. More of the dashboard is added here as it is documented.
+
+## What this API doesn't do
+
+**It doesn't transfer files.** Files move over SFTP, FTPS or the S3-compatible endpoint, using the credentials you create here. There is no upload or download operation in this reference: that is by design, not an omission.
+
+## Base URL and organization scope
+
+Every path is scoped to an organization: `https://api.sftptogo.com/organizations/{organizationId}/...`
+
+An API key works for one organization only. See [Authentication](https://sftptogo.com/docs/api/authentication) for how keys work.
+
+The API itself runs in one region. The region you chose for your storage is a property of your organization and doesn't change which host you call.
+
+## Conventions
+
+* Request and response bodies are JSON. Successful responses return the object itself, with no wrapper envelope.
+* Timestamps are Unix epoch milliseconds unless a field says otherwise.
+* List endpoints return one page at a time. Pass `limit`, and follow the `next` link in the `Link` response header for the following page. `X-Total-Count` gives the total, and `X-Total-Count-Exact` says whether it is exact or a lower bound.
+* Every error has the same shape: a stable `id` to match on, a `message` for people, and, on a `400`, an `errors` object or list naming the fields that were rejected.
+
+<div
+  style={{"marginBottom":"2rem"}}
+>
+  <Heading
+    id={"authentication"}
+    as={"h2"}
+    className={"openapi-tabs__heading"}
+    children={"Authentication"}
+  >
+  </Heading><SchemaTabs
+    className={"openapi-tabs__security-schemes"}
+  >
+    <TabItem
+      label={"HTTP: Bearer Auth"}
+      value={"apiKey"}
+    >
+      
+      
+      Send your API key as a bearer token in the Authorization header, over HTTPS only. A key reaches your whole organization, so keep it server-side, out of browser and mobile code, repositories, logs, URLs and AI assistants, and if one leaks, contact support at once: https://sftptogo.com/docs/api/authentication explains keys in full.
+      
+      <div>
+        <table>
+          <tbody>
+            <tr>
+              <th>
+                Security Scheme Type:
+              </th><td>
+                http
+              </td>
+            </tr><tr>
+              <th>
+                HTTP Authorization Scheme:
+              </th><td>
+                bearer
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </TabItem>
+  </SchemaTabs>
+</div><div
+  style={{"display":"flex","flexDirection":"column","marginBottom":"var(--ifm-paragraph-margin-bottom)"}}
+>
+  <h3
+    style={{"marginBottom":"0.25rem"}}
+  >
+    Contact
+  </h3><span>
+    SFTP To Go Support: [support@sftptogo.com](mailto:support@sftptogo.com)
+  </span><span>
+    URL: [https://sftptogo.com/contact](https://sftptogo.com/contact)
+  </span>
+</div><div
+  style={{"marginBottom":"var(--ifm-paragraph-margin-bottom)"}}
+>
+  <h3
+    style={{"marginBottom":"0.25rem"}}
+  >
+    Terms of Service
+  </h3><a
+    href={"https://sftptogo.com/terms-of-service"}
+  >
+    {'https://sftptogo.com/terms-of-service'}
+  </a>
+</div>
+
+## Authentication, errors and pagination
+
+Send your API key with every request: see [Authentication](./authentication.mdx). For the status codes and error bodies the API returns, see [Errors](./errors.md). List endpoints return results a page at a time: see [Pagination](./pagination.mdx).
