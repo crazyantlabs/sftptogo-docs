@@ -113,6 +113,8 @@ SFTP To Go allows several authentication methods, which are ways to identify the
 
 * Public key authentication - identification based on username and a cryptographic system that uses pairs of keys. To use it, add a public SSH key to each one of the credentials. This form of authentication is only supported by the SFTP protocol.
 
+* Single Sign-On (SSO) - identification through your organization's identity provider when signing in to the web portal. Over SFTP and FTPS, people who sign in with SSO can use short-lived passwords they generate in the web portal. Refer to [Single sign-on (SSO) for credentials](../security/sso-for-credentials.md).
+
 
 ### Multi-factor Authentication
 
@@ -126,9 +128,25 @@ Choose which factors users can use to verify their identity when connecting to t
   * **Requirement**: Users must have an [associated email address](../getting-started/creating-and-modifying-users#associating-credentials-with-email-addresses). 
   * **Warning**: If MFA is enforced, users without an associated email address may be prompted for an OTP they cannot receive.
 
+:::note
+A sign-in to the web portal with [single sign-on (SSO)](../security/sso-for-credentials.md#multi-factor-authentication) isn't asked for these factors: your identity provider handles multi-factor authentication for it.
+:::
+
 ### Password policy
 
 Set your organization's password policy for credentials. This will not change existing passwords, but changes to passwords (either ones generated automatically or manually) must adhere to the organization's current password policy.
+
+### Single sign-on for credentials {#single-sign-on-for-credentials}
+
+Let the people who use your credentials sign in to the web portal with your organization's identity provider, and connect SFTP and FTPS clients with short-lived passwords. This is separate from [team SSO](#sso), which controls sign-in to the SFTP To Go dashboard. To set it up, turn on **Single Sign-On (SSO)** in **Authentication methods** and click **Set up**. Refer to [Single sign-on (SSO) for credentials](../security/sso-for-credentials.md).
+
+:::info
+SSO for credentials is only available with certain plans. Read more about our different plans [here](https://sftptogo.com/pricing)
+:::
+
+### Short-lived passwords
+
+Set how many short-lived passwords each set of credentials can have active at once, and how long each one lasts. This section appears on plans with SSO for credentials. Refer to [Setting the limits](../security/sso-for-credentials.md#short-lived-password-limits).
 
 ### Sharing policy
 

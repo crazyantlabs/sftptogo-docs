@@ -8,8 +8,8 @@ The web portal enables users with SFTP To Go credentials to manage files in thei
 To access the web portal, first make sure it is enabled: open **Settings** in the dashboard menu and go to **Web portal**. Refer to [Web portal](../getting-started/organization-settings#web-portal).
 Then, log in using your organization's portal login link, which **Web portal** displays under **Portal login link**:
 
-1. Enter a credentials username
-2. Enter a credentials password or click "Email sign-in code" if the credentials are associated with an email address and the [Magic Code](../getting-started/organization-settings#authentication-methods) authentication method is enabled).
+1. Enter a credentials username and click **Continue**.
+2. Enter a credentials password, or click **Email magic code** if the credentials are associated with an email address and the [Magic Code](../getting-started/organization-settings#authentication-methods) authentication method is enabled. If your organization uses SSO for credentials, click **Single sign-on** instead (refer to [Signing in with SSO](#signing-in-with-sso)).
 3. If MFA is enabled, use an extra factor in the authentication process.
 
 :::note
@@ -17,8 +17,57 @@ Alternatively, use a shortcut from your SFTP To Go dashboard to connect as any u
 :::
 
 :::note
-Credentials associated with email addresses can reset their passwords without contacting an administrator by initiating the "Forgot password" flow.
+Credentials associated with email addresses can reset their passwords without contacting an administrator by initiating the "Forgot password" flow, unless your organization allows only SSO sign-in.
 :::
+
+## Signing in with SSO
+
+If your organization uses [single sign-on (SSO) for credentials](../security/sso-for-credentials.md), you sign in to the web portal with your organization's identity provider.
+
+### The first time: your SSO link
+
+Your administrator sends you a one-time SSO link for your credentials.
+
+1. Open the link. Your browser goes to your identity provider.
+2. Sign in with your identity provider. Your identity is now linked to the credentials, and the web portal opens, signed in.
+
+The link works once and expires 24 hours after your administrator generated it. If it has expired or was already used, the page says so: ask your administrator for a new link.
+
+If your administrator set the link for a specific email address, sign in to your identity provider with that address. If you sign in with a different address, the page says "This SSO link is for a different account at your identity provider."
+
+### Every time after that
+
+1. Open your organization's portal login link, enter your username and click **Continue**.
+2. Under **Or sign in with** (or **Sign in with**, if your organization doesn't allow passwords), click **Single sign-on**.
+
+   ![The web portal sign-in card with a username, a password field and, under Or sign in with, the Single sign-on button](../../static/img/sso-credentials-portal-sign-in.png)
+3. Sign in with your identity provider. The web portal opens, signed in.
+
+If your organization's web portal uses a [custom domain](../how-to-customize-my-service/custom-web-portal.md), your browser passes through SFTP To Go's default web portal address on the way to your identity provider, and returns to your custom domain.
+
+If the page says "This identity is not linked to any credentials. Ask an administrator to set up SSO for your credentials.", you signed in with an identity that isn't linked yet. Use the SSO link your administrator sent you, or ask for one.
+
+## Short-lived passwords
+
+SFTP and FTPS clients can't sign in with SSO. When you sign in to the web portal with SSO, generate a short-lived password there and use it in your SFTP or FTPS client, with your username. A short-lived password doesn't work for signing in to the web portal.
+
+1. In the web portal, click your avatar at the top-right corner of the screen and click **Settings**.
+2. In **Security**, under **Short-lived passwords**, click **Generate password**.
+3. Optional: In **Name (optional)**, enter a name that tells you where you use it, such as *Laptop*.
+4. Click **Generate**.
+5. Click **Copy** and paste the password into your SFTP or FTPS client. The password is shown once: "Copy this password now. For your security it is not shown again." Then click **Done**.
+
+   ![A generated short-lived password named Office desktop, with an example value, a Copy button and its expiry](../../static/img/sso-credentials-password-shown-once.png)
+
+Your short-lived passwords are listed under **Short-lived passwords**, with their name, the protocols they work for, when they were created and when they expire.
+
+![The Short-lived passwords list with three passwords for SFTP and FTPS, each with a Revoke link, and the Generate password button](../../static/img/sso-credentials-short-lived-list.png)
+
+Your organization sets how long they last and how many you can have active at once. When you are at the limit, a new password replaces your oldest one.
+
+To stop a password before it expires, click **Revoke** next to it, then **Revoke**. Any client using that password stops connecting.
+
+When a password expires, sign in to the web portal with SSO and generate a new one. **Short-lived passwords** appears only when you sign in with SSO.
 
 ## Organizing files and folders
 
